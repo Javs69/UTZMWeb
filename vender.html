@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Publicar producto</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <!-- Header (consistente con la página principal) -->
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>MiMarket</span>
+      </a>
+
+      <div></div>
+
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div class="profile" aria-label="Menú de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+            <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
+            <span id="profileLabel">Iniciar sesión</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="#">Mis compras</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#">Favoritos</a></li>
+            <li role="menuitem"><a href="#">Salir</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <section class="hero-card" style="padding:0; overflow:visible;">
+      <div class="hero-text" style="padding-bottom:0;">
+        <h1>Publicar producto</h1>
+        <p>Completa los datos para crear tu publicación.</p>
+      </div>
+    </section>
+
+    <section class="card" style="padding:20px; margin-top:16px;">
+      <form class="form" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="p-name">Nombre del producto</label>
+            <input id="p-name" class="form-control" type="text" placeholder="Ej. Audífonos inalámbricos" required>
+            <div class="form-hint">Un título claro ayuda a que te encuentren.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="p-category">Categoría</label>
+            <select id="p-category" class="form-control" required>
+              <option value="" disabled selected>Selecciona una categoría</option>
+              <option>Electrónica</option>
+              <option>Hogar</option>
+              <option>Moda</option>
+              <option>Deportes</option>
+              <option>Bebés</option>
+              <option>Autos</option>
+              <option>Supermercado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="p-desc">Descripción</label>
+            <textarea id="p-desc" class="form-control" placeholder="Detalles del producto, estado, accesorios incluidos…" rows="8"></textarea>
+            <div class="form-hint">Incluye características clave y condiciones.</div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="p-price">Precio (MXN)</label>
+              <input id="p-price" class="form-control" type="number" inputmode="decimal" step="0.01" min="0" placeholder="999.00" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-stock">Stock</label>
+              <input id="p-stock" class="form-control" type="number" step="1" min="0" placeholder="10" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="p-images">Imágenes</label>
+            <div id="dropzone" class="uploader" tabindex="0" aria-describedby="img-hint">
+              <div class="uploader-cta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <div>
+                  <div>Añadir imágenes</div>
+                  <small class="muted">Arrastra y suelta o haz clic</small>
+                </div>
+              </div>
+            </div>
+            <input id="p-images" class="sr-only" type="file" accept="image/*" multiple>
+            <div id="previews" class="thumbs"></div>
+            <div id="img-hint" class="form-hint">Hasta 6 imágenes. Máx. 5MB c/u.</div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button id="publishBtn" class="btn" type="button">Publicar</button>
+          <a class="btn" href="/" style="background:#374151">Cancelar</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // Protección de ruta: requiere sesión
+    (async function ensureAuth(){
+      try {
+        const res = await fetch('/backend/session.php', { credentials: 'include' });
+        const s = await res.json();
+        if (!s.logged_in) {
+          location.replace('/?login=1');
+        }
+      } catch (e) {
+        location.replace('/?login=1');
+      }
+    })();
+    // Uploader múltiple con previsualización
+    (function imagesUploader(){
+      const input = document.getElementById('p-images');
+      const drop = document.getElementById('dropzone');
+      const previews = document.getElementById('previews');
+      const MAX_FILES = 6;
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+      const selected = [];
+
+      function render() {
+        previews.innerHTML = '';
+        selected.forEach((item, idx) => {
+          const fig = document.createElement('figure');
+          fig.className = 'thumb';
+          fig.innerHTML = `
+            <img src="${item.url}" alt="Imagen ${idx+1}">
+            <button class="remove-thumb" aria-label="Quitar imagen" data-idx="${idx}">×</button>
+          `;
+          previews.appendChild(fig);
+        });
+      }
+
+      function addFiles(files) {
+        for (const file of files) {
+          if (!file.type.startsWith('image/')) continue;
+          if (file.size > MAX_SIZE) { alert('Una imagen supera 5MB.'); continue; }
+          if (selected.length >= MAX_FILES) { alert('Máximo 6 imágenes.'); break; }
+          const url = URL.createObjectURL(file);
+          selected.push({ file, url });
+        }
+        render();
+      }
+
+      drop?.addEventListener('click', () => input.click());
+      drop?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+      });
+      drop?.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragover'); });
+      drop?.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+      drop?.addEventListener('drop', (e) => {
+        e.preventDefault(); drop.classList.remove('dragover');
+        addFiles(e.dataTransfer.files || []);
+      });
+      input?.addEventListener('change', (e) => addFiles(e.target.files || []));
+
+      previews?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.remove-thumb');
+        if (!btn) return;
+        const idx = Number(btn.dataset.idx);
+        const item = selected[idx];
+        if (item) URL.revokeObjectURL(item.url);
+        selected.splice(idx, 1);
+        render();
+      });
+      // Expone una utilidad para subir las imágenes seleccionadas una vez creado el producto
+      window.uploadImagesForProduct = async function(productId){
+        for (const item of selected) {
+          const fd = new FormData();
+          fd.append('imagen', item.file);
+          fd.append('product_id', productId);
+          try {
+            await fetch('/backend/upload_image.php', { method:'POST', body: fd, credentials:'include' });
+          } catch(_) {}
+        }
+      }
+    })();
+
+    // Publicar producto real
+    (function publishHandler(){
+      const btn = document.getElementById('publishBtn');
+      if (!btn) return;
+      btn.addEventListener('click', async () => {
+        const name  = document.getElementById('p-name').value.trim();
+        const desc  = document.getElementById('p-desc').value.trim();
+        const price = parseFloat(document.getElementById('p-price').value);
+        const stock = parseInt(document.getElementById('p-stock').value || '0', 10);
+        if (!name) return alert('Ingresa el nombre del producto');
+        if (!desc) return alert('Ingresa la descripción del producto');
+        if (!(price > 0)) return alert('Ingresa un precio válido');
+
+        btn.disabled = true; btn.textContent = 'Publicando...';
+        try {
+          const res = await fetch('/backend/create_product.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ name, description: desc, price, stock })
+          });
+          const data = await res.json();
+          if (data.error) { alert(data.error); return; }
+          const productId = data.product_id;
+          // Subir imágenes seleccionadas (si hay)
+          if (window.uploadImagesForProduct) {
+            await window.uploadImagesForProduct(productId);
+          }
+          alert('Producto publicado');
+          location.href = '/';
+        } catch (e) {
+          alert('Error al publicar');
+        } finally {
+          btn.disabled = false; btn.textContent = 'Publicar';
+        }
+      });
+    })();
+  </script>
+  <script src="public/js/app.js"></script>
+</body>
+</html>

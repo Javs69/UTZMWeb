@@ -38,6 +38,9 @@ body{
   background:var(--bg);
 }
 
+/* Utilidad genérica para ocultar elementos */
+.hidden{display:none !important}
+
 .container{width:min(1200px, 92%); margin-inline:auto}
 
 /* Header */
@@ -86,8 +89,23 @@ body{
   position:absolute; right:0; top:110%; width:220px; background:#fff; border-radius:14px; box-shadow:var(--shadow);
   padding:8px; list-style:none; display:none;
 }
+.profile-menu.open{display:block}
 .profile-menu a{display:block; padding:10px 12px; border-radius:10px; color:var(--ink); text-decoration:none}
 .profile-menu a:hover{background:#f5f6f7}
+
+/* Cart dropdown */
+.cart-menu{position:absolute; right:0; top:110%; width:300px; background:#fff; border-radius:14px; box-shadow:var(--shadow); padding:10px; display:none}
+.cart-menu.open{display:block}
+.cart-empty{padding:14px; text-align:center; color:var(--muted)}
+.cart-list{display:flex; flex-direction:column; gap:10px; max-height:300px; overflow:auto}
+.cart-item{display:flex; align-items:center; justify-content:space-between; padding:6px 4px; border-bottom:1px solid var(--divider)}
+.cart-item:last-child{border-bottom:none}
+.cart-line{display:flex; align-items:center; gap:8px}
+.cart-name{font-weight:600}
+.cart-qty{color:var(--muted); font-size:.9rem}
+.cart-price{font-weight:700}
+.cart-total{display:flex; align-items:center; justify-content:space-between; padding:8px 4px; margin-top:6px}
+.btn-pay{width:100%; margin-top:6px}
 
 /* Hamburger (mobile) */
 .hamburger{display:none; width:42px; height:42px; border:none; background:#f3f4f6; border-radius:10px; cursor:pointer}
@@ -170,3 +188,65 @@ body{
 @media (max-width: 420px){
   .grid{grid-template-columns:1fr}
 }
+
+/* -------- Formularios (pág. Vender) -------- */
+.form{display:block}
+.form-grid{display:grid; gap:12px}
+.form-row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.form-group{display:flex; flex-direction:column; gap:6px}
+.form-label{font-weight:600}
+.form-control{width:100%; padding:12px 14px; border-radius:10px; border:1px solid #ddd; background:#fafafa; transition:.2s; font:inherit}
+.form-control:focus{border-color:#111; background:#fff; box-shadow:0 0 0 2px rgba(0,0,0,.06); outline:none}
+.form-control::placeholder{color:#9ca3af}
+.form-control[type="number"]{appearance:textfield}
+textarea.form-control{resize:none}
+.form-hint{color:#6b7280; font-size:.9rem}
+.form-actions{margin-top:12px; display:flex; gap:10px; align-items:center}
+
+@media (max-width:700px){
+  .form-row-2{grid-template-columns:1fr}
+}
+
+/* -------- Página de producto -------- */
+.product{background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:18px}
+.pgrid{display:grid; grid-template-columns: 1.2fr 1fr; gap:20px}
+.gallery-main{background:#f3f4f6; border-radius:16px; overflow:hidden}
+.gallery-main img{width:100%; height:auto; display:block}
+.gallery-thumbs{display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; margin-top:10px}
+.gallery-thumbs img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px; cursor:pointer}
+.pinfo{display:flex; flex-direction:column; gap:10px}
+.ptitle{margin:0; font-size:1.6rem}
+.pprice{font-weight:800; font-size:1.2rem}
+.pstock{color:var(--ok); font-weight:600}
+.pdesc{color:#374151}
+
+@media (max-width:1000px){ .pgrid{grid-template-columns:1fr} }
+
+/* -------- Q&A -------- */
+.qna{background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:18px; margin-top:18px}
+.qna h2{margin:0 0 10px}
+.q-list{display:flex; flex-direction:column; gap:14px}
+.q-item{padding:12px; border:1px solid var(--divider); border-radius:12px}
+.q-text{font-weight:600}
+.q-meta{color:var(--muted); font-size:.9rem; margin-top:4px}
+.a-text{background:var(--brand-weak); padding:10px; border-radius:10px; margin-top:8px}
+.ans-row{display:flex; gap:8px; margin-top:8px}
+.ans-row .btn{white-space:nowrap}
+
+/* -------- Uploader múltiple (pág. Vender) -------- */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.uploader{display:flex; align-items:center; justify-content:center; gap:10px; padding:16px; border:2px dashed var(--divider); border-radius:var(--radius); background:var(--brand-weak); color:var(--muted); cursor:pointer; user-select:none}
+.uploader:hover,.uploader.dragover{border-color:var(--brand-strong); background:#fff; color:var(--ink)}
+.uploader svg{width:22px; height:22px; fill:currentColor}
+.uploader-cta{display:flex; align-items:center; gap:10px}
+.uploader small.muted{color:var(--muted)}
+.thumbs{display:grid; grid-template-columns:repeat(6, 1fr); gap:10px; margin-top:10px}
+.thumb{position:relative; aspect-ratio:1/1; border-radius:12px; overflow:hidden; background:#f3f4f6}
+.thumb img{width:100%; height:100%; object-fit:cover; display:block}
+.remove-thumb{position:absolute; top:6px; right:6px; width:28px; height:28px; border:none; border-radius:999px; background:rgba(0,0,0,.6); color:#fff; cursor:pointer}
+.remove-thumb:hover{background:rgba(0,0,0,.8)}
+
+@media (max-width:900px){ .thumbs{grid-template-columns:repeat(4, 1fr)} }
+@media (max-width:700px){ .thumbs{grid-template-columns:repeat(3, 1fr)} }
+@media (max-width:420px){ .thumbs{grid-template-columns:repeat(2, 1fr)} }
+

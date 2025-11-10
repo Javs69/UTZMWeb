@@ -7,6 +7,8 @@ const profileBtn   = document.getElementById("profileBtn");
 const profileLabel = document.getElementById("profileLabel");
 const avatarImg    = document.getElementById("avatarImg");
 const profileMenu  = document.getElementById("profileMenu");
+const cartBtn      = document.getElementById("cartBtn");
+const cartMenu     = document.getElementById("cartMenu");
 
 const GUEST_AVATAR = "https://i.pravatar.cc/40?u=guest";
 
@@ -25,11 +27,27 @@ async function refreshSessionUI() {
     avatarImg.src = GUEST_AVATAR;
     profileBtn.setAttribute("aria-expanded", "false");
     profileMenu?.classList.remove("open");
+    // Mostrar "Ingresar" y ocultar "Salir"/"Vender" en el menú
+    const _linksOut = Array.from(profileMenu?.querySelectorAll("a") || []);
+    const _loginItemOut = _linksOut.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"))?.closest("li");
+    const _logoutItemOut = _linksOut.find(a => a.textContent?.trim().toLowerCase().includes("salir"))?.closest("li");
+    const _sellItemOut = _linksOut.find(a => a.textContent?.trim().toLowerCase().includes("vender"))?.closest("li");
+    if (_loginItemOut) _loginItemOut.hidden = false;
+    if (_logoutItemOut) _logoutItemOut.hidden = true;
+    if (_sellItemOut) _sellItemOut.hidden = true;
   } else {
     const name = SESSION.user?.full_name || SESSION.user?.email || "Cuenta";
     profileLabel.textContent = name;
     const avatar = SESSION.user?.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(SESSION.user.email || SESSION.user.id)}`;
     avatarImg.src = avatar;
+    // Ocultar "Ingresar" y mostrar "Salir"/"Vender" en el menú
+    const _linksIn = Array.from(profileMenu?.querySelectorAll("a") || []);
+    const _loginItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"))?.closest("li");
+    const _logoutItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("salir"))?.closest("li");
+    const _sellItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("vender"))?.closest("li");
+    if (_loginItemIn) _loginItemIn.hidden = true;
+    if (_logoutItemIn) _logoutItemIn.hidden = false;
+    if (_sellItemIn) _sellItemIn.hidden = false;
   }
 }
 
@@ -59,6 +77,58 @@ document.addEventListener("click", (e) => {
   }
 });
 
+
+// Cart: toggle dropdown y cierre externo
+function renderCartMenu() {
+  if (!cartMenu) return;
+  if (CART.length === 0) {
+    cartMenu.innerHTML = '<div class="cart-empty">No hay productos en el carrito</div>';
+    return;
+  }
+  const currency = (cents)=> (cents/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
+  const itemsHtml = CART.map(it => {
+    const lineTotal = it.qty * it.price_cents;
+    return `
+      <div class="cart-item">
+        <div class="cart-line">
+          <span class="cart-name">${it.name}</span>
+          <span class="cart-qty">x${it.qty}</span>
+        </div>
+        <div class="cart-price">${currency(lineTotal)}</div>
+      </div>
+    `;
+  }).join('');
+  const totalCents = CART.reduce((sum,it)=> sum + it.qty*it.price_cents, 0);
+  const totalHtml = `
+    <div class="cart-total">
+      <span>Total</span>
+      <strong>${currency(totalCents)}</strong>
+    </div>
+    <button id="payBtn" class="btn btn-pay">Pagar</button>
+  `;
+  cartMenu.innerHTML = `<div class="cart-list">${itemsHtml}</div>${totalHtml}`;
+  const pay = cartMenu.querySelector('#payBtn');
+  pay?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    await comprar();
+    renderCartMenu();
+  });
+}
+cartBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  renderCartMenu();
+  cartMenu?.classList.toggle("open");
+  const isOpen = cartMenu?.classList.contains("open");
+  cartBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+});
+
+document.addEventListener("click", (e) => {
+  if (!cartMenu || !cartBtn) return;
+  if (!cartMenu.contains(e.target) && !cartBtn.contains(e.target)) {
+    cartMenu.classList.remove("open");
+    cartBtn.setAttribute("aria-expanded", "false");
+  }
+});
 // Refresca al cargar
 refreshSessionUI();
 
@@ -152,7 +222,16 @@ document.getElementById("loginSubmit")?.addEventListener("click", async () => {
   closeModals();
 
 // Configurar enlaces del menú de perfil (Ingresar/Salir)
+});
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Si viene ?login=1 en la URL, abrir el modal de login (página principal)
+  try {
+    const params = new URLSearchParams(location.search);
+    if (params.get("login") === "1") {
+      document.getElementById("loginModal")?.classList.remove("hidden");
+    }
+  } catch (_) {}
   const links = Array.from(profileMenu?.querySelectorAll("a") || []);
   const logoutLink = links.find(a => a.textContent?.trim().toLowerCase().includes("salir"));
   if (logoutLink) {
@@ -162,6 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await refreshSessionUI();
       profileMenu?.classList.remove("open");
       profileBtn?.setAttribute("aria-expanded", "false");
+      document.getElementById("loginModal")?.classList.remove("hidden");
     });
   }
   const loginLink = links.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"));
@@ -171,7 +251,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("loginModal")?.classList.remove("hidden");
     });
   }
-});
 });
 
 /* ==========================================================
@@ -214,11 +293,11 @@ function renderProducts(containerId, items) {
     card.className = "card";
 
     card.innerHTML = `
-      <a href="#" class="card-media">
+      <a href="/producto.html?id=${p.id}" class="card-media">
         <img src="${p.image || "https://picsum.photos/seed/" + p.id + "/600/400"}" alt="${p.name}">
       </a>
       <div class="card-body">
-        <h3 class="card-title">${p.name}</h3>
+        <h3 class="card-title"><a href="/producto.html?id=${p.id}" class="link" style="text-decoration:none; color:inherit">${p.name}</a></h3>
         <div class="price"><span class="now">${price}</span></div>
         <button class="btn btn-add"
           data-add-to-cart
@@ -236,6 +315,7 @@ function renderProducts(containerId, items) {
 }
 
 loadProducts();
+try { updateCartBadge(); } catch(_) {}
 
 // Agregar al carrito
 document.addEventListener("click", (e) => {
@@ -256,13 +336,14 @@ document.addEventListener("click", (e) => {
 
   btn.textContent = "Agregado ✓";
   setTimeout(() => (btn.textContent = "Agregar al carrito"), 1000);
+  try { updateCartBadge(); renderCartMenu(); } catch(_) {}
 });
 
 /* ==========================================================
    COMPRAR (CREAR ORDEN + GUARDAR PAGO)
 ========================================================== */
 async function comprar() {
-  if (CART.length === 0) return alert("Tu carrito está vacío");
+  if (CART.length === 0) return;
 
   const buyer_id = 2; // luego sustituir por sesión
 
@@ -292,8 +373,13 @@ async function comprar() {
     });
   }
 
-  alert("✅ Compra realizada");
+  alert("Compra realizada"); CART.length = 0; try { updateCartBadge(); renderCartMenu(); } catch(_) {}
 }
 
 // Icono del carrito ejecuta la compra (demo)
-document.querySelector(".icon-btn")?.addEventListener("click", comprar);
+// cart icon handler moved to cartBtn listener
+
+
+
+
+
