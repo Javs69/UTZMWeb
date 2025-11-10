@@ -3,12 +3,66 @@
 ========================================================== */
 const loginModal = document.getElementById("loginModal");
 const registerModal = document.getElementById("registerModal");
-const profileBtn = document.getElementById("profileBtn");
+const profileBtn   = document.getElementById("profileBtn");
+const profileLabel = document.getElementById("profileLabel");
+const avatarImg    = document.getElementById("avatarImg");
+const profileMenu  = document.getElementById("profileMenu");
 
-// Abrir login desde "Mi cuenta"
-profileBtn?.addEventListener("click", () => {
-  loginModal.classList.remove("hidden");
+const GUEST_AVATAR = "https://i.pravatar.cc/40?u=guest";
+
+let SESSION = { logged_in: false, user: null };
+
+async function refreshSessionUI() {
+  try {
+    const res = await fetch("/backend/session.php", { credentials: "include" });
+    SESSION = await res.json();
+  } catch (_) {
+    SESSION = { logged_in: false, user: null };
+  }
+
+  if (!SESSION.logged_in) {
+    profileLabel.textContent = "Iniciar sesión";
+    avatarImg.src = GUEST_AVATAR;
+    profileBtn.setAttribute("aria-expanded", "false");
+    profileMenu?.classList.remove("open");
+  } else {
+    const name = SESSION.user?.full_name || SESSION.user?.email || "Cuenta";
+    profileLabel.textContent = name;
+    const avatar = SESSION.user?.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(SESSION.user.email || SESSION.user.id)}`;
+    avatarImg.src = avatar;
+  }
+}
+
+
+
+
+// Click en el botón de perfil
+profileBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (!SESSION.logged_in) {
+    // abrir login modal
+    document.getElementById("loginModal")?.classList.remove("hidden");
+  } else {
+    // toggle del menú de perfil existente
+    profileMenu?.classList.toggle("open");
+    const isOpen = profileMenu?.classList.contains("open");
+    profileBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
 });
+
+// Cierra el menú al hacer click fuera
+document.addEventListener("click", (e) => {
+  if (!profileMenu) return;
+  if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
+    profileMenu.classList.remove("open");
+    profileBtn.setAttribute("aria-expanded", "false");
+  }
+});
+
+// Refresca al cargar
+refreshSessionUI();
+
+// (Eliminado handler duplicado que abría siempre el modal de login)
 
 // Abrir Register desde Login
 document.getElementById("openRegister")?.addEventListener("click", (e) => {
@@ -69,12 +123,14 @@ document.getElementById("registerSubmit")?.addEventListener("click", async () =>
   const res = await fetch("/backend/register.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ full_name, email, password }),
   });
   const data = await res.json();
   if (data.error) return alert(data.error);
 
   alert("Cuenta creada ✅ Bienvenido " + data.user.full_name);
+  await refreshSessionUI();
   closeModals();
 });
 
@@ -85,13 +141,37 @@ document.getElementById("loginSubmit")?.addEventListener("click", async () => {
   const res = await fetch("/backend/login.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ email, password }),
   });
   const data = await res.json();
   if (data.error) return alert(data.error);
 
   alert("Bienvenido " + data.user.full_name + " 👋");
+  await refreshSessionUI();
   closeModals();
+
+// Configurar enlaces del menú de perfil (Ingresar/Salir)
+document.addEventListener("DOMContentLoaded", () => {
+  const links = Array.from(profileMenu?.querySelectorAll("a") || []);
+  const logoutLink = links.find(a => a.textContent?.trim().toLowerCase().includes("salir"));
+  if (logoutLink) {
+    logoutLink.addEventListener("click", async (e) => {
+      e.preventDefault();
+      try { await fetch("/backend/logout.php", { credentials: "include" }); } catch (_) {}
+      await refreshSessionUI();
+      profileMenu?.classList.remove("open");
+      profileBtn?.setAttribute("aria-expanded", "false");
+    });
+  }
+  const loginLink = links.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"));
+  if (loginLink) {
+    loginLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("loginModal")?.classList.remove("hidden");
+    });
+  }
+});
 });
 
 /* ==========================================================
@@ -107,6 +187,19 @@ async function loadProducts() {
   renderProducts("ofertas-list", products.slice(0, mitad));
   renderProducts("recomendados-list", products.slice(mitad));
 }
+
+function updateCartBadge() {
+  const badge = document.getElementById("cartBadge");
+  const total = CART.reduce((sum, item) => sum + item.qty, 0);
+
+  if (total > 0) {
+    badge.textContent = total;
+    badge.classList.remove("hidden");
+  } else {
+    badge.classList.add("hidden");
+  }
+}
+
 
 function renderProducts(containerId, items) {
   const container = document.getElementById(containerId);

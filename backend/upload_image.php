@@ -1,5 +1,5 @@
 <?php
-require "db.php";
+require __DIR__ . '/../db.php';
 
 if (!isset($_FILES['imagen'])) {
   die(json_encode(["error" => "No se recibió archivo"]));
