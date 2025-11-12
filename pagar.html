@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Pagar</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>MiMarket</span>
+      </a>
+
+      <div></div>
+
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/></svg>
+          <span id="cartBadge" class="badge hidden"></span>
+          <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+            <div class="cart-empty">No hay productos en el carrito</div>
+          </div>
+        </div>
+
+        <div class="profile" aria-label="MenÃº de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+            <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
+            <span id="profileLabel">Iniciar sesiÃ³n</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="#">Mis compras</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#">Favoritos</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <section class="card" style="padding:16px; max-width:720px;">
+      <h2 style="margin-top:0">Completar pago</h2>
+      <p class="form-hint">Elige un m&eacute;todo para finalizar tu compra.</p>
+
+      <form class="form" id="payForm" novalidate>
+        <div class="form-group">
+          <label class="form-label">M&eacute;todo de pago</label>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+            <label><input type="radio" name="pm" value="card" checked> Tarjeta</label>
+            <label><input type="radio" name="pm" value="cash"> Efectivo</label>
+          </div>
+        </div>
+
+        <div id="cardFields" class="form-grid" style="margin-top:6px">
+          <div class="form-group">
+            <label class="form-label" for="cc-name">Nombre en la tarjeta</label>
+            <input id="cc-name" class="form-control" type="text" placeholder="Tu nombre" autocomplete="cc-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cc-number">N&uacute;mero de tarjeta</label>
+            <input id="cc-number" class="form-control" type="text" inputmode="numeric" placeholder="4111 1111 1111 1111" autocomplete="cc-number">
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="cc-exp">Vencimiento</label>
+              <input id="cc-exp" class="form-control" type="text" inputmode="numeric" placeholder="MM/AA" autocomplete="cc-exp">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cc-cvv">CVV</label>
+              <input id="cc-cvv" class="form-control" type="password" inputmode="numeric" placeholder="123" autocomplete="cc-csc">
+            </div>
+          </div>
+        </div>
+
+        <div id="cashBox" class="form-group" style="display:none; margin-top:6px">
+          <div class="form-hint">Se generar&aacute; una referencia y confirmaremos tu pago.
+          </div>
+        </div>
+
+        <div class="cart-total" style="margin-top:10px">
+          <span>Total</span>
+          <strong id="checkoutTotal">$0.00</strong>
+        </div>
+
+        <div class="form-actions" style="margin-top:12px">
+          <button id="btnPayNow" class="btn" type="button">Pagar</button>
+          <a href="/" class="btn" style="background:#374151">Cancelar</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h4>Pagos</h4>
+        <a href="#">M&eacute;todos de pago</a>
+        <a href="#">Seguridad</a>
+        <a href="#">Facturaci&oacute;n</a>
+      </div>
+      <div>
+        <h4>Compras</h4>
+        <a href="#">Env&iacute;os</a>
+        <a href="#">Devoluciones</a>
+        <a href="#">Reembolsos</a>
+      </div>
+      <div>
+        <h4>Nosotros</h4>
+        <a href="#">Sobre nosotros</a>
+        <a href="#">Prensa</a>
+        <a href="#">Empleo</a>
+      </div>
+      <div>
+        <h4>Ayuda</h4>
+        <a href="#">Centro de ayuda</a>
+        <a href="#">Contacto</a>
+        <a href="#">T&eacute;rminos y privacidad</a>
+      </div>
+    </div>
+    <div class="copy">&copy; <span id="year"></span> MiMarket</div>
+  </footer>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    // Require login to access checkout
+    (async function ensureAuth(){
+      try {
+        const res = await fetch('/backend/session.php', { credentials: 'include' });
+        const s = await res.json();
+        if (!s.logged_in) {
+          location.replace('/?login=1');
+          return;
+        }
+      } catch (e) {
+        location.replace('/?login=1');
+        return;
+      }
+    })();
+
+    // Mostrar total y preparar UI
+    (function initPay(){
+      try { loadCartFromStorage(); } catch(_) {}
+      const totalEl = document.getElementById('checkoutTotal');
+      const items = (typeof CART !== "undefined" ? CART : []);
+      const currency = (c)=> (c/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
+      const totalCents = items.reduce((s,it)=> s + it.qty*it.price_cents, 0);
+      totalEl.textContent = currency(totalCents);
+      if (!items.length) {
+        alert('Tu carrito est vaco');
+        location.href = '/';
+      }
+    })();
+
+    // Toggle de m&eacute;todo
+    document.querySelectorAll('input[name="pm"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const v = document.querySelector('input[name="pm"]:checked')?.value;
+        document.getElementById('cardFields').style.display = (v === 'card') ? 'grid' : 'none';
+        document.getElementById('cashBox').style.display = (v === 'cash') ? 'block' : 'none';
+      });
+    });
+
+    // Simular pago
+    document.getElementById('btnPayNow')?.addEventListener('click', async () => {
+      const method = document.querySelector('input[name="pm"]:checked')?.value || 'card';
+      const btn = document.getElementById('btnPayNow');
+      btn.disabled = true; btn.textContent = 'Procesando...¦';
+      try {
+        // PodrÃ­as validar campos si method === 'card'
+        await comprar();
+        alert(method === 'card' ? 'Pago con tarjeta aprobado' : 'Pago en efectivo confirmado');
+        location.href = '/';
+      } catch (_) {
+        alert('No se pudo completar el pago');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Pagar';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+

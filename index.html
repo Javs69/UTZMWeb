@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Mi Marketplace</title>
@@ -22,7 +23,7 @@
 
       <!-- Buscador -->
       <form class="search" role="search" aria-label="Buscar productos">
-        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más…" aria-label="Buscar"/>
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" aria-label="Buscar"/>
         <button type="submit" aria-label="Buscar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
         </button>
@@ -43,7 +44,7 @@
     7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
   </svg>
 
-  <!-- Nuevo badge dinámico -->
+  <!-- Nuevo badge dinÃ¡mico -->
   <span id="cartBadge" class="badge hidden"></span>
   <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
     <div class="cart-empty">No hay productos en el carrito</div>
@@ -51,157 +52,118 @@
 </div>
 
 
-        <div class="profile" aria-label="Menú de perfil">
+        <div class="profile" aria-label="MenÃº de perfil">
           <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
     <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
-    <span span id="profileLabel">Iniciar sesión</span>
+    <span id="profileLabel">Iniciar sesi&oacute;n</span>
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
   </button>
           <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
             <li role="menuitem"><a href="#">Ingresar</a></li>
             <li role="menuitem"><a href="#">Mis compras</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
             <li role="menuitem"><a href="/vender.html">Vender</a></li>
             <li role="menuitem"><a href="#">Favoritos</a></li>
-            <li role="menuitem"><a href="#">Salir</a></li>
           </ul>
         </div>
 
-        <button id="hamburger" class="hamburger" aria-label="Abrir menú" aria-controls="catNav" aria-expanded="false">
+        <button id="hamburger" class="hamburger" aria-label="Abrir menÃº" aria-controls="catNav" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </nav>
     </div>
 
-    <!-- Categorías -->
+    <!-- Categor&iacute;as -->
     <nav id="catNav" class="categories" aria-label="Categorías">
-      <ul class="container">
-        <li class="cat has-mega">
-          <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electrónica</button>
-          <div class="mega">
-            <div>
-              <h4>Celulares</h4>
-              <a href="#">Smartphones</a>
-              <a href="#">Accesorios</a>
-              <a href="#">Wearables</a>
-            </div>
-            <div>
-              <h4>Computación</h4>
-              <a href="#">Laptops</a>
-              <a href="#">Periféricos</a>
-              <a href="#">Componentes</a>
-            </div>
-            <div>
-              <h4>TV y Audio</h4>
-              <a href="#">Televisores</a>
-              <a href="#">Bocinas</a>
-              <a href="#">Streaming</a>
-            </div>
-          </div>
-        </li>
-        <li class="cat"><a href="#">Hogar</a></li>
-        <li class="cat"><a href="#">Moda</a></li>
-        <li class="cat"><a href="#">Deportes</a></li>
-        <li class="cat"><a href="#">Bebés</a></li>
-        <li class="cat"><a href="#">Autos</a></li>
-        <li class="cat"><a href="#">Supermercado</a></li>
-      </ul>
-    </nav>
+  <ul class="container">
+    <li class="cat has-mega">
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+      <div class="mega">
+        <div>
+          <h4>Celulares</h4>
+          <a href="#">Smartphones</a>
+          <a href="#">Accesorios</a>
+          <a href="#">Wearables</a>
+        </div>
+        <div>
+          <h4>Computaci&oacute;n</h4>
+          <a href="#">Laptops</a>
+          <a href="#">Perif&eacute;ricos</a>
+          <a href="#">Componentes</a>
+        </div>
+        <div>
+          <h4>TV y Audio</h4>
+          <a href="#">Televisores</a>
+          <a href="#">Bocinas</a>
+          <a href="#">Streaming</a>
+        </div>
+      </div>
+    </li>
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+    <li class="cat"><a href="#">Moda</a></li>
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+  </ul>
+</nav>
   </header>
 
   <!-- Hero -->
   <section class="hero container" aria-label="Promociones destacadas">
     <div class="hero-card">
       <div class="hero-text">
-        <h1>Hot Sale 🔥</h1>
-        <p>Hasta 50% de descuento en electrónicos seleccionados.</p>
-        <a href="#" class="btn">Ver ofertas</a>
+        <h1>Hot Sale &#x1F525;</h1>
       </div>
-      <div class="hero-img" role="img" aria-label="Televisor y gadgets en promoción"></div>
     </div>
   </section>
 
-  <!-- Secciones de productos -->
-  <main class="container">
-
-    <!-- Ofertas -->
-    <section class="strip" aria-labelledby="ttl-ofertas">
+  <main class="container" style="padding:18px 0 34px;">
+    <section class="strip">
       <div class="strip-head">
-        <h2 id="ttl-ofertas">Ofertas del día</h2>
-        <a href="#" class="link">Ver todo</a>
+        <h2>Ofertas</h2>
       </div>
-
-      <!-- Aquí JS insertará los productos -->
       <div class="grid" id="ofertas-list"></div>
     </section>
 
-    <!-- Recomendados -->
-    <section class="strip" aria-labelledby="ttl-recientes">
+    <section class="strip">
       <div class="strip-head">
-        <h2 id="ttl-recientes">Recomendados para ti</h2>
-        <a href="#" class="link">Ver todo</a>
+        <h2>Recomendados</h2>
       </div>
-
-      <!-- Aquí JS insertará los productos -->
       <div class="grid" id="recomendados-list"></div>
     </section>
-
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
-  <div class="container footer-grid">
-    <div>
-      <h4>Acerca de</h4>
-      <a href="#">Quiénes somos</a>
-      <a href="#">Términos y condiciones</a>
-      <a href="#">Privacidad</a>
+    <div class="container footer-grid">
+      <div>
+        <h4>Pagos</h4>
+        <a href="#">M&eacute;todos de pago</a>
+        <a href="#">Seguridad</a>
+        <a href="#">Facturaci&oacute;n</a>
+      </div>
+      <div>
+        <h4>Compras</h4>
+        <a href="#">Env&iacute;os</a>
+        <a href="#">Devoluciones</a>
+        <a href="#">Reembolsos</a>
+      </div>
+      <div>
+        <h4>Nosotros</h4>
+        <a href="#">Sobre nosotros</a>
+        <a href="#">Prensa</a>
+        <a href="#">Empleo</a>
+      </div>
+        <div>
+        <h4>Ayuda</h4>
+        <a href="#">Centro de ayuda</a>
+        <a href="#">Contacto</a>
+        <a href="#">T&eacute;rminos y privacidad</a>
+      </div>
     </div>
-    <div>
-      <h4>Compra segura</h4>
-      <a href="#">Pagos</a>
-      <a href="#">Envíos</a>
-      <a href="#">Devoluciones</a>
-    </div>
-    <div>
-      <h4>Soporte</h4>
-      <a href="#">Centro de ayuda</a>
-      <a href="#">Contacto</a>
-    </div>
-  </div>
-
-  <div class="copy">© <span id="year"></span> MiMarket</div>
-</footer>
-
-<!-- MODAL LOGIN -->
-<div id="loginModal" class="modal hidden">
-  <div class="modal-content">
-    <button class="modal-close" data-close>&times;</button>
-
-    <h2>Iniciar sesión</h2>
-    <input id="loginEmail" type="email" placeholder="Correo">
-    <input id="loginPass" type="password" placeholder="Contraseña">
-
-    <button id="loginSubmit" class="btn">Entrar</button>
-
-    <p>¿No tienes cuenta? <a href="#" id="openRegister">Regístrate</a></p>
-  </div>
-</div>
-
-<!-- MODAL REGISTER -->
-<div id="registerModal" class="modal hidden">
-  <div class="modal-content">
-    <button class="modal-close" data-close>&times;</button>
-
-    <h2>Crear cuenta</h2>
-    <input id="regName" type="text" placeholder="Tu nombre">
-    <input id="regEmail" type="email" placeholder="Correo">
-    <input id="regPass" type="password" placeholder="Contraseña">
-
-    <button id="registerSubmit" class="btn">Crear cuenta</button>
-
-    <p>¿Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesión</a></p>
-  </div>
-</div>
+    <div class="copy">&copy; <span id="year"></span> MiMarket</div>
+  </footer>
 
 <style>
 .modal {
@@ -254,8 +216,41 @@
 .modal-close:hover { color: #000; }
 </style>
 
+  <!-- MODAL LOGIN -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close>&times;</button>
+      <h2>Iniciar sesi&oacute;n</h2>
+      <input id="loginEmail" type="email" placeholder="Correo">
+      <input id="loginPass" type="password" placeholder="Contrase&ntilde;a">
+      <button id="loginSubmit" class="btn">Entrar</button>
+      <p>&iquest;No tienes cuenta? <a href="#" id="openRegister">Reg&iacute;strate</a></p>
+    </div>
+  </div>
 
+  <!-- MODAL REGISTER -->
+  <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close>&times;</button>
+      <h2>Crear cuenta</h2>
+      <input id="regName" type="text" placeholder="Tu nombre">
+      <input id="regEmail" type="email" placeholder="Correo">
+      <input id="regPass" type="password" placeholder="Contrase&ntilde;a">
+      <button id="registerSubmit" class="btn">Crear cuenta</button>
+      <p>&iquest;Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesi&oacute;n</a></p>
+    </div>
+  </div>
 
   <script src="public/js/app.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+

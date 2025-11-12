@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../db.php';
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user']['id'])) {
   echo json_encode(["error" => "No autorizado"]);
@@ -41,4 +41,3 @@ try {
 } catch (Exception $e) {
   echo json_encode(["error" => $e->getMessage()]);
 }
-

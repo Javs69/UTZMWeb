@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mi cuenta</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+  <!-- Mantener UTF-8 para evitar caracteres extraños -->
+</head>
+<body>
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>MiMarket</span>
+      </a>
+      <div></div>
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/></svg>
+          <span id="cartBadge" class="badge hidden"></span>
+          <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+            <div class="cart-empty">No hay productos en el carrito</div>
+          </div>
+        </div>
+        <div class="profile" aria-label="Menú de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+            <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
+            <span id="profileLabel">Iniciar sesión</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="#">Mis compras</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#">Favoritos</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <section class="card" style="padding:16px; max-width:720px;">
+      <h2 style="margin:0 0 10px">Mi cuenta</h2>
+      <p class="form-hint">Actualiza tu nombre, correo, contraseña y foto de perfil.</p>
+      <form class="form" id="accountForm" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="acc-name">Nombre completo</label>
+            <input id="acc-name" class="form-control" type="text" placeholder="Tu nombre">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="acc-email">Correo</label>
+            <input id="acc-email" class="form-control" type="email" placeholder="correo@dominio.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="acc-pass-old">Contraseña actual</label>
+            <input id="acc-pass-old" class="form-control" type="password" placeholder="****">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="acc-pass">Nueva contraseña (opcional)</label>
+            <input id="acc-pass" class="form-control" type="password" placeholder="****">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Foto de perfil</label>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <img id="acc-avatar" src="https://i.pravatar.cc/80?u=guest" alt="Avatar" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid #eee"/>
+              <input id="acc-file" type="file" accept="image/*">
+            </div>
+            <div class="form-hint">Formatos: JPG/PNG. Max. 5MB.</div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button id="acc-save" class="btn" type="button">Guardar cambios</button>
+          <a class="btn" style="background:#374151" href="/">Cancelar</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    (async function init(){
+      try{
+        const r = await fetch("/backend/session.php",{credentials:"include"});
+        const s = await r.json();
+        if(!s.logged_in){ location.replace("/?login=1"); return; }
+        document.getElementById("acc-name").value = s.user.full_name || "";
+        document.getElementById("acc-email").value = s.user.email || "";
+        if (s.user.avatar_url){ document.getElementById("acc-avatar").src = s.user.avatar_url; }
+      }catch(_){ location.replace("/?login=1"); }
+    })();
+
+    document.getElementById("acc-save")?.addEventListener("click", async () => {
+      const full_name = document.getElementById("acc-name").value.trim();
+      const email = document.getElementById("acc-email").value.trim();
+      const old_password = document.getElementById("acc-pass-old").value;
+      const password = document.getElementById("acc-pass").value;
+      if (!full_name || !email){ alert("Completa nombre y correo"); return; }
+      if (password && !old_password){ alert("Para cambiar la contraseña, escribe tu contraseña actual"); return; }
+      try{
+        const res = await fetch("/backend/update_user.php",{
+          method:"POST", headers:{"Content-Type":"application/json"}, credentials:"include",
+          body: JSON.stringify({ full_name, email, password, old_password })
+        });
+        const data = await res.json();
+        if (data.error){ alert(data.error); return; }
+        const f = document.getElementById("acc-file").files?.[0];
+        if (f){ const fd = new FormData(); fd.append("avatar", f); await fetch("/backend/upload_avatar.php",{ method:"POST", body: fd, credentials:"include" }); }
+        alert("Cuenta actualizada"); location.reload();
+      }catch(_){ alert("No se pudo actualizar la cuenta"); }
+    });
+  </script>
+</body>
+</html>

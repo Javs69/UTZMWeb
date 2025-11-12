@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Publicar producto</title>
@@ -8,7 +9,7 @@
   <link rel="icon" href="data:,">
 </head>
 <body>
-  <!-- Header (consistente con la página principal) -->
+  <!-- Header (consistente con la pÃ¡gina principal) -->
   <header class="header">
     <div class="topbar container">
       <a href="/" class="logo" aria-label="Ir al inicio">
@@ -22,15 +23,15 @@
         <div class="profile" aria-label="Menú de perfil">
           <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
             <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
-            <span id="profileLabel">Iniciar sesión</span>
+            <span id="profileLabel">Iniciar sesi&oacute;n</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
           </button>
           <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
             <li role="menuitem"><a href="#">Ingresar</a></li>
             <li role="menuitem"><a href="#">Mis compras</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
             <li role="menuitem"><a href="/vender.html">Vender</a></li>
             <li role="menuitem"><a href="#">Favoritos</a></li>
-            <li role="menuitem"><a href="#">Salir</a></li>
           </ul>
         </div>
       </nav>
@@ -41,7 +42,7 @@
     <section class="hero-card" style="padding:0; overflow:visible;">
       <div class="hero-text" style="padding-bottom:0;">
         <h1>Publicar producto</h1>
-        <p>Completa los datos para crear tu publicación.</p>
+        <p>Completa los datos para crear tu publicaci&oacute;n.</p>
       </div>
     </section>
 
@@ -50,28 +51,28 @@
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label" for="p-name">Nombre del producto</label>
-            <input id="p-name" class="form-control" type="text" placeholder="Ej. Audífonos inalámbricos" required>
-            <div class="form-hint">Un título claro ayuda a que te encuentren.</div>
+            <input id="p-name" class="form-control" type="text" placeholder="Ej. Aud&iacute;fonos inal&aacute;mbricos" required>
+            <div class="form-hint">Un t&iacute;tulo claro ayuda a que te encuentren.</div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="p-category">Categoría</label>
+            <label class="form-label" for="p-category">Categor&iacute;a</label>
             <select id="p-category" class="form-control" required>
-              <option value="" disabled selected>Selecciona una categoría</option>
-              <option>Electrónica</option>
-              <option>Hogar</option>
-              <option>Moda</option>
-              <option>Deportes</option>
-              <option>Bebés</option>
-              <option>Autos</option>
-              <option>Supermercado</option>
-            </select>
+  <option value="" disabled selected>Selecciona una categor&iacute;a</option>
+  <option>Electr&oacute;nica</option>
+  <option>Papeler&iacute;a</option>
+  <option>Veh&iacute;culos</option>
+  <option>Electrodom&eacute;sticos</option>
+  <option>Moda</option>
+  <option>Juegos y juguetes</option>
+  <option>Salud y equipo m&eacute;dico</option>
+</select>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="p-desc">Descripción</label>
-            <textarea id="p-desc" class="form-control" placeholder="Detalles del producto, estado, accesorios incluidos…" rows="8"></textarea>
-            <div class="form-hint">Incluye características clave y condiciones.</div>
+            <label class="form-label" for="p-desc">Descripci&oacute;n</label>
+            <textarea id="p-desc" class="form-control" placeholder="Detalles del producto, estado, accesorios incluidos&hellip;" rows="8"></textarea>
+            <div class="form-hint">Incluye caracter&iacute;sticas clave y condiciones.</div>
           </div>
 
           <div class="form-row-2">
@@ -86,19 +87,19 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="p-images">Imágenes</label>
+            <label class="form-label" for="p-images">Im&aacute;genes</label>
             <div id="dropzone" class="uploader" tabindex="0" aria-describedby="img-hint">
               <div class="uploader-cta">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                 <div>
-                  <div>Añadir imágenes</div>
+                  <div>A&ntilde;adir im&aacute;genes</div>
                   <small class="muted">Arrastra y suelta o haz clic</small>
                 </div>
               </div>
             </div>
             <input id="p-images" class="sr-only" type="file" accept="image/*" multiple>
             <div id="previews" class="thumbs"></div>
-            <div id="img-hint" class="form-hint">Hasta 6 imágenes. Máx. 5MB c/u.</div>
+            <div id="img-hint" class="form-hint">Hasta 6 im&aacute;genes. M&aacute;x. 5MB c/u.</div>
           </div>
         </div>
 
@@ -111,7 +112,7 @@
   </main>
 
   <script>
-    // Protección de ruta: requiere sesión
+    // ProtecciÃ³n de ruta: requiere sesiÃ³n
     (async function ensureAuth(){
       try {
         const res = await fetch('/backend/session.php', { credentials: 'include' });
@@ -123,7 +124,7 @@
         location.replace('/?login=1');
       }
     })();
-    // Uploader múltiple con previsualización
+    // Uploader mÃºltiple con previsualizaciÃ³n
     (function imagesUploader(){
       const input = document.getElementById('p-images');
       const drop = document.getElementById('dropzone');
@@ -139,7 +140,7 @@
           fig.className = 'thumb';
           fig.innerHTML = `
             <img src="${item.url}" alt="Imagen ${idx+1}">
-            <button class="remove-thumb" aria-label="Quitar imagen" data-idx="${idx}">×</button>
+            <button class="remove-thumb" aria-label="Quitar imagen" data-idx="${idx}">&times;</button>
           `;
           previews.appendChild(fig);
         });
@@ -149,7 +150,7 @@
         for (const file of files) {
           if (!file.type.startsWith('image/')) continue;
           if (file.size > MAX_SIZE) { alert('Una imagen supera 5MB.'); continue; }
-          if (selected.length >= MAX_FILES) { alert('Máximo 6 imágenes.'); break; }
+          if (selected.length >= MAX_FILES) { alert('M\u00E1ximo 6 im\u00E1genes.'); break; }
           const url = URL.createObjectURL(file);
           selected.push({ file, url });
         }
@@ -177,7 +178,7 @@
         selected.splice(idx, 1);
         render();
       });
-      // Expone una utilidad para subir las imágenes seleccionadas una vez creado el producto
+      // Expone una utilidad para subir las imÃ¡genes seleccionadas una vez creado el producto
       window.uploadImagesForProduct = async function(productId){
         for (const item of selected) {
           const fd = new FormData();
@@ -200,8 +201,8 @@
         const price = parseFloat(document.getElementById('p-price').value);
         const stock = parseInt(document.getElementById('p-stock').value || '0', 10);
         if (!name) return alert('Ingresa el nombre del producto');
-        if (!desc) return alert('Ingresa la descripción del producto');
-        if (!(price > 0)) return alert('Ingresa un precio válido');
+        if (!desc) return alert('Ingresa la Descripci&oacute;n del producto');
+        if (!(price > 0)) return alert('Ingresa un precio v\u00E1lido');
 
         btn.disabled = true; btn.textContent = 'Publicando...';
         try {
@@ -214,7 +215,7 @@
           const data = await res.json();
           if (data.error) { alert(data.error); return; }
           const productId = data.product_id;
-          // Subir imágenes seleccionadas (si hay)
+          // Subir imÃ¡genes seleccionadas (si hay)
           if (window.uploadImagesForProduct) {
             await window.uploadImagesForProduct(productId);
           }
@@ -231,3 +232,14 @@
   <script src="public/js/app.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+

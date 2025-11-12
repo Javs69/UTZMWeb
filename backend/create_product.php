@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../db.php';
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 // Requiere sesión
 if (!isset($_SESSION['user']['id'])) {

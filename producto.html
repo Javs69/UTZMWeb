@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Detalle de producto</title>
@@ -41,31 +42,54 @@
         <div class="profile" aria-label="Menú de perfil">
           <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
             <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
-            <span id="profileLabel">Iniciar sesión</span>
+            <span id="profileLabel">Iniciar sesi&oacute;n</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
           </button>
           <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
             <li role="menuitem"><a href="#">Ingresar</a></li>
             <li role="menuitem"><a href="#">Mis compras</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
             <li role="menuitem"><a href="/vender.html">Vender</a></li>
             <li role="menuitem"><a href="#">Favoritos</a></li>
-            <li role="menuitem"><a href="#">Salir</a></li>
           </ul>
         </div>
       </nav>
     </div>
 
     <nav id="catNav" class="categories" aria-label="Categorías">
-      <ul class="container">
-        <li class="cat"><a href="#">Electrónica</a></li>
-        <li class="cat"><a href="#">Hogar</a></li>
-        <li class="cat"><a href="#">Moda</a></li>
-        <li class="cat"><a href="#">Deportes</a></li>
-        <li class="cat"><a href="#">Bebés</a></li>
-        <li class="cat"><a href="#">Autos</a></li>
-        <li class="cat"><a href="#">Supermercado</a></li>
-      </ul>
-    </nav>
+  <ul class="container">
+    <li class="cat has-mega">
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+      <div class="mega">
+        <div>
+          <h4>Celulares</h4>
+          <a href="#">Smartphones</a>
+          <a href="#">Accesorios</a>
+          <a href="#">Wearables</a>
+        </div>
+        <div>
+          <h4>Computaci&oacute;n</h4>
+          <a href="#">Laptops</a>
+          <a href="#">Perif&eacute;ricos</a>
+          <a href="#">Componentes</a>
+        </div>
+        <div>
+          <h4>TV y Audio</h4>
+          <a href="#">Televisores</a>
+          <a href="#">Bocinas</a>
+          <a href="#">Streaming</a>
+        </div>
+      </div>
+    </li>
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+    <li class="cat"><a href="#">Moda</a></li>
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+  </ul>
+</nav>
   </header>
 
   <main class="container" style="padding:18px 0 34px;">
@@ -79,30 +103,49 @@
           <button id="qSend" class="btn">Preguntar</button>
         </div>
       </div>
-      <div id="qLoginHint" class="form-hint">Inicia sesión para hacer preguntas.</div>
+      <div id="qLoginHint" class="form-hint hidden">Inicia sesi&oacute;n para hacer preguntas.</div>
     </section>
   </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h4>Pagos</h4>
+        <a href="#">M&eacute;todos de pago</a>
+        <a href="#">Seguridad</a>
+        <a href="#">Facturaci&oacute;n</a>
+      </div>
+      <div>
+        <h4>Compras</h4>
+        <a href="#">Env&iacute;os</a>
+        <a href="#">Devoluciones</a>
+        <a href="#">Reembolsos</a>
+      </div>
+      <div>
+        <h4>Nosotros</h4>
+        <a href="#">Sobre nosotros</a>
+        <a href="#">Prensa</a>
+        <a href="#">Empleo</a>
+      </div>
+      <div>
+        <h4>Ayuda</h4>
+        <a href="#">Centro de ayuda</a>
+        <a href="#">Contacto</a>
+        <a href="#">T&eacute;rminos y privacidad</a>
+      </div>
+    </div>
+    <div class="copy">&copy; <span id="year"></span> MiMarket</div>
+  </footer>
 
   <!-- Modales de login/register para reusar la UI -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
       <button class="modal-close" data-close>&times;</button>
-      <h2>Iniciar sesión</h2>
+      <h2>Iniciar sesi&oacute;n</h2>
       <input id="loginEmail" type="email" placeholder="Correo">
-      <input id="loginPass" type="password" placeholder="Contraseña">
+      <input id="loginPass" type="password" placeholder="Contrase&ntilde;a">
       <button id="loginSubmit" class="btn">Entrar</button>
-      <p>¿No tienes cuenta? <a href="#" id="openRegister">Regístrate</a></p>
-    </div>
-  </div>
-  <div id="registerModal" class="modal hidden">
-    <div class="modal-content">
-      <button class="modal-close" data-close>&times;</button>
-      <h2>Crear cuenta</h2>
-      <input id="regName" type="text" placeholder="Tu nombre">
-      <input id="regEmail" type="email" placeholder="Correo">
-      <input id="regPass" type="password" placeholder="Contraseña">
-      <button id="registerSubmit" class="btn">Crear cuenta</button>
-      <p>¿Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesión</a></p>
+      <p>&iquest;Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesi&oacute;n</a></p>
     </div>
   </div>
 
@@ -138,8 +181,9 @@
               <div class="pstock">${p.stock > 0 ? 'En stock' : 'Sin stock'}</div>
               <div class="pseller">Vendido por <strong>${p.seller_name || p.seller_email || 'Vendedor'}</strong></div>
               <div class="pdesc">${(p.description||'').replace(/\n/g,'<br>')}</div>
-              <div style="margin-top:10px;">
+              <div class="pactions">
                 <button class="btn btn-add" data-add-to-cart data-product-id="${p.id}" data-title="${p.name}" data-price="${p.price_cents}" data-seller-id="${p.seller_id}">Agregar al carrito</button>
+                <button id="buyNowBtn" class="btn" style="background:#10b981" data-product-id="${p.id}" data-title="${p.name}" data-price="${p.price_cents}" data-seller-id="${p.seller_id}">Comprar ahora</button>
               </div>
             </div>
           </div>
@@ -151,6 +195,37 @@
           if (!img) return;
           mainEl.src = img.src;
         });
+        // Comprar ahora: requiere sesión. Si no hay sesión, mostrar login.
+        document.getElementById('buyNowBtn')?.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          // Bloquear si no hay sesión activa
+          if (!window.SESSION || !SESSION.logged_in) {
+            try { document.getElementById('loginModal')?.classList.remove('hidden'); } catch(_) {}
+            try {
+              if (!document.getElementById('loginModal')) {
+                const url = new URL(location.href);
+                if (!url.searchParams.get('login')) {
+                  url.searchParams.set('login','1');
+                  location.href = url.toString();
+                }
+              }
+            } catch (_) {}
+            return;
+          }
+
+          const btn = e.currentTarget;
+          const item = {
+            product_id: Number(btn.getAttribute('data-product-id')),
+            name: btn.getAttribute('data-title'),
+            price_cents: Number(btn.getAttribute('data-price')),
+            seller_id: Number(btn.getAttribute('data-seller-id')),
+            qty: 1,
+          };
+          try { localStorage.setItem('CART', JSON.stringify([item])); } catch(_) {}
+          location.href = '/pagar.html';
+        });
+
         initQnA();
       } catch (e) {
         el.innerHTML = '<p>Error al cargar producto.</p>';
@@ -159,7 +234,7 @@
 
     async function loadQnA(){
       const list = document.getElementById('qList');
-      list.innerHTML = '<div class="form-hint">Cargando preguntas…</div>';
+      list.innerHTML = '<div class="form-hint">Cargando preguntas&hellip;</div>';
       try{
         const res = await fetch(`/backend/qna_get.php?product_id=${PRODUCT.id}`);
         const q = await res.json();
@@ -173,7 +248,7 @@
             </div>
           `).join('');
         } else {
-          list.innerHTML = '<div class="form-hint">Aún no hay preguntas.</div>';
+          list.innerHTML = '<div class="form-hint">AÃºn no hay preguntas.</div>';
         }
       }catch(_){ list.innerHTML = '<div class="form-hint">No se pudieron cargar las preguntas.</div>'; }
     }
@@ -184,8 +259,14 @@
       const isSeller = isLogged && sess.user && (sess.user.id === PRODUCT.seller_id);
       const askBox = document.getElementById('qAsk');
       const loginHint = document.getElementById('qLoginHint');
-      if (isLogged && !isSeller){ askBox.classList.remove('hidden'); loginHint.classList.add('hidden'); }
-      else { askBox.classList.add('hidden'); loginHint.classList.remove('hidden'); }
+      if (!isLogged){
+        askBox.classList.add('hidden');
+        loginHint.classList.remove('hidden');
+      } else {
+        loginHint.classList.add('hidden');
+        if (!isSeller) askBox.classList.remove('hidden');
+        else askBox.classList.add('hidden');
+      }
 
       await loadQnA();
 
@@ -231,7 +312,31 @@
         obs.observe(document.getElementById('qList'), { childList:true, subtree:true });
       }
     }
+    </script>
+  <script>
+    // Guard: buy now requires login on product page
+    document.addEventListener('click', async (e) => {
+      const bn = e.target && e.target.closest && e.target.closest('#buyNowBtn');
+      if (!bn) return;
+      try {
+        const s = await getSession();
+        if (!s.logged_in) {
+          e.preventDefault();
+          if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+          document.getElementById('loginModal')?.classList.remove('hidden');
+        }
+      } catch(_) {}
+    }, true);
   </script>
   <script src="public/js/app.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+

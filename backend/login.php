@@ -18,4 +18,5 @@ if (!$user || !password_verify($password, $user["password_hash"])) {
 unset($user["password_hash"]);
 $_SESSION["user"] = $user;
 
+header('Content-Type: application/json; charset=utf-8');
 echo json_encode(["success" => true, "user" => $user]);

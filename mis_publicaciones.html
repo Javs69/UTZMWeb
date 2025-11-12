@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mis publicaciones</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>MiMarket</span>
+      </a>
+
+      <div></div>
+
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div class="profile" aria-label="Menú de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+            <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
+            <span id="profileLabel">Iniciar sesión</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <section class="strip">
+      <div class="strip-head">
+        <h2>Mis publicaciones</h2>
+      </div>
+      <div id="myList" class="grid"></div>
+    </section>
+  </main>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    // Requiere sesión
+    (async function ensureAuth(){
+      try {
+        const res = await fetch('/backend/session.php', { credentials: 'include' });
+        const s = await res.json();
+        if (!s.logged_in) { location.replace('/?login=1'); }
+      } catch (e) { location.replace('/?login=1'); }
+    })();
+
+    function currency(c){ try { return (c/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});}catch(_){ return '$'+(c/100).toFixed(2);} }
+
+    async function loadMyProducts(){
+      const list = document.getElementById('myList');
+      list.innerHTML = '<div class="form-hint">Cargando…</div>';
+      try{
+        const r = await fetch('/backend/get_my_products.php', { credentials: 'include' });
+        const arr = await r.json();
+        if (arr.error){ list.innerHTML = '<div class="form-hint">'+arr.error+'</div>'; return; }
+        if (!Array.isArray(arr) || !arr.length){ list.innerHTML = '<div class="form-hint">Aún no tienes publicaciones.</div>'; return; }
+        list.innerHTML = '';
+        arr.forEach(p => {
+          const card = document.createElement('article');
+          card.className = 'card';
+          const price = currency(p.price_cents||0);
+          card.innerHTML = `
+            <div class="card-media" style="aspect-ratio: 3/2; overflow:hidden">
+              <img src="${p.image || 'https://picsum.photos/seed/'+p.id+'/600/400'}" alt="${p.name}">
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input class="form-control" type="text" value="${p.name||''}" data-field="name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Precio (MXN)</label>
+                <input class="form-control" type="number" step="0.01" min="0" value="${(p.price_cents||0)/100}" data-field="price" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" rows="3" data-field="description">${(p.description||'')}</textarea>
+              </div>
+              <div class="form-actions">
+                <button class="btn" data-action="save" data-id="${p.id}">Guardar</button>
+                <a class="btn" href="/producto.html?id=${p.id}" style="background:#374151">Ver</a>
+              </div>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }catch(_){ list.innerHTML = '<div class="form-hint">No se pudieron cargar tus publicaciones.</div>'; }
+    }
+
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-action="save"]');
+      if (!btn) return;
+      const card = btn.closest('.card');
+      const id = Number(btn.getAttribute('data-id'));
+      const name = card.querySelector('[data-field="name"]').value.trim();
+      const price = parseFloat(card.querySelector('[data-field="price"]').value);
+      const description = card.querySelector('[data-field="description"]').value.trim();
+      if (!name || !description || !(price>0)) { alert('Completa nombre, descripción y precio válido.'); return; }
+      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardando…';
+      try{
+        const r = await fetch('/backend/update_product.php', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ id, name, price, description }) });
+        const j = await r.json();
+        if (j.error) return alert(j.error);
+        alert('Guardado');
+        await loadMyProducts();
+      }catch(_){ alert('No se pudo guardar'); }
+      finally { btn.disabled = false; btn.textContent = old; }
+    });
+
+    loadMyProducts();
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . '/../db.php';
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 $product_id = isset($_GET['product_id']) ? (int)$_GET['product_id'] : 0;
 if ($product_id <= 0) {
@@ -45,4 +45,3 @@ foreach ($rows as $r) {
 }
 
 echo json_encode(array_values($out));
-

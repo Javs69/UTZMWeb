@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../db.php';
 session_start();
+header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents("php://input"), true);
 $full_name = $data["full_name"] ?? "";
@@ -26,3 +27,4 @@ try {
 } catch (Exception $e) {
   echo json_encode(["error" => "Este correo ya está registrado"]);
 }
+

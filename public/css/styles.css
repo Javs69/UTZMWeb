@@ -1,4 +1,4 @@
-:root{
+﻿:root{
   /* Brand (crema elegante) */
   --brand:#f4efd2;          /* base */
   --brand-ink:#2b2a24;      /* texto sobre brand */
@@ -11,7 +11,7 @@
   --accent-strong:#496b6c;  /* hovers/focus */
 
   /* Neutros */
-  --bg:#f6f7f8;
+  --bg:#fff;
   --surface:#ffffff;
   --ink:#1f2937;            /* texto principal */
   --muted:#6b7280;          /* texto secundario */
@@ -38,20 +38,20 @@ body{
   background:var(--bg);
 }
 
-/* Utilidad genérica para ocultar elementos */
+/* Utilidad genÃ©rica para ocultar elementos */
 .hidden{display:none !important}
 
 .container{width:min(1200px, 92%); margin-inline:auto}
 
 /* Header */
-.header{position:sticky; top:0; z-index:50; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.header{position:sticky; top:0; z-index:50; background:#fff}
 .topbar{display:grid; grid-template-columns: 180px 1fr auto; align-items:center; gap:16px; padding:10px 0}
 .logo{display:flex; gap:10px; align-items:center; text-decoration:none; color:var(--brand-ink); font-weight:800; letter-spacing:.3px}
 .logo svg{width:36px; height:36px; fill:var(--brand)}
 .logo span{font-size:1.15rem}
 
 /* Search */
-.search{display:flex; position:relative}
+.search{display:flex; position:relative; margin-top:6px}
 .search input{
   width:100%; height:44px; border:2px solid transparent; outline:none;
   background:#f3f4f6; border-radius:999px; padding:0 48px 0 16px;
@@ -88,13 +88,25 @@ body{
 .profile-menu{
   position:absolute; right:0; top:110%; width:220px; background:#fff; border-radius:14px; box-shadow:var(--shadow);
   padding:8px; list-style:none; display:none;
-}
+ z-index:9999;}
 .profile-menu.open{display:block}
 .profile-menu a{display:block; padding:10px 12px; border-radius:10px; color:var(--ink); text-decoration:none}
 .profile-menu a:hover{background:#f5f6f7}
 
 /* Cart dropdown */
-.cart-menu{position:absolute; right:0; top:110%; width:300px; background:#fff; border-radius:14px; box-shadow:var(--shadow); padding:10px; display:none}
+.cart-menu{position:absolute; right:0; top:110%; width:300px; background:#fff; border-radius:14px; box-shadow:var(--shadow); padding:10px; display:none; z-index:9999}
+.qty-controls .qty-btn{transition:.15s}
+.qty-controls .qty-btn:hover{background:#e5e7eb}
+/* Qty input: ocultar flechas nativas y estilizar */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0 }
+input[type=number]{ -moz-appearance:textfield }
+.cart-qty-input{
+  width:56px; height:32px; text-align:center;
+  border:1px solid var(--divider); border-radius:8px; background:#fafafa;
+  transition:.15s; outline:none;
+}
+.cart-qty-input:focus{ border-color:#111; background:#fff; box-shadow:0 0 0 2px rgba(0,0,0,.06) }
 .cart-menu.open{display:block}
 .cart-empty{padding:14px; text-align:center; color:var(--muted)}
 .cart-list{display:flex; flex-direction:column; gap:10px; max-height:300px; overflow:auto}
@@ -111,7 +123,7 @@ body{
 .hamburger{display:none; width:42px; height:42px; border:none; background:#f3f4f6; border-radius:10px; cursor:pointer}
 .hamburger span{display:block; height:2px; background:#111; margin:7px 9px}
 
-/* Categorías */
+/* CategorÃ­as */
 .categories{background:var(--brand)}
 .categories > .container{display:flex; gap:18px; align-items:center; overflow:auto; padding:6px 0}
 .categories a,.categories .cat-btn{color:#111; text-decoration:none; font-weight:600; padding:10px 12px; border-radius:10px; border:none; background:transparent; cursor:pointer}
@@ -121,7 +133,8 @@ body{
   position:absolute; left:0; top:100%; background:#fff; border-radius:16px; box-shadow:var(--shadow);
   padding:18px; display:none; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap:20px; min-width:540px;
 }
-.cat.has-mega:hover .mega{display:grid}
+/* Desactivado: evitar abrir mega menú al pasar el cursor */
+.cat.has-mega:hover .mega{display:none}
 .mega h4{margin:0 0 8px; font-size:1rem}
 .mega a{display:block; color:#374151; text-decoration:none; padding:6px 0; border-radius:8px}
 .mega a:hover{background:#f5f6f7; padding-left:6px}
@@ -189,7 +202,22 @@ body{
   .grid{grid-template-columns:1fr}
 }
 
-/* -------- Formularios (pág. Vender) -------- */
+/* Modales (login/register) */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; justify-content: center; align-items: center; padding: 20px; }
+.modal.hidden { display: none; }
+.modal-content { position: relative; background: #fff; padding: 28px; border-radius: 14px; width: 330px; max-width: 90%; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,.16); }
+.modal-content input { padding: 12px 14px; border-radius: 8px; border: 1px solid #ddd; background: #fafafa; transition: .2s; }
+.modal-content input:focus { border-color: #111; background: #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.1); outline: none; }
+.modal-close { position: absolute; top: 8px; right: 10px; font-size: 22px; cursor: pointer; background: none; border: none; color: #444; }
+.modal-close:hover { color: #000; }
+/* Campos deshabilitados (read-only) */
+.form-control:disabled{
+  background:#f3f4f6;
+  color:#6b7280;
+  cursor:not-allowed;
+}
+
+/* -------- Formularios (pÃ¡g. Vender) -------- */
 .form{display:block}
 .form-grid{display:grid; gap:12px}
 .form-row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
@@ -202,12 +230,14 @@ body{
 textarea.form-control{resize:none}
 .form-hint{color:#6b7280; font-size:.9rem}
 .form-actions{margin-top:12px; display:flex; gap:10px; align-items:center}
+/* Hacer que los botones en acciones tengan el mismo tamaÃ±o */
+.form-actions .btn{flex:1 1 0; text-align:center}
 
 @media (max-width:700px){
   .form-row-2{grid-template-columns:1fr}
 }
 
-/* -------- Página de producto -------- */
+/* -------- PÃ¡gina de producto -------- */
 .product{background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:18px}
 .pgrid{display:grid; grid-template-columns: 1.2fr 1fr; gap:20px}
 .gallery-main{background:#f3f4f6; border-radius:16px; overflow:hidden}
@@ -233,7 +263,7 @@ textarea.form-control{resize:none}
 .ans-row{display:flex; gap:8px; margin-top:8px}
 .ans-row .btn{white-space:nowrap}
 
-/* -------- Uploader múltiple (pág. Vender) -------- */
+/* -------- Uploader mÃºltiple (pÃ¡g. Vender) -------- */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .uploader{display:flex; align-items:center; justify-content:center; gap:10px; padding:16px; border:2px dashed var(--divider); border-radius:var(--radius); background:var(--brand-weak); color:var(--muted); cursor:pointer; user-select:none}
 .uploader:hover,.uploader.dragover{border-color:var(--brand-strong); background:#fff; color:var(--ink)}
@@ -249,4 +279,9 @@ textarea.form-control{resize:none}
 @media (max-width:900px){ .thumbs{grid-template-columns:repeat(4, 1fr)} }
 @media (max-width:700px){ .thumbs{grid-template-columns:repeat(3, 1fr)} }
 @media (max-width:420px){ .thumbs{grid-template-columns:repeat(2, 1fr)} }
+
+
+/* Botones de acción en publicación */
+.pactions{display:flex; gap:10px; flex-wrap:wrap}
+.pactions .btn{flex:1 1 0; text-align:center}
 

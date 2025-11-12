@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/../db.php';
+header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_FILES['imagen'])) {
   die(json_encode(["error" => "No se recibió archivo"]));
