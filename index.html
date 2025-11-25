@@ -32,10 +32,6 @@
 
       <!-- Acciones derecha -->
       <nav class="actions" aria-label="Acciones de usuario">
-        <a href="#" class="link">Ofertas</a>
-        <a href="#" class="link">Historial</a>
-        <a href="#" class="link">Ayuda</a>
-
         <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
@@ -54,17 +50,16 @@
 
         <div class="profile" aria-label="MenÃº de perfil">
           <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
-    <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
+    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
     <span id="profileLabel">Iniciar sesi&oacute;n</span>
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
   </button>
-          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
             <li role="menuitem"><a href="#">Ingresar</a></li>
-            <li role="menuitem"><a href="#">Mis compras</a></li>
             <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
             <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
             <li role="menuitem"><a href="/vender.html">Vender</a></li>
-            <li role="menuitem"><a href="#">Favoritos</a></li>
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
           </ul>
         </div>
 
@@ -109,15 +104,6 @@
   </ul>
 </nav>
   </header>
-
-  <!-- Hero -->
-  <section class="hero container" aria-label="Promociones destacadas">
-    <div class="hero-card">
-      <div class="hero-text">
-        <h1>Hot Sale &#x1F525;</h1>
-      </div>
-    </div>
-  </section>
 
   <main class="container" style="padding:18px 0 34px;">
     <section class="strip">
@@ -223,6 +209,7 @@
       <h2>Iniciar sesi&oacute;n</h2>
       <input id="loginEmail" type="email" placeholder="Correo">
       <input id="loginPass" type="password" placeholder="Contrase&ntilde;a">
+      <div id="loginError" class="modal-feedback hidden" role="alert"></div>
       <button id="loginSubmit" class="btn">Entrar</button>
       <p>&iquest;No tienes cuenta? <a href="#" id="openRegister">Reg&iacute;strate</a></p>
     </div>
@@ -236,6 +223,7 @@
       <input id="regName" type="text" placeholder="Tu nombre">
       <input id="regEmail" type="email" placeholder="Correo">
       <input id="regPass" type="password" placeholder="Contrase&ntilde;a">
+      <div id="registerError" class="modal-feedback hidden" role="alert"></div>
       <button id="registerSubmit" class="btn">Crear cuenta</button>
       <p>&iquest;Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesi&oacute;n</a></p>
     </div>
@@ -244,6 +232,11 @@
   <script src="public/js/app.js"></script>
 </body>
 </html>
+
+
+
+
+
 
 
 

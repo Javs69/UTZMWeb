@@ -34,6 +34,17 @@ let favMenu = null;
 const isFavorite = (id)=> FAVS.some(f => Number(f.product_id) === Number(id));
 let CART_LOADED = false;
 let FAV_LOADED = false;
+const CATEGORY_IDS = { electronica: 1, papeleria: 2, vehiculos: 3, electrodomesticos: 4, moda: 5 };
+const getSessionUserId = () => (SESSION?.user?.id != null ? String(SESSION.user.id) : '');
+function getStoredUserId(){
+  try { return localStorage.getItem(USER_KEY) || ''; } catch(_) { return ''; }
+}
+function resolveUserForStorage(){
+  const sessionUser = getSessionUserId();
+  if (sessionUser) return sessionUser;
+  const stored = getStoredUserId();
+  return stored || 'GUEST';
+}
 
 function setModalMessage(box, message = '', variant = 'error'){
   if (!box) return;
@@ -55,20 +66,26 @@ function resetAuthMessages(){
 function loadCartFromStorage(){
   try{
     const raw = localStorage.getItem(CART_STORAGE_KEY);
-    const who = localStorage.getItem(USER_KEY) || '';
-    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
-    if (!raw || !currentUser || who !== currentUser) return;
+    if (!raw) return;
+    const who = getStoredUserId();
+    const currentUser = getSessionUserId();
+    if (currentUser && who && who !== currentUser){
+      CART.splice(0, CART.length);
+      localStorage.setItem(USER_KEY, currentUser);
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(CART));
+      return;
+    }
     const arr = JSON.parse(raw);
     if (Array.isArray(arr)){
       CART.splice(0, CART.length, ...arr);
+      if (currentUser) localStorage.setItem(USER_KEY, currentUser);
     }
   }catch(_){ }
   CART_LOADED = true;
 }
 function saveCartToStorage(){
   try{
-    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
-    if (!currentUser) return;
+    const currentUser = resolveUserForStorage();
     localStorage.setItem(USER_KEY, currentUser);
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(CART));
   }catch(_){ }
@@ -77,20 +94,26 @@ function saveCartToStorage(){
 function loadFavsFromStorage(){
   try{
     const raw = localStorage.getItem(FAV_STORAGE_KEY);
-    const who = localStorage.getItem(USER_KEY) || '';
-    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
-    if (!raw || !currentUser || who !== currentUser) return;
+    if (!raw) return;
+    const who = getStoredUserId();
+    const currentUser = getSessionUserId();
+    if (currentUser && who && who !== currentUser){
+      FAVS.splice(0, FAVS.length);
+      localStorage.setItem(USER_KEY, currentUser);
+      localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(FAVS));
+      return;
+    }
     const arr = JSON.parse(raw);
     if (Array.isArray(arr)){
       FAVS.splice(0, FAVS.length, ...arr);
+      if (currentUser) localStorage.setItem(USER_KEY, currentUser);
     }
   }catch(_){}
   FAV_LOADED = true;
 }
 function saveFavsToStorage(){
   try{
-    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
-    if (!currentUser) return;
+    const currentUser = resolveUserForStorage();
     localStorage.setItem(USER_KEY, currentUser);
     localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(FAVS));
   }catch(_){}
@@ -285,7 +308,16 @@ const SYNONYMS = {
   'juguete': ['juguetes','lego','muñeca','muneca','figura','rompecabezas','juego','playstation','xbox','nintendo','switch'],
   'salud': ['cubrebocas','mascarilla','termometro','termómetro','medico','médico','equipo'],
   'vehiculo': ['vehículo','auto','coche','carro','moto','motocicleta','llanta','rin'],
-  'papeleria': ['papelería','libreta','cuaderno','pluma','boligrafo','bolígrafo','marcador','lapiz','lápiz','hojas','papel','folder']
+  'papeleria': ['papelería','libreta','cuaderno','pluma','boligrafo','bolígrafo','marcador','lapiz','lápiz','hojas','papel','folder'],
+  'tv': ['televisor','pantalla','monitor','smart tv','smarttv'],
+  'audio': ['bocina','bocinas','parlante','parlantes','audifono','audifonos','auricular','auriculares','headset','microfono','microfonos','sonido','bafle'],
+  'consola': ['playstation','ps5','ps4','xbox','nintendo','switch','gamepad','joystick'],
+  'monitor': ['pantalla','display','televisor'],
+  'impresora': ['printer','multifuncional'],
+  'tablet': ['ipad','galaxy tab'],
+  'router': ['modem','wifi','inalambrico'],
+  'teclado': ['keyboard','mecanico','mouse','raton'],
+  'camara': ['camera','fotografia','foto','webcam','gopro','drone','dron']
 };
 
 function expandQuery(q){
@@ -315,6 +347,22 @@ function searchProducts(query){
     .sort((a,b) => b.s - a.s)
     .map(x => x.p);
   return results;
+}
+
+async function fetchProducts(opts = {}){
+  const { query = '', categoryId = null } = opts;
+  try{
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    if (categoryId) params.set('category', String(categoryId));
+    const url = params.toString() ? `/backend/get_products.php?${params}` : '/backend/get_products.php';
+    const res = await fetch(url);
+    const products = await res.json();
+    if (!query && !categoryId) ALL_PRODUCTS = products || [];
+    return Array.isArray(products) ? products : [];
+  }catch(_){
+    return [];
+  }
 }
 
 function ensureResultsSection(){
@@ -347,10 +395,72 @@ function renderSearchResults(items){
   if (!sec) return;
   const grid = sec.querySelector('#search-results');
   grid.innerHTML = '';
+  grid.className = 'carousel-host';
   if (!items.length){
     grid.innerHTML = '<div>No se encontraron productos.</div>';
   } else {
-    renderProducts('search-results', items);
+    const win = document.createElement('div');
+    win.className = 'carousel-window';
+    const track = document.createElement('div');
+    track.className = 'carousel-track';
+    items.forEach(p => {
+      const price = (p.price_cents / 100).toLocaleString("es-MX", {
+        style: "currency",
+        currency: "MXN",
+      });
+      const favActive = isFavorite(p.id);
+      const card = document.createElement('article');
+      card.className = 'card card--uniform card--carousel';
+      card.innerHTML = `
+        <div class="card-top">
+          <button class="btn-fav${favActive ? ' is-active' : ''}" data-fav-toggle
+            data-product-id="${p.id}"
+            data-title="${p.name}"
+            data-price="${p.price_cents}"
+            aria-label="Agregar a favoritos">${favActive ? '♥' : '♡'}</button>
+        </div>
+        <a href="/producto.html?id=${p.id}" class="card-media">
+          <img src="${p.image || "https://picsum.photos/seed/" + p.id + "/600/400"}" alt="${p.name}">
+        </a>
+        <div class="card-body">
+          <h3 class="card-title"><a href="/producto.html?id=${p.id}" class="link" style="text-decoration:none; color:inherit">${p.name}</a></h3>
+          <div class="price"><span class="now">${price}</span></div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-add"
+            data-add-to-cart
+            data-product-id="${p.id}"
+            data-title="${p.name}"
+            data-price="${p.price_cents}"
+            data-seller-id="${p.seller_id}">
+            Agregar al carrito
+          </button>
+        </div>
+      `;
+      track.appendChild(card);
+    });
+    win.appendChild(track);
+    const controls = document.createElement('div');
+    controls.className = 'carousel-controls';
+    const prev = document.createElement('button');
+    prev.className = 'carousel-btn prev';
+    prev.type = 'button';
+    prev.innerHTML = '‹';
+    const next = document.createElement('button');
+    next.className = 'carousel-btn next';
+    next.type = 'button';
+    next.innerHTML = '›';
+    controls.appendChild(prev);
+    controls.appendChild(next);
+    grid.appendChild(win);
+    grid.appendChild(controls);
+    const scrollBy = () => Math.max(win.clientWidth * 0.9, 280);
+    prev.addEventListener('click', () => {
+      win.scrollBy({ left: -scrollBy(), behavior: 'smooth' });
+    });
+    next.addEventListener('click', () => {
+      win.scrollBy({ left: scrollBy(), behavior: 'smooth' });
+    });
   }
   const s1 = document.getElementById('ofertas-list')?.closest('.strip');
   const s2 = document.getElementById('recomendados-list')?.closest('.strip');
@@ -378,16 +488,16 @@ function renderSuggestions(list){
 }
 
 // ====== Categorías: filtrar productos al hacer clic ======
-function categoryQueryFromText(txt){
+function categoryFilterFromText(txt){
   const t = normalize(txt || '');
-  if (t.includes('electrodom')) return 'electrodomestico refrigerador microondas lavadora licuadora tv audio';
-  if (t.includes('papeler')) return 'papeleria libreta cuaderno lapiz boligrafo pluma papel marcador';
-  if (t.includes('veh')) return 'vehiculo auto coche carro moto motocicleta llanta';
-  if (t.includes('moda')) return 'ropa zapatos camisa pantalon vestido blusa tenis';
-  if (t.includes('juego') || t.includes('juguet')) return 'juguete juguetes lego figura muñeca juego';
-  if (t.includes('salud') || t.includes('médico') || t.includes('medico')) return 'salud equipo medico cubrebocas termometro mascarilla';
-  if (t.includes('electr')) return 'celular smartphone laptop computadora tv audio';
-  return t;
+  if (t.includes('electrodom')) return { categoryId: CATEGORY_IDS.electrodomesticos, query: '' };
+  if (t.includes('papeler')) return { categoryId: CATEGORY_IDS.papeleria, query: '' };
+  if (t.includes('veh')) return { categoryId: CATEGORY_IDS.vehiculos, query: '' };
+  if (t.includes('moda')) return { categoryId: CATEGORY_IDS.moda, query: '' };
+  if (t.includes('electr')) return { categoryId: CATEGORY_IDS.electronica, query: '' };
+  if (t.includes('juego') || t.includes('juguet')) return { categoryId: 0, query: 'juguete juguetes lego figura muñeca juego' };
+  if (t.includes('salud') || t.includes('médico') || t.includes('medico')) return { categoryId: 0, query: 'salud equipo medico cubrebocas termometro mascarilla' };
+  return { categoryId: 0, query: t };
 }
 
 function wireCategoryFilters(){
@@ -395,20 +505,20 @@ function wireCategoryFilters(){
   if (!catNav) return;
   // Links simples
   catNav.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', (e) => {
+    a.addEventListener('click', async (e) => {
       e.preventDefault();
-      const q = categoryQueryFromText(a.textContent || '');
-      const rs = searchProducts(q);
+      const { categoryId, query } = categoryFilterFromText(a.textContent || '');
+      const rs = await fetchProducts({ query, categoryId });
       renderSearchResults(rs);
       if (searchInput) searchInput.value = (a.textContent || '').trim();
     });
   });
   // Botón de categoría destacada (Electrónica)
   catNav.querySelectorAll('.cat-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.preventDefault();
-      const q = categoryQueryFromText(btn.textContent || '');
-      const rs = searchProducts(q);
+      const { categoryId, query } = categoryFilterFromText(btn.textContent || '');
+      const rs = await fetchProducts({ query, categoryId });
       renderSearchResults(rs);
       if (searchInput) searchInput.value = (btn.textContent || '').trim();
     });
@@ -851,10 +961,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // removed duplicate CART declaration
 
 async function loadProducts() {
-  const res = await fetch("/backend/get_products.php");
-  const products = await res.json();
-  ALL_PRODUCTS = products || [];
-
+  const products = await fetchProducts();
   const mitad = Math.ceil(products.length / 2);
   renderProducts("ofertas-list", products.slice(0, mitad));
   renderProducts("recomendados-list", products.slice(mitad));
@@ -883,21 +990,25 @@ function renderProducts(containerId, items) {
       currency: "MXN",
     });
     const card = document.createElement("article");
-    card.className = "card";
+    card.className = "card card--uniform";
     const favActive = isFavorite(p.id);
 
     card.innerHTML = `
-      <button class="btn-fav${favActive ? ' is-active' : ''}" data-fav-toggle
-        data-product-id="${p.id}"
-        data-title="${p.name}"
-        data-price="${p.price_cents}"
-        aria-label="Agregar a favoritos">${favActive ? '♥' : '♡'}</button>
+      <div class="card-top">
+        <button class="btn-fav${favActive ? ' is-active' : ''}" data-fav-toggle
+          data-product-id="${p.id}"
+          data-title="${p.name}"
+          data-price="${p.price_cents}"
+          aria-label="Agregar a favoritos">${favActive ? '♥' : '♡'}</button>
+      </div>
       <a href="/producto.html?id=${p.id}" class="card-media">
         <img src="${p.image || "https://picsum.photos/seed/" + p.id + "/600/400"}" alt="${p.name}">
       </a>
       <div class="card-body">
         <h3 class="card-title"><a href="/producto.html?id=${p.id}" class="link" style="text-decoration:none; color:inherit">${p.name}</a></h3>
         <div class="price"><span class="now">${price}</span></div>
+      </div>
+      <div class="card-actions">
         <button class="btn btn-add"
           data-add-to-cart
           data-product-id="${p.id}"

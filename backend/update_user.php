@@ -46,6 +46,13 @@ try {
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
   $_SESSION['user'] = $user;
   echo json_encode(["success" => true, "user" => $user]);
+} catch (PDOException $e) {
+  // Postgres unique_violation
+  if ($e->getCode() === '23505') {
+    echo json_encode(["error" => "El correo ya está en uso","code"=>"email_taken","field"=>"email"]);
+    exit;
+  }
+  echo json_encode(["error" => "No se pudo actualizar"]);
 } catch (Exception $e) {
-  echo json_encode(["error" => "No se pudo actualizar: " . $e->getMessage()]);
+  echo json_encode(["error" => "No se pudo actualizar"]);
 }

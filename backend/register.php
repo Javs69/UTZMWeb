@@ -4,8 +4,8 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents("php://input"), true);
-$full_name = $data["full_name"] ?? "";
-$email = $data["email"] ?? "";
+$full_name = trim($data["full_name"] ?? "");
+$email = trim($data["email"] ?? "");
 $password = $data["password"] ?? "";
 
 if (!$full_name || !$email || !$password) {
@@ -13,12 +13,17 @@ if (!$full_name || !$email || !$password) {
   exit;
 }
 
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+  echo json_encode(["error" => "Ingresa un correo válido (ejemplo@dominio)"]);
+  exit;
+}
+
 $hash = password_hash($password, PASSWORD_BCRYPT);
+$defaultAvatar = "/public/uploads/blank-profile.png";
 
 try {
-  // si quieres asignar un avatar por defecto, usa NULL y luego lo suben
-  $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, avatar_url) VALUES (?,?,?,NULL) RETURNING id, full_name, email, avatar_url");
-  $stmt->execute([$full_name, $email, $hash]);
+  $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, avatar_url) VALUES (?,?,?,?) RETURNING id, full_name, email, avatar_url");
+  $stmt->execute([$full_name, $email, $hash, $defaultAvatar]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   $_SESSION["user"] = $user;

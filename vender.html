@@ -1,4 +1,5 @@
-﻿﻿﻿﻿<!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -7,35 +8,138 @@
   <title>Publicar producto</title>
   <link rel="stylesheet" href="public/css/styles.css">
   <link rel="icon" href="data:,">
+  <style>
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 9999;
+      width: min(320px, calc(100% - 32px));
+    }
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+      border-left: 4px solid #2563eb;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-icon { display: flex; width: 32px; height: 32px; border-radius: 999px; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.1); font-size: 16px; }
+    .toast-icon svg { width: 18px; height: 18px; }
+    .toast-content { flex: 1; }
+    .toast-title { font-weight: 600; margin-bottom: 2px; font-size: 0.92rem; }
+    .toast-message { margin: 0; font-size: 0.88rem; color: #e5e7eb; }
+    .toast-close { background: transparent; border: none; color: inherit; font-size: 1.1rem; cursor: pointer; line-height: 1; padding: 0; }
+    .toast.toast-success { border-left-color: #10b981; }
+    .toast.toast-success .toast-icon { background: rgba(16, 185, 129, 0.15); }
+    .toast.toast-error { border-left-color: #f87171; }
+    .toast.toast-error .toast-icon { background: rgba(248, 113, 113, 0.15); }
+    .toast.toast-warning { border-left-color: #fbbf24; }
+    .toast.toast-warning .toast-icon { background: rgba(251, 191, 36, 0.15); }
+  </style>
 </head>
 <body>
-  <!-- Header (consistente con la pÃ¡gina principal) -->
+  <!-- Header (consistente con la p&aacute;gina principal) -->
   <header class="header">
     <div class="topbar container">
-      <a href="/" class="logo" aria-label="Ir al inicio">
+      <a href="#" class="logo" aria-label="Ir al inicio">
+        <!-- Logo minimal -->
         <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
         <span>MiMarket</span>
       </a>
 
-      <div></div>
+      <!-- Buscador -->
+      <form class="search" role="search" aria-label="Buscar productos">
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" aria-label="Buscar"/>
+        <button type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+        </button>
+        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
+      </form>
 
+      <!-- Acciones derecha -->
       <nav class="actions" aria-label="Acciones de usuario">
-        <div class="profile" aria-label="Menú de perfil">
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
+    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
+    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
+    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
+  </svg>
+
+  <!-- Nuevo badge dinÃ¡mico -->
+  <span id="cartBadge" class="badge hidden"></span>
+  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+    <div class="cart-empty">No hay productos en el carrito</div>
+  </div>
+</div>
+
+
+        <div class="profile" aria-label="MenÃº de perfil">
           <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
-            <img id="avatarImg" src="https://i.pravatar.cc/40?u=guest" alt="Avatar" />
-            <span id="profileLabel">Iniciar sesi&oacute;n</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
-          </button>
-          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+    <span id="profileLabel">Iniciar sesi&oacute;n</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+  </button>
+                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
             <li role="menuitem"><a href="#">Ingresar</a></li>
-            <li role="menuitem"><a href="#">Mis compras</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
             <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
             <li role="menuitem"><a href="/vender.html">Vender</a></li>
-            <li role="menuitem"><a href="#">Favoritos</a></li>
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
           </ul>
         </div>
+
+        <button id="hamburger" class="hamburger" aria-label="Abrir menÃº" aria-controls="catNav" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </nav>
     </div>
+
+    <!-- Categor&iacute;as -->
+    <nav id="catNav" class="categories" aria-label="Categorías">
+  <ul class="container">
+    <li class="cat has-mega">
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+      <div class="mega">
+        <div>
+          <h4>Celulares</h4>
+          <a href="#">Smartphones</a>
+          <a href="#">Accesorios</a>
+          <a href="#">Wearables</a>
+        </div>
+        <div>
+          <h4>Computaci&oacute;n</h4>
+          <a href="#">Laptops</a>
+          <a href="#">Perif&eacute;ricos</a>
+          <a href="#">Componentes</a>
+        </div>
+        <div>
+          <h4>TV y Audio</h4>
+          <a href="#">Televisores</a>
+          <a href="#">Bocinas</a>
+          <a href="#">Streaming</a>
+        </div>
+      </div>
+    </li>
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+    <li class="cat"><a href="#">Moda</a></li>
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+  </ul>
+</nav>
   </header>
 
   <main class="container" style="padding:18px 0 34px;">
@@ -59,13 +163,13 @@
             <label class="form-label" for="p-category">Categor&iacute;a</label>
             <select id="p-category" class="form-control" required>
   <option value="" disabled selected>Selecciona una categor&iacute;a</option>
-  <option>Electr&oacute;nica</option>
-  <option>Papeler&iacute;a</option>
-  <option>Veh&iacute;culos</option>
-  <option>Electrodom&eacute;sticos</option>
-  <option>Moda</option>
-  <option>Juegos y juguetes</option>
-  <option>Salud y equipo m&eacute;dico</option>
+  <option value="1">Electr&oacute;nica</option>
+  <option value="2">Papeler&iacute;a</option>
+  <option value="3">Veh&iacute;culos</option>
+  <option value="4">Electrodom&eacute;sticos</option>
+  <option value="5">Moda</option>
+  <option value="juegos">Juegos y juguetes</option>
+  <option value="salud">Salud y equipo m&eacute;dico</option>
 </select>
           </div>
 
@@ -111,8 +215,99 @@
     </section>
   </main>
 
+  <!-- Modales de autenticaci?n -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close>&times;</button>
+      <h2>Iniciar sesi&oacute;n</h2>
+      <input id="loginEmail" type="email" placeholder="Correo">
+      <input id="loginPass" type="password" placeholder="Contrase&ntilde;a">
+      <div id="loginError" class="modal-feedback hidden" role="alert"></div>
+      <button id="loginSubmit" class="btn">Entrar</button>
+      <p>&iquest;No tienes cuenta? <a href="#" id="openRegister">Reg&iacute;strate</a></p>
+    </div>
+  </div>
+
+  <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close>&times;</button>
+      <h2>Crear cuenta</h2>
+      <input id="regName" type="text" placeholder="Tu nombre">
+      <input id="regEmail" type="email" placeholder="Correo">
+      <input id="regPass" type="password" placeholder="Contrase&ntilde;a">
+      <div id="registerError" class="modal-feedback hidden" role="alert"></div>
+      <button id="registerSubmit" class="btn">Crear cuenta</button>
+      <p>&iquest;Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesi&oacute;n</a></p>
+    </div>
+  </div>
+
   <script>
-    // ProtecciÃ³n de ruta: requiere sesiÃ³n
+    // Sistema de notificaciones tipo toast
+    (function notificationCenter(){
+      const container = document.createElement('div');
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+
+      const ICONS = {
+        success: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        error: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+        warning: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4m0 4h.01M3 19h18L12 4 3 19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        info: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8h.01M11 12h1v4h1m-1-12a9 9 0 100 18 9 9 0 000-18z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      };
+      const TITLES = {
+        success: 'Listo',
+        error: 'Ocurrió un error',
+        warning: 'Atenci?n',
+        info: 'Aviso'
+      };
+
+      window.showToast = function(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        const icon = document.createElement('span');
+        icon.className = 'toast-icon';
+        icon.innerHTML = ICONS[type] || ICONS.info;
+
+        const content = document.createElement('div');
+        content.className = 'toast-content';
+
+        const title = document.createElement('div');
+        title.className = 'toast-title';
+        title.textContent = TITLES[type] || TITLES.info;
+
+        const copy = document.createElement('p');
+        copy.className = 'toast-message';
+        copy.textContent = message;
+
+        content.appendChild(title);
+        content.appendChild(copy);
+
+        const close = document.createElement('button');
+        close.className = 'toast-close';
+        close.type = 'button';
+        close.setAttribute('aria-label', 'Cerrar notificaci?n');
+        close.innerHTML = '&times;';
+
+        const removeToast = () => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 200);
+        };
+
+        close.addEventListener('click', removeToast);
+
+        toast.appendChild(icon);
+        toast.appendChild(content);
+        toast.appendChild(close);
+
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+
+        setTimeout(removeToast, 4500);
+      };
+    })();
+
+    // Protecci?n de ruta: requiere sesi?n
     (async function ensureAuth(){
       try {
         const res = await fetch('/backend/session.php', { credentials: 'include' });
@@ -124,7 +319,7 @@
         location.replace('/?login=1');
       }
     })();
-    // Uploader mÃºltiple con previsualizaciÃ³n
+    // Uploader m?ltiple con previsualizaci?n
     (function imagesUploader(){
       const input = document.getElementById('p-images');
       const drop = document.getElementById('dropzone');
@@ -149,8 +344,8 @@
       function addFiles(files) {
         for (const file of files) {
           if (!file.type.startsWith('image/')) continue;
-          if (file.size > MAX_SIZE) { alert('Una imagen supera 5MB.'); continue; }
-          if (selected.length >= MAX_FILES) { alert('M\u00E1ximo 6 im\u00E1genes.'); break; }
+          if (file.size > MAX_SIZE) { showToast('Una imagen supera los 5MB permitidos.', 'warning'); continue; }
+          if (selected.length >= MAX_FILES) { showToast('M?ximo 6 im?genes por publicaci?n.', 'warning'); break; }
           const url = URL.createObjectURL(file);
           selected.push({ file, url });
         }
@@ -178,7 +373,9 @@
         selected.splice(idx, 1);
         render();
       });
-      // Expone una utilidad para subir las imÃ¡genes seleccionadas una vez creado el producto
+      // Exponer cantidad seleccionada para validaciones
+      window.countSelectedImages = () => selected.length;
+      // Expone una utilidad para subir las im?genes seleccionadas una vez creado el producto
       window.uploadImagesForProduct = async function(productId){
         for (const item of selected) {
           const fd = new FormData();
@@ -197,12 +394,17 @@
       if (!btn) return;
       btn.addEventListener('click', async () => {
         const name  = document.getElementById('p-name').value.trim();
+        const category = document.getElementById('p-category').value;
         const desc  = document.getElementById('p-desc').value.trim();
         const price = parseFloat(document.getElementById('p-price').value);
         const stock = parseInt(document.getElementById('p-stock').value || '0', 10);
-        if (!name) return alert('Ingresa el nombre del producto');
-        if (!desc) return alert('Ingresa la Descripci&oacute;n del producto');
-        if (!(price > 0)) return alert('Ingresa un precio v\u00E1lido');
+        const imageCount = (typeof window.countSelectedImages === 'function') ? window.countSelectedImages() : 0;
+        if (!name) { showToast('Ingresa el nombre del producto.', 'warning'); return; }
+        if (!category) { showToast('Selecciona una categoria.', 'warning'); return; }
+        if (!desc) { showToast('Ingresa la descripci?n del producto.', 'warning'); return; }
+        if (!(price > 0)) { showToast('Ingresa un precio v?lido.', 'warning'); return; }
+        if (!Number.isInteger(stock) || stock <= 0) { showToast('Ingresa un stock v?lido.', 'warning'); return; }
+        if (imageCount <= 0) { showToast('Agrega al menos una imagen.', 'warning'); return; }
 
         btn.disabled = true; btn.textContent = 'Publicando...';
         try {
@@ -210,19 +412,19 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ name, description: desc, price, stock })
+            body: JSON.stringify({ name, description: desc, price, stock, category })
           });
           const data = await res.json();
-          if (data.error) { alert(data.error); return; }
+          if (data.error) { showToast(data.error, 'error'); return; }
           const productId = data.product_id;
-          // Subir imÃ¡genes seleccionadas (si hay)
+          // Subir im?genes seleccionadas (si hay)
           if (window.uploadImagesForProduct) {
             await window.uploadImagesForProduct(productId);
           }
-          alert('Producto publicado');
-          location.href = '/';
+          showToast('Producto publicado con ?xito.', 'success');
+          setTimeout(() => { location.href = '/'; }, 1000);
         } catch (e) {
-          alert('Error al publicar');
+          showToast('Error al publicar. Intenta de nuevo.', 'error');
         } finally {
           btn.disabled = false; btn.textContent = 'Publicar';
         }
@@ -232,14 +434,3 @@
   <script src="public/js/app.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-

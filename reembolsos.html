@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Reembolsos</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <header class="header">
+    <div class="topbar container">
+      <a href="#" class="logo" aria-label="Ir al inicio">
+        <!-- Logo minimal -->
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>MiMarket</span>
+      </a>
+
+      <!-- Buscador -->
+      <form class="search" role="search" aria-label="Buscar productos">
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" aria-label="Buscar"/>
+        <button type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+        </button>
+        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
+      </form>
+
+      <!-- Acciones derecha -->
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
+    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
+    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
+    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
+  </svg>
+
+  <!-- Nuevo badge dinÃ¡mico -->
+  <span id="cartBadge" class="badge hidden"></span>
+  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+    <div class="cart-empty">No hay productos en el carrito</div>
+  </div>
+</div>
+
+
+        <div class="profile" aria-label="MenÃº de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+    <span id="profileLabel">Iniciar sesi&oacute;n</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+  </button>
+                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
+          </ul>
+        </div>
+
+        <button id="hamburger" class="hamburger" aria-label="Abrir menÃº" aria-controls="catNav" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Categor&iacute;as -->
+    <nav id="catNav" class="categories" aria-label="Categorías">
+  <ul class="container">
+    <li class="cat has-mega">
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+      <div class="mega">
+        <div>
+          <h4>Celulares</h4>
+          <a href="#">Smartphones</a>
+          <a href="#">Accesorios</a>
+          <a href="#">Wearables</a>
+        </div>
+        <div>
+          <h4>Computaci&oacute;n</h4>
+          <a href="#">Laptops</a>
+          <a href="#">Perif&eacute;ricos</a>
+          <a href="#">Componentes</a>
+        </div>
+        <div>
+          <h4>TV y Audio</h4>
+          <a href="#">Televisores</a>
+          <a href="#">Bocinas</a>
+          <a href="#">Streaming</a>
+        </div>
+      </div>
+    </li>
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+    <li class="cat"><a href="#">Moda</a></li>
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+  </ul>
+</nav>
+  </header>
+
+  <main class="container info-page">
+    <section class="info-hero">
+      <span class="info-hero__tag">Protecci&#243;n a compradores</span>
+      <h1>Reembolsos</h1>
+      <p>Retenemos el pago hasta confirmar que todo se entreg&#243; seg&#250;n lo acordado.</p>
+    </section>
+    <section class="info-grid">
+      <article class="info-card">
+        <h2>Lo esencial</h2>
+        <p>El pago se mantiene retenido en la plataforma hasta que el comprador confirme la recepci&#243;n del producto.</p>
+        <p>En caso de no concretarse la entrega o existir alg&#250;n inconveniente comprobable, el reembolso se procesar&#225; de forma prioritaria y lo antes posible.</p>
+        <div class="info-note">Brinda evidencia clara para acelerar la evaluaci&#243;n del reembolso.</div>
+      </article>
+      <article class="info-card">
+        <h2>Flujo de reembolso</h2>
+        <ul class="info-list">
+          <li>Confirma tu pedido solo cuando recibas el producto en buen estado.</li>
+          <li>Abre un reporte si detectas retrasos o incongruencias.</li>
+          <li>Sigue el hilo del caso desde tu bandeja de mensajes.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+
+  <script src="public/js/app.js"></script>
+</body>
+</html>
+

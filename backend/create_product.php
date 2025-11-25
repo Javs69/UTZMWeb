@@ -14,9 +14,46 @@ $name  = trim($data['name'] ?? '');
 $desc  = trim($data['description'] ?? '');
 $price = (float)($data['price'] ?? 0);
 $stock = (int)($data['stock'] ?? 0);
+$categoryRaw = $data['category'] ?? '';
 
-if ($name === '' || $price <= 0 || $desc === '') {
-  echo json_encode(["error" => "Nombre, descripción y precio son obligatorios"]);
+function normalize_text($t) {
+  $t = strtolower($t);
+  $converted = @iconv('UTF-8', 'ASCII//TRANSLIT', $t);
+  if ($converted !== false && $converted !== null) {
+    $t = $converted;
+  }
+  return preg_replace('/[^a-z0-9]+/', '', $t);
+}
+
+function resolve_category_id($val) {
+  $map = [
+    'electronica' => 1,
+    'electronico' => 1,
+    'electronic'  => 1,
+    'papeleria' => 2,
+    'vehiculos' => 3,
+    'vehiculo' => 3,
+    'electrodomesticos' => 4,
+    'electrodomestico' => 4,
+    'moda' => 5,
+  ];
+  if (is_numeric($val)) {
+    $num = (int)$val;
+    return $num > 0 ? $num : 0;
+  }
+  $norm = normalize_text((string)$val);
+  return $map[$norm] ?? 0;
+}
+
+$category_id = resolve_category_id($categoryRaw);
+
+if ($name === '' || $price <= 0 || $desc === '' || $stock <= 0) {
+  echo json_encode(["error" => "Nombre, descripción, precio y stock son obligatorios"]);
+  exit;
+}
+$allowNullCategory = true; // permite productos sin categoría en caso de que la lista no coincida
+if ($category_id <= 0 && !$allowNullCategory) {
+  echo json_encode(["error" => "Categoría inválida"]);
   exit;
 }
 
@@ -25,9 +62,9 @@ $seller_id = (int) $_SESSION['user']['id'];
 
 try {
   $stmt = $pdo->prepare(
-    "INSERT INTO products (name, description, price_cents, stock, seller_id) VALUES (?,?,?,?,?) RETURNING id"
+    "INSERT INTO products (name, description, price_cents, stock, seller_id, category_id) VALUES (?,?,?,?,?,?) RETURNING id"
   );
-  $stmt->execute([$name, $desc, $price_cents, $stock, $seller_id]);
+  $stmt->execute([$name, $desc, $price_cents, $stock, $seller_id, $category_id > 0 ? $category_id : null]);
   $product_id = (int)$stmt->fetchColumn();
 
   echo json_encode(["success" => true, "product_id" => $product_id]);
