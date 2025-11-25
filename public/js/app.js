@@ -9,10 +9,15 @@ const avatarImg    = document.getElementById("avatarImg");
 const profileMenu  = document.getElementById("profileMenu");
 const cartBtn      = document.getElementById("cartBtn");
 const cartMenu     = document.getElementById("cartMenu");
+const actionsNav   = typeof document !== 'undefined' ? document.querySelector('.actions') : null;
+const loginErrorBox = document.getElementById("loginError");
+const registerErrorBox = document.getElementById("registerError");
 
-const GUEST_AVATAR = "https://i.pravatar.cc/40?u=guest";
+const GUEST_AVATAR = "/public/uploads/blank-profile.png";
 const IS_VENDER = typeof location !== 'undefined' && /\/vender\.html$/i.test(location.pathname || '');
 const CART_STORAGE_KEY = 'CART';
+const FAV_STORAGE_KEY = 'FAVS';
+const USER_KEY = 'USER_ID';
 
 // Año en el footer
 try { document.getElementById('year') && (document.getElementById('year').textContent = String(new Date().getFullYear())); } catch(_) {}
@@ -20,19 +25,243 @@ try { document.getElementById('year') && (document.getElementById('year').textCo
 let SESSION = { logged_in: false, user: null };
 let ALL_PRODUCTS = [];
 const CART = []; // { product_id, name, price_cents, qty, seller_id }
+const FAVS = []; // { product_id, name, price_cents, image }
+const THEME_KEY = 'THEME';
+let messagesNavLink = null;
+let ordersNavLink = null;
+let favBtn = null;
+let favMenu = null;
+const isFavorite = (id)=> FAVS.some(f => Number(f.product_id) === Number(id));
+let CART_LOADED = false;
+let FAV_LOADED = false;
+
+function setModalMessage(box, message = '', variant = 'error'){
+  if (!box) return;
+  box.textContent = message || '';
+  box.classList.remove('is-error','is-success');
+  if (!message){
+    box.classList.add('hidden');
+    return;
+  }
+  box.classList.remove('hidden');
+  box.classList.add(variant === 'success' ? 'is-success' : 'is-error');
+}
+
+function resetAuthMessages(){
+  setModalMessage(loginErrorBox);
+  setModalMessage(registerErrorBox);
+}
 
 function loadCartFromStorage(){
   try{
     const raw = localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) return;
+    const who = localStorage.getItem(USER_KEY) || '';
+    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
+    if (!raw || !currentUser || who !== currentUser) return;
     const arr = JSON.parse(raw);
     if (Array.isArray(arr)){
       CART.splice(0, CART.length, ...arr);
     }
   }catch(_){ }
+  CART_LOADED = true;
 }
 function saveCartToStorage(){
-  try{ localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(CART)); }catch(_){ }
+  try{
+    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
+    if (!currentUser) return;
+    localStorage.setItem(USER_KEY, currentUser);
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(CART));
+  }catch(_){ }
+}
+
+function loadFavsFromStorage(){
+  try{
+    const raw = localStorage.getItem(FAV_STORAGE_KEY);
+    const who = localStorage.getItem(USER_KEY) || '';
+    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
+    if (!raw || !currentUser || who !== currentUser) return;
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr)){
+      FAVS.splice(0, FAVS.length, ...arr);
+    }
+  }catch(_){}
+  FAV_LOADED = true;
+}
+function saveFavsToStorage(){
+  try{
+    const currentUser = SESSION?.user?.id != null ? String(SESSION.user.id) : '';
+    if (!currentUser) return;
+    localStorage.setItem(USER_KEY, currentUser);
+    localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(FAVS));
+  }catch(_){}
+}
+
+function ensureMessagesLinkEl(){
+  if (messagesNavLink || !actionsNav) return messagesNavLink;
+  messagesNavLink = document.createElement('a');
+  messagesNavLink.href = '/mensajes.html';
+  messagesNavLink.className = 'link';
+  messagesNavLink.id = 'messagesNavLink';
+  messagesNavLink.textContent = 'Mensajes';
+  messagesNavLink.style.display = 'none';
+  return messagesNavLink;
+}
+
+function ensureFavoritesWidget(){
+  if (!actionsNav) return;
+  if (favBtn && favMenu) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'icon-btn';
+  wrap.id = 'favBtn';
+  wrap.setAttribute('role','button');
+  wrap.setAttribute('aria-label','Favoritos');
+  wrap.setAttribute('tabindex','0');
+  wrap.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10s-1 .65-2 0Z"/></svg>
+    <span id="favBadge" class="badge hidden"></span>
+    <div id="favMenu" class="cart-menu" role="menu" aria-label="Favoritos">
+      <div class="cart-empty">No tienes favoritos</div>
+    </div>
+  `;
+  favBtn = wrap;
+  favMenu = wrap.querySelector('#favMenu');
+  const cart = actionsNav.querySelector('#cartBtn');
+  if (cart){
+    actionsNav.insertBefore(wrap, cart);
+  } else {
+    actionsNav.appendChild(wrap);
+  }
+}
+
+function renderFavMenu(){
+  ensureFavoritesWidget();
+  if (!favMenu) return;
+  if (!FAVS.length){
+    favMenu.innerHTML = '<div class="cart-empty">No tienes favoritos</div>';
+    const badge = document.getElementById('favBadge');
+    badge?.classList.add('hidden');
+    return;
+  }
+  const badge = document.getElementById('favBadge');
+  if (badge){
+    badge.textContent = String(FAVS.length);
+    badge.classList.remove('hidden');
+  }
+  favMenu.innerHTML = `
+    <div class="cart-list">
+      ${FAVS.map(f => `
+        <div class="cart-item" data-favid="${f.product_id}">
+          <div class="cart-line" style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
+            <a href="/producto.html?id=${f.product_id}" class="cart-name" style="flex:1 1 auto;">${f.name}</a>
+            <button class="cart-remove" data-remove-fav="${f.product_id}" aria-label="Quitar favorito" title="Quitar" style="background:none;border:none;color:#d84e4e;font-weight:700;font-size:18px;cursor:pointer">&times;</button>
+          </div>
+          <div class="cart-price">${(f.price_cents/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'})}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function syncFavButtons(pid){
+  const buttons = document.querySelectorAll('[data-fav-toggle]');
+  buttons.forEach(btn => {
+    const isThis = Number(btn.dataset.productId) === Number(pid);
+    const active = isFavorite(btn.dataset.productId);
+    btn.classList.toggle('is-active', active);
+    btn.textContent = active ? '♥' : '♡';
+  });
+}
+function mountMessagesLink(){
+  const link = ensureMessagesLinkEl();
+  if (!link || !actionsNav) return;
+  link.style.display = 'inline-block';
+  if (!link.isConnected){
+    const profile = actionsNav.querySelector('.profile');
+    const cart = actionsNav.querySelector('#cartBtn');
+    const orders = actionsNav.querySelector('#ordersNavLink');
+    const fav = actionsNav.querySelector('#favBtn');
+    if (orders && orders.isConnected){
+      actionsNav.insertBefore(link, orders);
+    } else if (fav && fav.isConnected){
+      actionsNav.insertBefore(link, fav);
+    } else if (cart) {
+      actionsNav.insertBefore(link, cart);
+    } else if (profile) {
+      actionsNav.insertBefore(link, profile);
+    } else {
+      actionsNav.appendChild(link);
+    }
+  }
+}
+function unmountMessagesLink(){
+  if (messagesNavLink){
+    messagesNavLink.style.display = 'none';
+    try { messagesNavLink.remove(); } catch(_) {}
+  }
+}
+
+function ensureOrdersLinkEl(){
+  if (ordersNavLink || !actionsNav) return ordersNavLink;
+  ordersNavLink = document.createElement('a');
+  ordersNavLink.href = '/pedidos.html';
+  ordersNavLink.className = 'link';
+  ordersNavLink.id = 'ordersNavLink';
+  ordersNavLink.textContent = 'Pedidos';
+  return ordersNavLink;
+}
+function mountOrdersLink(){
+  const link = ensureOrdersLinkEl();
+  if (!link || !actionsNav) return;
+  link.style.display = 'inline-block';
+  if (!link.isConnected){
+    const profile = actionsNav.querySelector('.profile');
+    const cart = actionsNav.querySelector('#cartBtn');
+    const msgs = ensureMessagesLinkEl();
+    if (msgs && msgs.isConnected){
+      actionsNav.insertBefore(link, msgs.nextSibling);
+    } else if (document.getElementById('favBtn')) {
+      actionsNav.insertBefore(link, document.getElementById('favBtn'));
+    } else if (cart) {
+      actionsNav.insertBefore(link, cart);
+    } else if (profile) {
+      actionsNav.insertBefore(link, profile);
+    } else {
+      actionsNav.appendChild(link);
+    }
+  }
+}
+function unmountOrdersLink(){
+  if (ordersNavLink){
+    ordersNavLink.style.display = 'none';
+    try { ordersNavLink.remove(); } catch(_) {}
+  }
+}
+
+function applyTheme(v){
+  const t = (v === 'dark') ? 'dark' : 'light';
+  document.documentElement.dataset.theme = t;
+  try{ localStorage.setItem(THEME_KEY, t); }catch(_){}
+  const toggler = document.getElementById('themeToggle');
+  if (toggler){
+    toggler.dataset.theme = t;
+    toggler.querySelector('.theme-toggle__label').textContent = t === 'dark' ? 'Modo claro' : 'Modo oscuro';
+  }
+}
+function ensureThemeToggle(){
+  if (!actionsNav) return;
+  if (document.getElementById('themeToggle')) return;
+  const btn = document.createElement('button');
+  btn.id = 'themeToggle';
+  btn.className = 'theme-toggle';
+  btn.type = 'button';
+  btn.innerHTML = '<span class="theme-toggle__label">Modo oscuro</span><span class="theme-toggle__knob" aria-hidden="true"></span>';
+  const saved = (()=>{ try { return localStorage.getItem(THEME_KEY); } catch(_) { return null; }})();
+  applyTheme(saved || 'light');
+  btn.addEventListener('click', () => {
+    const next = (document.documentElement.dataset.theme === 'dark') ? 'light' : 'dark';
+    applyTheme(next);
+  });
+  actionsNav.appendChild(btn);
 }
 
 // ====== Buscador (con sinónimos básicos tipo "mini IA") ======
@@ -194,39 +423,49 @@ async function refreshSessionUI() {
     SESSION = { logged_in: false, user: null };
   }
 
+  mountMessagesLink();
+  mountOrdersLink();
+  ensureFavoritesWidget();
+
   if (!SESSION.logged_in) {
-    profileLabel.textContent = "Iniciar sesi\u00F3n";
+    profileLabel.textContent = "Iniciar sesión";
     avatarImg.src = GUEST_AVATAR;
     profileBtn.setAttribute("aria-expanded", "false");
     profileMenu?.classList.remove("open");
-    // Mostrar "Ingresar" y ocultar "Salir"/"Vender" en el men\u00FAº
     const _linksOut = Array.from(profileMenu?.querySelectorAll("a") || []);
     const _loginItemOut = _linksOut.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"))?.closest("li");
-    const _logoutItemOut = _linksOut.find(a => a.textContent?.trim().toLowerCase().includes("salir"))?.closest("li");
+    const _logoutItemOut = _linksOut.find(a => a.hasAttribute('data-logout') || a.textContent?.trim().toLowerCase().includes("cerrar") || a.textContent?.trim().toLowerCase().includes("salir"))?.closest("li");
     const _sellItemOut = _linksOut.find(a => a.textContent?.trim().toLowerCase().includes("vender"))?.closest("li");
     if (_loginItemOut) _loginItemOut.hidden = false;
     if (_logoutItemOut) _logoutItemOut.hidden = true;
     if (_sellItemOut) _sellItemOut.hidden = true;
-  } else {
-    const name = SESSION.user?.full_name || SESSION.user?.email || "Cuenta";
-    profileLabel.textContent = name;
-    const avatar = SESSION.user?.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(SESSION.user.email || SESSION.user.id)}`;
-    avatarImg.src = avatar;
-    // Ocultar "Ingresar" y mostrar "Salir"/"Vender" en el men\u00FAº
-    const _linksIn = Array.from(profileMenu?.querySelectorAll("a") || []);
-    const _loginItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"))?.closest("li");
-    const _logoutItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("salir"))?.closest("li");
-    const _sellItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("vender"))?.closest("li");
-    if (_loginItemIn) _loginItemIn.hidden = true;
-    if (_logoutItemIn) _logoutItemIn.hidden = IS_VENDER ? true : false;
-    if (_sellItemIn) _sellItemIn.hidden = false;
+    return;
   }
-}
 
+  const name = SESSION.user?.full_name || SESSION.user?.email || "Cuenta";
+  profileLabel.textContent = name;
+  const avatar = SESSION.user?.avatar_url || GUEST_AVATAR;
+  avatarImg.src = avatar;
+  const _linksIn = Array.from(profileMenu?.querySelectorAll("a") || []);
+  const _loginItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"))?.closest("li");
+  const _logoutItemIn = _linksIn.find(a => a.hasAttribute('data-logout') || a.textContent?.trim().toLowerCase().includes("cerrar") || a.textContent?.trim().toLowerCase().includes("salir"))?.closest("li");
+  const _sellItemIn = _linksIn.find(a => a.textContent?.trim().toLowerCase().includes("vender"))?.closest("li");
+  if (_loginItemIn) _loginItemIn.hidden = true;
+  if (_logoutItemIn) _logoutItemIn.hidden = IS_VENDER ? true : false;
+  if (_sellItemIn) _sellItemIn.hidden = false;
 
+  ensureMessagesFeatureVisibility();
+  mountOrdersLink();
+  ensureFavoritesWidget();
 
-
-// Click en el botÃ³n de perfil
+  CART_LOADED = false;
+  FAV_LOADED = false;
+  loadCartFromStorage();
+  loadFavsFromStorage();
+  updateCartBadge();
+  renderCartMenu();
+  renderFavMenu();
+}// Click en el botÃ³n de perfil
 profileBtn?.addEventListener("click", (e) => {
   e.preventDefault();
   if (!SESSION.logged_in) {
@@ -285,6 +524,47 @@ function renderCartMenu() {
   `;
   cartMenu.innerHTML = `<div class="cart-list">${itemsHtml}</div>${totalHtml}`;
 }
+
+// Favoritos: toggle
+document.addEventListener('click', (e) => {
+  const favToggle = e.target.closest('[data-fav-toggle]');
+  if (!favToggle) return;
+  const pid = Number(favToggle.dataset.productId);
+  const existing = FAVS.find(f => f.product_id === pid);
+  if (existing){
+    const idx = FAVS.indexOf(existing);
+    if (idx >= 0) FAVS.splice(idx,1);
+  } else {
+    FAVS.push({
+      product_id: pid,
+      name: favToggle.dataset.title,
+      price_cents: Number(favToggle.dataset.price) || 0
+    });
+  }
+  try{ saveFavsToStorage(); renderFavMenu(); }catch(_){}
+  syncFavButtons(pid);
+});
+
+// Toggle menú favoritos
+document.addEventListener('click', (e) => {
+  if (!favBtn || !favMenu) return;
+  if (favBtn.contains(e.target)){
+    favMenu.classList.toggle('open');
+  } else if (!favMenu.contains(e.target)){
+    favMenu.classList.remove('open');
+  }
+});
+
+favMenu?.addEventListener('click', (e)=>{
+  const rm = e.target.closest('[data-remove-fav]');
+  if (!rm) return;
+  const pid = Number(rm.dataset.removeFav);
+  const idx = FAVS.findIndex(f => f.product_id === pid);
+  if (idx >= 0){
+    FAVS.splice(idx,1);
+    try{ saveFavsToStorage(); renderFavMenu(); }catch(_){}
+  }
+});
 
 // Delegación de eventos: cantidad y eliminar
 cartMenu?.addEventListener('input', (e) => {
@@ -389,6 +669,8 @@ document.addEventListener("keydown", (e) => {
     }
   } catch (_) {}
 })();
+// Tema
+ensureThemeToggle();
 // Refresca al cargar
 refreshSessionUI();
 
@@ -398,8 +680,10 @@ refreshSessionUI();
 Array.from(document.querySelectorAll('#openRegister')).forEach((el) => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
+    if (!loginModal || !registerModal) return;
     loginModal.classList.add("hidden");
     registerModal.classList.remove("hidden");
+    resetAuthMessages();
   });
 });
 
@@ -407,15 +691,18 @@ Array.from(document.querySelectorAll('#openRegister')).forEach((el) => {
 Array.from(document.querySelectorAll('#openLogin')).forEach((el) => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
+    if (!registerModal || !loginModal) return;
     registerModal.classList.add("hidden");
     loginModal.classList.remove("hidden");
+    resetAuthMessages();
   });
 });
 
 // ===== Cerrar modales (versiÃ³n robusta, sin delegaciÃ³n global) =====
 function closeModals() {
-  loginModal.classList.add("hidden");
-  registerModal.classList.add("hidden");
+  if (loginModal) loginModal.classList.add("hidden");
+  if (registerModal) registerModal.classList.add("hidden");
+  resetAuthMessages();
 }
 
 // Cerrar con botÃ³n X (listeners directos para evitar stopPropagation)
@@ -453,37 +740,67 @@ document.getElementById("registerSubmit")?.addEventListener("click", async () =>
   const full_name = document.getElementById("regName").value;
   const email = document.getElementById("regEmail").value;
   const password = document.getElementById("regPass").value;
+  setModalMessage(registerErrorBox);
 
-  const res = await fetch("/backend/register.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ full_name, email, password }),
-  });
-  const data = await res.json();
-  if (data.error) return alert(data.error);
-
-  alert("Cuenta creada con \u00E9xito. Bienvenido, " + (data.user.full_name || data.user.email || ""));
-  await refreshSessionUI();
-  closeModals();
+  try {
+    const res = await fetch("/backend/register.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ full_name, email, password }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      setModalMessage(registerErrorBox, data.error, "error");
+      return;
+    }
+    setModalMessage(
+      registerErrorBox,
+      "Cuenta creada con \u00E9xito. Bienvenido, " + (data.user.full_name || data.user.email || ""),
+      "success"
+    );
+    await refreshSessionUI();
+    setTimeout(() => {
+      closeModals();
+      setModalMessage(registerErrorBox);
+    }, 900);
+  } catch (_) {
+    setModalMessage(registerErrorBox, "No se pudo crear la cuenta. Intenta de nuevo.", "error");
+  }
 });
 
 document.getElementById("loginSubmit")?.addEventListener("click", async () => {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPass").value;
+  setModalMessage(loginErrorBox);
 
-  const res = await fetch("/backend/login.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json();
-  if (data.error) return alert(data.error);
+  try {
+    const res = await fetch("/backend/login.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
+    let data = {};
+    try { data = await res.json(); } catch(_) { data = {}; }
 
-  alert("Bienvenido, " + (data.user.full_name || data.user.email || ""));
-  await refreshSessionUI();
-  closeModals();
+    // Si backend marca error o la respuesta no fue ok
+    if (!res.ok || data.error || data.success === false) {
+      setModalMessage(loginErrorBox, data.error || "Credenciales incorrectas", "error");
+      return;
+    }
+
+    // Éxito: mostrar bienvenida y refrescar sesión en segundo plano
+    const name = data.user?.full_name || data.user?.email || "";
+    setModalMessage(loginErrorBox, "Bienvenido, " + name, "success");
+    try { await refreshSessionUI(); } catch(_){}
+    setTimeout(() => {
+      closeModals();
+      setModalMessage(loginErrorBox);
+    }, 700);
+  } catch (_) {
+    setModalMessage(loginErrorBox, "Credenciales incorrectas", "error");
+  }
 
 // Configurar enlaces del men\u00FAº de perfil (Ingresar/Salir)
 });
@@ -497,7 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   } catch (_) {}
   const links = Array.from(profileMenu?.querySelectorAll("a") || []);
-  const logoutLink = links.find(a => a.textContent?.trim().toLowerCase().includes("salir"));
+  const logoutLink = links.find(a => a.hasAttribute('data-logout') || a.textContent?.trim().toLowerCase().includes("cerrar") || a.textContent?.trim().toLowerCase().includes("salir"));
   if (logoutLink) {
     if (IS_VENDER) {
       // En la pantalla de vender, deshabilitar logout para evitar errores
@@ -567,8 +884,14 @@ function renderProducts(containerId, items) {
     });
     const card = document.createElement("article");
     card.className = "card";
+    const favActive = isFavorite(p.id);
 
     card.innerHTML = `
+      <button class="btn-fav${favActive ? ' is-active' : ''}" data-fav-toggle
+        data-product-id="${p.id}"
+        data-title="${p.name}"
+        data-price="${p.price_cents}"
+        aria-label="Agregar a favoritos">${favActive ? '♥' : '♡'}</button>
       <a href="/producto.html?id=${p.id}" class="card-media">
         <img src="${p.image || "https://picsum.photos/seed/" + p.id + "/600/400"}" alt="${p.name}">
       </a>
@@ -592,8 +915,10 @@ function renderProducts(containerId, items) {
 
 // Inicializa carrito desde localStorage antes de pintar UI
 try { loadCartFromStorage(); } catch(_) {}
+try { loadFavsFromStorage(); } catch(_) {}
 loadProducts();
 try { updateCartBadge(); } catch(_) {}
+try { renderFavMenu(); } catch(_) {}
 
 // Agregar al carrito (requiere sesión iniciada)
 document.addEventListener("click", (e) => {
@@ -706,6 +1031,11 @@ async function comprar() {
 
 // Icono del carrito ejecuta la compra (demo)
 // cart icon handler moved to cartBtn listener
+
+
+
+
+
 
 
 
