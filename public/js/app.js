@@ -35,7 +35,15 @@ let favMenu = null;
 const isFavorite = (id)=> FAVS.some(f => Number(f.product_id) === Number(id));
 let CART_LOADED = false;
 let FAV_LOADED = false;
-const CATEGORY_IDS = { electronica: 1, papeleria: 2, vehiculos: 3, electrodomesticos: 4, moda: 5 };
+const CATEGORY_IDS = {
+  electronica: 1,
+  papeleria: 2,
+  vehiculos: 3,
+  electrodomesticos: 4,
+  moda: 5,
+  juegos: 6,
+  salud: 7
+};
 const getSessionUserId = () => (SESSION?.user?.id != null ? String(SESSION.user.id) : '');
 function getStoredUserId(){
   try { return localStorage.getItem(USER_KEY) || ''; } catch(_) { return ''; }
@@ -346,6 +354,10 @@ function ensureThemeToggle(){
 const searchInput = document.getElementById('searchInput');
 const searchSuggest = document.getElementById('searchSuggest');
 const searchForm = document.querySelector('form.search');
+const isHomePage = () => {
+  const path = (location.pathname || '').replace(/\/+$/, '');
+  return path === '' || path === '/' || path.endsWith('/index.html');
+};
 
 function normalize(t){
   try { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); } catch(_) { return (t||'').toLowerCase(); }
@@ -420,6 +432,54 @@ async function fetchProducts(opts = {}){
   }
 }
 
+async function renderResultsForQuery(query, opts = {}){
+  const q = (query || '').trim();
+  const rawCat = opts.categoryId;
+  const hasCategory = rawCat !== undefined && rawCat !== null && rawCat !== '';
+  const categoryId = hasCategory ? Number(rawCat) : null;
+
+  if (!ALL_PRODUCTS.length){
+    try { await fetchProducts(); } catch(_){}
+  }
+
+  let rs = q ? searchProducts(q) : [...ALL_PRODUCTS];
+  if (categoryId){
+    rs = rs.filter(p => Number(p.category_id) === Number(categoryId));
+    if (!rs.length){
+      try{
+        const apiRs = await fetchProducts({ query: q, categoryId });
+        if (Array.isArray(apiRs) && apiRs.length) rs = apiRs;
+      }catch(_){}
+    }
+  }
+
+  renderSearchResults(rs);
+  if (searchInput && q) searchInput.value = q;
+  try{
+    const url = new URL(location.href);
+    if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+    if (categoryId) url.searchParams.set('category', categoryId); else url.searchParams.delete('category');
+    history.replaceState({}, '', url.toString());
+  }catch(_){}
+}
+
+function goToSearchPage(query, opts = {}){
+  const q = (query || '').trim();
+  const rawCat = opts.categoryId;
+  const hasCategory = rawCat !== undefined && rawCat !== null && rawCat !== '';
+  const categoryId = hasCategory ? Number(rawCat) : null;
+  if (!q && !categoryId) return;
+  if (searchSuggest) searchSuggest.style.display = 'none';
+  if (isHomePage()){
+    renderResultsForQuery(q, { categoryId });
+    return;
+  }
+  const url = new URL('index.html', location.href);
+  if (q) url.searchParams.set('q', q);
+  if (categoryId) url.searchParams.set('category', categoryId);
+  location.href = url.toString();
+}
+
 function ensureResultsSection(){
   let sec = document.getElementById('search-results-section');
   if (sec) return sec;
@@ -441,6 +501,12 @@ function ensureResultsSection(){
     s2 && (s2.hidden = false);
     const hero = document.querySelector('.hero');
     hero && (hero.hidden = false);
+    try{
+      const url = new URL(location.href);
+      url.searchParams.delete('q');
+      url.searchParams.delete('category');
+      history.replaceState({}, '', url.toString());
+    }catch(_){}
   });
   return sec;
 }
@@ -533,9 +599,7 @@ function renderSuggestions(list){
     const li = document.createElement('li');
     li.textContent = p.name;
     li.addEventListener('click', () => {
-      searchInput.value = p.name;
-      searchSuggest.style.display = 'none';
-      renderSearchResults(searchProducts(p.name));
+      goToSearchPage(p.name);
     });
     searchSuggest.appendChild(li);
   });
@@ -550,8 +614,8 @@ function categoryFilterFromText(txt){
   if (t.includes('veh')) return { categoryId: CATEGORY_IDS.vehiculos, query: '' };
   if (t.includes('moda')) return { categoryId: CATEGORY_IDS.moda, query: '' };
   if (t.includes('electr')) return { categoryId: CATEGORY_IDS.electronica, query: '' };
-  if (t.includes('juego') || t.includes('juguet')) return { categoryId: 0, query: 'juguete juguetes lego figura muñeca juego' };
-  if (t.includes('salud') || t.includes('médico') || t.includes('medico')) return { categoryId: 0, query: 'salud equipo medico cubrebocas termometro mascarilla' };
+  if (t.includes('juego') || t.includes('juguet')) return { categoryId: CATEGORY_IDS.juegos, query: '' };
+  if (t.includes('salud') || t.includes('m\u00e9dico') || t.includes('medico')) return { categoryId: CATEGORY_IDS.salud, query: '' };
   return { categoryId: 0, query: t };
 }
 
@@ -563,9 +627,8 @@ function wireCategoryFilters(){
     a.addEventListener('click', async (e) => {
       e.preventDefault();
       const { categoryId, query } = categoryFilterFromText(a.textContent || '');
-      const rs = await fetchProducts({ query, categoryId });
-      renderSearchResults(rs);
-      if (searchInput) searchInput.value = (a.textContent || '').trim();
+      const qText = Number(categoryId) > 0 ? '' : (query || (a.textContent || '').trim());
+      goToSearchPage(qText, { categoryId });
     });
   });
   // Botón de categoría destacada (Electrónica)
@@ -573,9 +636,8 @@ function wireCategoryFilters(){
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
       const { categoryId, query } = categoryFilterFromText(btn.textContent || '');
-      const rs = await fetchProducts({ query, categoryId });
-      renderSearchResults(rs);
-      if (searchInput) searchInput.value = (btn.textContent || '').trim();
+      const qText = Number(categoryId) > 0 ? '' : (query || (btn.textContent || '').trim());
+      goToSearchPage(qText, { categoryId });
     });
   });
 }
@@ -1153,19 +1215,20 @@ if (searchInput && searchForm){
   if (searchBtn){
     searchBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      const q = searchInput.value.trim();
-      if (!q) return;
-      const rs = searchProducts(q);
-      renderSearchResults(rs);
+      goToSearchPage(searchInput.value);
     });
   }
   searchForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const q = searchInput.value.trim();
-    if (!q) return;
-    const rs = searchProducts(q);
-    renderSearchResults(rs);
+    goToSearchPage(searchInput.value);
   });
+}
+
+if (searchInput && isHomePage()){
+  const params = (()=>{ try { return new URLSearchParams(location.search); } catch(_){ return null; }})();
+  const initialQuery = params ? (params.get('q') || '') : '';
+  const initialCategory = params ? params.get('category') : null;
+  if (initialQuery || initialCategory) renderResultsForQuery(initialQuery, { categoryId: initialCategory });
 }
 
 // Inicializar filtros por categoría en todas las páginas con barra de categorías
@@ -1218,6 +1281,7 @@ async function comprar(paymentMeta) {
 
 // Icono del carrito ejecuta la compra (demo)
 // cart icon handler moved to cartBtn listener
+
 
 
 

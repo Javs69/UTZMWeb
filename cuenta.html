@@ -22,7 +22,11 @@
   <header class="header">
     <div class="topbar container">
       <a href="/" class="logo" aria-label="Ir al inicio">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+  <defs><clipPath id="logoClip"><circle cx="24" cy="24" r="22"/></clipPath></defs>
+  <image href="/public/uploads/logo.jpeg" x="2" y="2" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#logoClip)"/>
+  <circle cx="24" cy="24" r="22" fill="none" stroke="#38bdf8" stroke-width="2"/>
+</svg>
         <span>Utzmplace</span>
       </a>
 

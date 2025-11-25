@@ -1,363 +1,729 @@
-﻿?<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Detalle de producto</title>
-  <link rel="stylesheet" href="public/css/styles.css">
-  <link rel="icon" href="data:,">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- Header (mismo que inicio) -->
-  <header class="header">
-    <div class="topbar container">
-      <a href="/" class="logo" aria-label="Ir al inicio">
-        <!-- Logo minimal -->
-        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
-        <span>Utzmplace</span>
-      </a>
-
-      <!-- Buscador -->
-      <form class="search" role="search" aria-label="Buscar productos">
-        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y mÃ¡s" aria-label="Buscar"/>
-        <button type="submit" aria-label="Buscar">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
-        </button>
-        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
-      </form>
-
-      <!-- Acciones derecha -->
-      <nav class="actions" aria-label="Acciones de usuario">
-        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
-    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
-    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
-    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
-  </svg>
-
-  <!-- Nuevo badge dinÃƒÂ¡mico -->
-  <span id="cartBadge" class="badge hidden"></span>
-  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
-    <div class="cart-empty">No hay productos en el carrito</div>
-  </div>
-</div>
-
-
-        <div class="profile" aria-label="MenÃƒÂº de perfil">
-          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
-    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
-    <span id="profileLabel">Iniciar sesi&oacute;n</span>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
-  </button>
-                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
-            <li role="menuitem"><a href="#">Ingresar</a></li>
-            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
-            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
-            <li role="menuitem"><a href="/vender.html">Vender</a></li>
-            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
-          </ul>
-        </div>
-
-        <button id="hamburger" class="hamburger" aria-label="Abrir menÃƒÂº" aria-controls="catNav" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Categor&iacute;as -->
-    <nav id="catNav" class="categories" aria-label="CategorÃ­as">
-  <ul class="container">
-    <li class="cat has-mega">
-      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
-      <div class="mega">
-        <div>
-          <h4>Celulares</h4>
-          <a href="#">Smartphones</a>
-          <a href="#">Accesorios</a>
-          <a href="#">Wearables</a>
-        </div>
-        <div>
-          <h4>Computaci&oacute;n</h4>
-          <a href="#">Laptops</a>
-          <a href="#">Perif&eacute;ricos</a>
-          <a href="#">Componentes</a>
-        </div>
-        <div>
-          <h4>TV y Audio</h4>
-          <a href="#">Televisores</a>
-          <a href="#">Bocinas</a>
-          <a href="#">Streaming</a>
-        </div>
-      </div>
-    </li>
-    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
-    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
-    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
-    <li class="cat"><a href="#">Moda</a></li>
-    <li class="cat"><a href="#">Juegos y juguetes</a></li>
-    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
-  </ul>
-</nav>
-  </header>
-
-  <main class="container" style="padding:18px 0 34px;">
-    <section id="product" class="product"></section>
-    <section id="qna" class="qna" aria-labelledby="ttl-qna">
-      <h2 id="ttl-qna">Preguntas y respuestas</h2>
-      <div id="qList" class="q-list"></div>
-      <div id="qAsk" class="q-ask hidden">
-        <textarea id="qText" class="form-control" rows="3" placeholder="Escribe tu pregunta"></textarea>
-        <div class="form-actions">
-          <button id="qSend" class="btn">Preguntar</button>
-        </div>
-      </div>
-      <div id="qLoginHint" class="form-hint hidden">Inicia sesi&oacute;n para hacer preguntas.</div>
-    </section>
-  </main>
-
-    <footer class="footer">
-    <div class="container footer-grid">
-      <div>
-        <h4>Pagos</h4>
-        <a href="/metodos_pago.html" title="Actualmente aceptamos pagos mediante transferencia bancaria y sistemas de pago digitales confiables. Todos los pagos se procesan dentro de la plataforma para mayor seguridad entre comprador y vendedor.">M&eacute;todos de pago</a>
-        <a href="/seguridad.html" title="Nos esforzamos por mantener la seguridad de cada transacci&oacute;n. La informaci&oacute;n personal y financiera de los usuarios no se comparte con terceros y se almacena de forma protegida.">Seguridad</a>
-        <a href="/facturacion.html" title="Cada compra genera un comprobante interno que puedes consultar desde tu perfil. No emitimos facturas oficiales, pero mantenemos registro de todas las operaciones.">Facturaci&oacute;n</a>
-      </div>
-      <div>
-        <h4>Compras</h4>
-        <a href="/envios.html" title="El env&iacute;o o entrega se coordina entre comprador y vendedor; sugiere un punto seguro dentro o cerca de la universidad.">Env&iacute;os</a>
-        <a href="/devoluciones.html" title="Las devoluciones dependen del acuerdo entre ambas partes; puedes notificar problemas para recibir ayuda.">Devoluciones</a>
-        <a href="/reembolsos.html" title="El pago se retiene hasta confirmar recepci&oacute;n; si no se concreta la entrega, procesamos el reembolso lo antes posible.">Reembolsos</a>
-      </div>
-      <div>
-        <h4>Nosotros</h4>
-        <a href="/sobre_nosotros.html" title="Proyecto universitario para un espacio seguro donde la comunidad compra, vende o intercambia productos y servicios.">Sobre nosotros</a>
-      </div>
-      <div>
-        <h4>Ayuda</h4>
-        <a href="/centro_de_ayuda.html" title="Respuestas a preguntas comunes sobre compras, ventas, entregas y reembolsos.">Centro de ayuda</a>
-        <a href="/contacto.html" title="Soporte personalizado por formulario o correo oficial del proyecto.">Contacto</a>
-        <a href="/terminos_privacidad.html" title="Datos usados solo para operar la plataforma; no se comparten con terceros.">T&eacute;rminos y privacidad</a>
-      </div>
-    </div>
-    <div class="copy">&copy; <span id="year"></span> Utzmplace</div>
-  </footer>
-
-  <!-- Modales de login/register para reusar la UI -->
-  <div id="loginModal" class="modal hidden">
-    <div class="modal-content">
-      <button class="modal-close" data-close>&times;</button>
-      <h2>Iniciar sesi&oacute;n</h2>
-      <input id="loginEmail" type="email" placeholder="Correo">
-      <input id="loginPass" type="password" placeholder="Contrase&ntilde;a">
-      <div id="loginError" class="modal-feedback hidden" role="alert"></div>
-      <button id="loginSubmit" class="btn">Entrar</button>
-      <p>&iquest;Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesi&oacute;n</a></p>
-    </div>
-  </div>
-
-  <script>
-    // Cargar producto por ID y pintar vista
-    let PRODUCT = null;
-    async function getSession(){
-      try{ const r = await fetch('/backend/session.php',{credentials:'include'}); return await r.json(); }catch(_){ return {logged_in:false,user:null}; }
-    }
-
-    (async function loadProduct(){
-      const el = document.getElementById('product');
-      const params = new URLSearchParams(location.search);
-      const id = Number(params.get('id')) || 0;
-      if (!id) { el.innerHTML = '<p>Producto no encontrado.</p>'; return; }
-      try {
-        const res = await fetch(`/backend/get_product.php?id=${id}`);
-        const p = await res.json();
-        if (p.error) { el.innerHTML = `<p>${p.error}</p>`; return; }
-        PRODUCT = p;
-        const price = (p.price_cents/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
-        const mainImg = (p.images && p.images[0]) || `https://picsum.photos/seed/${p.id}/800/600`;
-        const thumbs = (p.images||[]).map((url,i)=>`<img data-idx="${i}" src="${url}" alt="${p.name} imagen ${i+1}">`).join('');
-        el.innerHTML = `
-          <div class="pgrid">
-            <div class="gallery">
-              <div class="gallery-main"><img id="p-main" src="${mainImg}" alt="${p.name}"></div>
-              <div class="gallery-thumbs" id="p-thumbs">${thumbs}</div>
-            </div>
-            <div class="pinfo">
-              <h1 class="ptitle">${p.name}</h1>
-              <div class="pprice">${price}</div>
-              <div class="pstock">${p.stock > 0 ? 'En stock' : 'Sin stock'}</div>
-              <div class="pseller">Vendido por <strong>${p.seller_name || p.seller_email || 'Vendedor'}</strong></div>
-              <div class="pdesc">${(p.description||'').replace(/\n/g,'<br>')}</div>
-              <div class="pactions">
-                <button class="btn btn-add" data-add-to-cart data-product-id="${p.id}" data-title="${p.name}" data-price="${p.price_cents}" data-seller-id="${p.seller_id}">Agregar al carrito</button>
-                <button id="buyNowBtn" class="btn" style="background:#10b981" data-product-id="${p.id}" data-title="${p.name}" data-price="${p.price_cents}" data-seller-id="${p.seller_id}">Comprar ahora</button>
-              </div>
-            </div>
-          </div>
-        `;
-        const thumbsEl = document.getElementById('p-thumbs');
-        const mainEl = document.getElementById('p-main');
-        thumbsEl?.addEventListener('click', (e)=>{
-          const img = e.target.closest('img');
-          if (!img) return;
-          mainEl.src = img.src;
-        });
-        // Comprar ahora: guarda sÃ³lo este producto y navega a pagar
-        document.getElementById('buyNowBtn')?.addEventListener('click', async (e) => {
-          e.preventDefault();
-          const btn = e.currentTarget;
-          const item = {
-            product_id: Number(btn.getAttribute('data-product-id')),
-            name: btn.getAttribute('data-title'),
-            price_cents: Number(btn.getAttribute('data-price')),
-            seller_id: Number(btn.getAttribute('data-seller-id')),
-            qty: 1,
-          };
-
-          // Asegura sesion antes de continuar (evita limpiar el carrito en checkout)
-          let sess = window.SESSION;
-          if (!sess?.logged_in) {
-            try {
-              const r = await fetch('/backend/session.php', { credentials:'include' });
-              sess = await r.json();
-              window.SESSION = sess;
-            } catch(_){ sess = null; }
-          }
-          if (!sess?.logged_in) {
-            try { document.getElementById('loginModal')?.classList.remove('hidden'); } catch(_){}
-            try {
-              if (!document.getElementById('loginModal')) {
-                const url = new URL(location.href);
-                if (!url.searchParams.get('login')) {
-                  url.searchParams.set('login','1');
-                  location.href = url.toString();
-                }
-              }
-            } catch(_){}
-            return;
-          }
-
-          const targetCart = (typeof CART !== 'undefined' && Array.isArray(CART)) ? CART : (window.CART || []);
-          targetCart.splice(0, targetCart.length, item);
-          try {
-            if (sess?.user?.id != null) localStorage.setItem('USER_ID', String(sess.user.id));
-            localStorage.setItem('CART', JSON.stringify(targetCart));
-            if (typeof saveCartToStorage === 'function') saveCartToStorage();
-            if (typeof updateCartBadge === 'function') updateCartBadge();
-            if (typeof renderCartMenu === 'function') renderCartMenu();
-          } catch(_){}
-          window.location.href = '/pagar.html';
-        });
-
-        initQnA();
-      } catch (e) {
-        el.innerHTML = '<p>Error al cargar producto.</p>';
-      }
-    })();
-
-    async function loadQnA(){
-      const list = document.getElementById('qList');
-      list.innerHTML = '<div class="form-hint">Cargando preguntas&hellip;</div>';
-      try{
-        const res = await fetch(`/backend/qna_get.php?product_id=${PRODUCT.id}`);
-        const q = await res.json();
-        if (Array.isArray(q) && q.length){
-          list.innerHTML = q.map(it => `
-            <div class="q-item">
-              <div class="q-text">${it.text}</div>
-              <div class="q-meta">por ${it.user.full_name || 'Usuario'}</div>
-              ${it.answer ? `<div class="a-text"><strong>Vendedor:</strong> ${it.answer.text}</div>` : ''}
-              <div class="a-form" data-qid="${it.id}"></div>
-            </div>
-          `).join('');
-        } else {
-          list.innerHTML = '<div class="form-hint">AÃºn no hay preguntas.</div>';
-        }
-      }catch(_){ list.innerHTML = '<div class="form-hint">No se pudieron cargar las preguntas.</div>'; }
-    }
-
-    async function initQnA(){
-      const sess = await getSession();
-      const isLogged = !!sess.logged_in;
-      const isSeller = isLogged && sess.user && (sess.user.id === PRODUCT.seller_id);
-      const askBox = document.getElementById('qAsk');
-      const loginHint = document.getElementById('qLoginHint');
-      if (!isLogged){
-        askBox.classList.add('hidden');
-        loginHint.classList.remove('hidden');
-      } else {
-        loginHint.classList.add('hidden');
-        if (!isSeller) askBox.classList.remove('hidden');
-        else askBox.classList.add('hidden');
-      }
-
-      await loadQnA();
-
-      // Enviar pregunta
-      document.getElementById('qSend')?.addEventListener('click', async ()=>{
-        const ta = document.getElementById('qText');
-        const text = (ta.value||'').trim();
-        if (!text) return alert('Escribe tu pregunta');
-        try{
-          await fetch('/backend/qna_ask.php', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ product_id: PRODUCT.id, text }) });
-          ta.value = '';
-          await loadQnA();
-        }catch(_){ alert('No se pudo enviar la pregunta'); }
-      });
-
-      // Render forms de respuesta si es vendedor
-      if (isSeller){
-        const list = document.getElementById('qList');
-        list.addEventListener('click', async (e)=>{
-          const btn = e.target.closest('[data-action="answer"]');
-          if (!btn) return;
-          const wrap = btn.closest('.a-form');
-          const qid = Number(wrap?.dataset.qid);
-          const input = wrap.querySelector('input');
-          const text = (input.value||'').trim();
-          if (!text) return;
-          try{
-            await fetch('/backend/qna_answer.php',{ method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ question_id: qid, text }) });
-            await loadQnA();
-          }catch(_){ alert('No se pudo responder'); }
-        });
-
-        // inyectar campos de respuesta en preguntas sin respuesta
-        const inject = ()=>{
-          document.querySelectorAll('.a-form').forEach((el)=>{
-            if (el.previousElementSibling && el.previousElementSibling.classList.contains('a-text')) return; // ya respondida
-            if (el.children.length) return;
-            el.innerHTML = '<div class="ans-row"><input class="form-control" type="text" placeholder="Responder..."/><button class="btn" data-action="answer">Enviar</button></div>';
-          });
-        };
-        inject();
-        const obs = new MutationObserver(inject);
-        obs.observe(document.getElementById('qList'), { childList:true, subtree:true });
-      }
-    }
-    </script>
-  <script src="public/js/app.js"></script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+﻿?<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+  <meta charset="utf-8"/>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <title>Detalle de producto</title>
+
+  <link rel="stylesheet" href="public/css/styles.css">
+
+  <link rel="icon" href="data:,">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Header (mismo que inicio) -->
+
+  <header class="header">
+
+    <div class="topbar container">
+
+      <a href="/" class="logo" aria-label="Ir al inicio">
+
+        <!-- Logo minimal -->
+
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+  <defs><clipPath id="logoClip"><circle cx="24" cy="24" r="22"/></clipPath></defs>
+  <image href="/public/uploads/logo.jpeg" x="2" y="2" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#logoClip)"/>
+  <circle cx="24" cy="24" r="22" fill="none" stroke="#38bdf8" stroke-width="2"/>
+</svg>
+
+        <span>Utzmplace</span>
+
+      </a>
+
+
+
+      <!-- Buscador -->
+
+      <form class="search" role="search" aria-label="Buscar productos">
+
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y mÃ¡s" aria-label="Buscar"/>
+
+        <button type="submit" aria-label="Buscar">
+
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+
+        </button>
+
+        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
+
+      </form>
+
+
+
+      <!-- Acciones derecha -->
+
+      <nav class="actions" aria-label="Acciones de usuario">
+
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+
+    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
+
+    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
+
+    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
+
+    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
+
+  </svg>
+
+
+
+  <!-- Nuevo badge dinÃƒÂ¡mico -->
+
+  <span id="cartBadge" class="badge hidden"></span>
+
+  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+
+    <div class="cart-empty">No hay productos en el carrito</div>
+
+  </div>
+
+</div>
+
+
+
+
+
+        <div class="profile" aria-label="MenÃƒÂº de perfil">
+
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+
+    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+
+    <span id="profileLabel">Iniciar sesi&oacute;n</span>
+
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+
+  </button>
+
+                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
+
+          </ul>
+
+        </div>
+
+
+
+        <button id="hamburger" class="hamburger" aria-label="Abrir menÃƒÂº" aria-controls="catNav" aria-expanded="false">
+
+          <span></span><span></span><span></span>
+
+        </button>
+
+      </nav>
+
+    </div>
+
+
+
+    <!-- Categor&iacute;as -->
+
+    <nav id="catNav" class="categories" aria-label="CategorÃ­as">
+
+  <ul class="container">
+
+    <li class="cat has-mega">
+
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+
+      <div class="mega">
+
+        <div>
+
+          <h4>Celulares</h4>
+
+          <a href="#">Smartphones</a>
+
+          <a href="#">Accesorios</a>
+
+          <a href="#">Wearables</a>
+
+        </div>
+
+        <div>
+
+          <h4>Computaci&oacute;n</h4>
+
+          <a href="#">Laptops</a>
+
+          <a href="#">Perif&eacute;ricos</a>
+
+          <a href="#">Componentes</a>
+
+        </div>
+
+        <div>
+
+          <h4>TV y Audio</h4>
+
+          <a href="#">Televisores</a>
+
+          <a href="#">Bocinas</a>
+
+          <a href="#">Streaming</a>
+
+        </div>
+
+      </div>
+
+    </li>
+
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+
+    <li class="cat"><a href="#">Moda</a></li>
+
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+
+  </ul>
+
+</nav>
+
+  </header>
+
+
+
+  <main class="container" style="padding:18px 0 34px;">
+
+    <section id="product" class="product"></section>
+
+    <section id="qna" class="qna" aria-labelledby="ttl-qna">
+
+      <h2 id="ttl-qna">Preguntas y respuestas</h2>
+
+      <div id="qList" class="q-list"></div>
+
+      <div id="qAsk" class="q-ask hidden">
+
+        <textarea id="qText" class="form-control" rows="3" placeholder="Escribe tu pregunta"></textarea>
+
+        <div class="form-actions">
+
+          <button id="qSend" class="btn">Preguntar</button>
+
+        </div>
+
+      </div>
+
+      <div id="qLoginHint" class="form-hint hidden">Inicia sesi&oacute;n para hacer preguntas.</div>
+
+    </section>
+
+  </main>
+
+
+
+    <footer class="footer">
+
+    <div class="container footer-grid">
+
+      <div>
+
+        <h4>Pagos</h4>
+
+        <a href="/metodos_pago.html" title="Actualmente aceptamos pagos mediante transferencia bancaria y sistemas de pago digitales confiables. Todos los pagos se procesan dentro de la plataforma para mayor seguridad entre comprador y vendedor.">M&eacute;todos de pago</a>
+
+        <a href="/seguridad.html" title="Nos esforzamos por mantener la seguridad de cada transacci&oacute;n. La informaci&oacute;n personal y financiera de los usuarios no se comparte con terceros y se almacena de forma protegida.">Seguridad</a>
+
+        <a href="/facturacion.html" title="Cada compra genera un comprobante interno que puedes consultar desde tu perfil. No emitimos facturas oficiales, pero mantenemos registro de todas las operaciones.">Facturaci&oacute;n</a>
+
+      </div>
+
+      <div>
+
+        <h4>Compras</h4>
+
+        <a href="/envios.html" title="El env&iacute;o o entrega se coordina entre comprador y vendedor; sugiere un punto seguro dentro o cerca de la universidad.">Env&iacute;os</a>
+
+        <a href="/devoluciones.html" title="Las devoluciones dependen del acuerdo entre ambas partes; puedes notificar problemas para recibir ayuda.">Devoluciones</a>
+
+        <a href="/reembolsos.html" title="El pago se retiene hasta confirmar recepci&oacute;n; si no se concreta la entrega, procesamos el reembolso lo antes posible.">Reembolsos</a>
+
+      </div>
+
+      <div>
+
+        <h4>Nosotros</h4>
+
+        <a href="/sobre_nosotros.html" title="Proyecto universitario para un espacio seguro donde la comunidad compra, vende o intercambia productos y servicios.">Sobre nosotros</a>
+
+      </div>
+
+      <div>
+
+        <h4>Ayuda</h4>
+
+        <a href="/centro_de_ayuda.html" title="Respuestas a preguntas comunes sobre compras, ventas, entregas y reembolsos.">Centro de ayuda</a>
+
+        <a href="/contacto.html" title="Soporte personalizado por formulario o correo oficial del proyecto.">Contacto</a>
+
+        <a href="/terminos_privacidad.html" title="Datos usados solo para operar la plataforma; no se comparten con terceros.">T&eacute;rminos y privacidad</a>
+
+      </div>
+
+    </div>
+
+    <div class="copy">&copy; <span id="year"></span> Utzmplace</div>
+
+  </footer>
+
+
+
+  <!-- Modales de login/register para reusar la UI -->
+
+  <div id="loginModal" class="modal hidden">
+
+    <div class="modal-content">
+
+      <button class="modal-close" data-close>&times;</button>
+
+      <h2>Iniciar sesi&oacute;n</h2>
+
+      <input id="loginEmail" type="email" placeholder="Correo">
+
+      <input id="loginPass" type="password" placeholder="Contrase&ntilde;a">
+
+      <div id="loginError" class="modal-feedback hidden" role="alert"></div>
+
+      <button id="loginSubmit" class="btn">Entrar</button>
+
+      <p>&iquest;Ya tienes cuenta? <a href="#" id="openLogin">Inicia sesi&oacute;n</a></p>
+
+    </div>
+
+  </div>
+
+
+
+  <script>
+
+    // Cargar producto por ID y pintar vista
+
+    let PRODUCT = null;
+
+    async function getSession(){
+
+      try{ const r = await fetch('/backend/session.php',{credentials:'include'}); return await r.json(); }catch(_){ return {logged_in:false,user:null}; }
+
+    }
+
+
+
+    (async function loadProduct(){
+
+      const el = document.getElementById('product');
+
+      const params = new URLSearchParams(location.search);
+
+      const id = Number(params.get('id')) || 0;
+
+      if (!id) { el.innerHTML = '<p>Producto no encontrado.</p>'; return; }
+
+      try {
+
+        const res = await fetch(`/backend/get_product.php?id=${id}`);
+
+        const p = await res.json();
+
+        if (p.error) { el.innerHTML = `<p>${p.error}</p>`; return; }
+
+        PRODUCT = p;
+
+        const price = (p.price_cents/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
+
+        const mainImg = (p.images && p.images[0]) || `https://picsum.photos/seed/${p.id}/800/600`;
+
+        const thumbs = (p.images||[]).map((url,i)=>`<img data-idx="${i}" src="${url}" alt="${p.name} imagen ${i+1}">`).join('');
+
+        el.innerHTML = `
+
+          <div class="pgrid">
+
+            <div class="gallery">
+
+              <div class="gallery-main"><img id="p-main" src="${mainImg}" alt="${p.name}"></div>
+
+              <div class="gallery-thumbs" id="p-thumbs">${thumbs}</div>
+
+            </div>
+
+            <div class="pinfo">
+
+              <h1 class="ptitle">${p.name}</h1>
+
+              <div class="pprice">${price}</div>
+
+              <div class="pstock">${p.stock > 0 ? 'En stock' : 'Sin stock'}</div>
+
+              <div class="pseller">Vendido por <strong>${p.seller_name || p.seller_email || 'Vendedor'}</strong></div>
+
+              <div class="pdesc">${(p.description||'').replace(/\n/g,'<br>')}</div>
+
+              <div class="pactions">
+
+                <button class="btn btn-add" data-add-to-cart data-product-id="${p.id}" data-title="${p.name}" data-price="${p.price_cents}" data-seller-id="${p.seller_id}">Agregar al carrito</button>
+
+                <button id="buyNowBtn" class="btn" style="background:#10b981" data-product-id="${p.id}" data-title="${p.name}" data-price="${p.price_cents}" data-seller-id="${p.seller_id}">Comprar ahora</button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        `;
+
+        const thumbsEl = document.getElementById('p-thumbs');
+
+        const mainEl = document.getElementById('p-main');
+
+        thumbsEl?.addEventListener('click', (e)=>{
+
+          const img = e.target.closest('img');
+
+          if (!img) return;
+
+          mainEl.src = img.src;
+
+        });
+
+        // Comprar ahora: guarda sÃ³lo este producto y navega a pagar
+
+        document.getElementById('buyNowBtn')?.addEventListener('click', async (e) => {
+
+          e.preventDefault();
+
+          const btn = e.currentTarget;
+
+          const item = {
+
+            product_id: Number(btn.getAttribute('data-product-id')),
+
+            name: btn.getAttribute('data-title'),
+
+            price_cents: Number(btn.getAttribute('data-price')),
+
+            seller_id: Number(btn.getAttribute('data-seller-id')),
+
+            qty: 1,
+
+          };
+
+
+
+          // Asegura sesion antes de continuar (evita limpiar el carrito en checkout)
+
+          let sess = window.SESSION;
+
+          if (!sess?.logged_in) {
+
+            try {
+
+              const r = await fetch('/backend/session.php', { credentials:'include' });
+
+              sess = await r.json();
+
+              window.SESSION = sess;
+
+            } catch(_){ sess = null; }
+
+          }
+
+          if (!sess?.logged_in) {
+
+            try { document.getElementById('loginModal')?.classList.remove('hidden'); } catch(_){}
+
+            try {
+
+              if (!document.getElementById('loginModal')) {
+
+                const url = new URL(location.href);
+
+                if (!url.searchParams.get('login')) {
+
+                  url.searchParams.set('login','1');
+
+                  location.href = url.toString();
+
+                }
+
+              }
+
+            } catch(_){}
+
+            return;
+
+          }
+
+
+
+          const targetCart = (typeof CART !== 'undefined' && Array.isArray(CART)) ? CART : (window.CART || []);
+
+          targetCart.splice(0, targetCart.length, item);
+
+          try {
+
+            if (sess?.user?.id != null) localStorage.setItem('USER_ID', String(sess.user.id));
+
+            localStorage.setItem('CART', JSON.stringify(targetCart));
+
+            if (typeof saveCartToStorage === 'function') saveCartToStorage();
+
+            if (typeof updateCartBadge === 'function') updateCartBadge();
+
+            if (typeof renderCartMenu === 'function') renderCartMenu();
+
+          } catch(_){}
+
+          window.location.href = '/pagar.html';
+
+        });
+
+
+
+        initQnA();
+
+      } catch (e) {
+
+        el.innerHTML = '<p>Error al cargar producto.</p>';
+
+      }
+
+    })();
+
+
+
+    async function loadQnA(){
+
+      const list = document.getElementById('qList');
+
+      list.innerHTML = '<div class="form-hint">Cargando preguntas&hellip;</div>';
+
+      try{
+
+        const res = await fetch(`/backend/qna_get.php?product_id=${PRODUCT.id}`);
+
+        const q = await res.json();
+
+        if (Array.isArray(q) && q.length){
+
+          list.innerHTML = q.map(it => `
+
+            <div class="q-item">
+
+              <div class="q-text">${it.text}</div>
+
+              <div class="q-meta">por ${it.user.full_name || 'Usuario'}</div>
+
+              ${it.answer ? `<div class="a-text"><strong>Vendedor:</strong> ${it.answer.text}</div>` : ''}
+
+              <div class="a-form" data-qid="${it.id}"></div>
+
+            </div>
+
+          `).join('');
+
+        } else {
+
+          list.innerHTML = '<div class="form-hint">AÃºn no hay preguntas.</div>';
+
+        }
+
+      }catch(_){ list.innerHTML = '<div class="form-hint">No se pudieron cargar las preguntas.</div>'; }
+
+    }
+
+
+
+    async function initQnA(){
+
+      const sess = await getSession();
+
+      const isLogged = !!sess.logged_in;
+
+      const isSeller = isLogged && sess.user && (sess.user.id === PRODUCT.seller_id);
+
+      const askBox = document.getElementById('qAsk');
+
+      const loginHint = document.getElementById('qLoginHint');
+
+      if (!isLogged){
+
+        askBox.classList.add('hidden');
+
+        loginHint.classList.remove('hidden');
+
+      } else {
+
+        loginHint.classList.add('hidden');
+
+        if (!isSeller) askBox.classList.remove('hidden');
+
+        else askBox.classList.add('hidden');
+
+      }
+
+
+
+      await loadQnA();
+
+
+
+      // Enviar pregunta
+
+      document.getElementById('qSend')?.addEventListener('click', async ()=>{
+
+        const ta = document.getElementById('qText');
+
+        const text = (ta.value||'').trim();
+
+        if (!text) return alert('Escribe tu pregunta');
+
+        try{
+
+          await fetch('/backend/qna_ask.php', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ product_id: PRODUCT.id, text }) });
+
+          ta.value = '';
+
+          await loadQnA();
+
+        }catch(_){ alert('No se pudo enviar la pregunta'); }
+
+      });
+
+
+
+      // Render forms de respuesta si es vendedor
+
+      if (isSeller){
+
+        const list = document.getElementById('qList');
+
+        list.addEventListener('click', async (e)=>{
+
+          const btn = e.target.closest('[data-action="answer"]');
+
+          if (!btn) return;
+
+          const wrap = btn.closest('.a-form');
+
+          const qid = Number(wrap?.dataset.qid);
+
+          const input = wrap.querySelector('input');
+
+          const text = (input.value||'').trim();
+
+          if (!text) return;
+
+          try{
+
+            await fetch('/backend/qna_answer.php',{ method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ question_id: qid, text }) });
+
+            await loadQnA();
+
+          }catch(_){ alert('No se pudo responder'); }
+
+        });
+
+
+
+        // inyectar campos de respuesta en preguntas sin respuesta
+
+        const inject = ()=>{
+
+          document.querySelectorAll('.a-form').forEach((el)=>{
+
+            if (el.previousElementSibling && el.previousElementSibling.classList.contains('a-text')) return; // ya respondida
+
+            if (el.children.length) return;
+
+            el.innerHTML = '<div class="ans-row"><input class="form-control" type="text" placeholder="Responder..."/><button class="btn" data-action="answer">Enviar</button></div>';
+
+          });
+
+        };
+
+        inject();
+
+        const obs = new MutationObserver(inject);
+
+        obs.observe(document.getElementById('qList'), { childList:true, subtree:true });
+
+      }
+
+    }
+
+    </script>
+
+  <script src="public/js/app.js"></script>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
