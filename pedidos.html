@@ -1,561 +1,555 @@
-﻿<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Mis pedidos</title>
-  <link rel="stylesheet" href="public/css/styles.css">
-  <link rel="icon" href="data:,">
-  <style>
-    .orders-wrap{display:flex; flex-direction:column; gap:16px;}
-    .orders-sections{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:18px;
-    }
-    .orders-group{
-      padding:16px;
-      background:var(--surface);
-      border:1px solid var(--divider);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      max-height:560px;
-      overflow-y:auto;
-    }
-    .orders-section__head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:8px;
-      position:sticky;
-      top:0;
-      padding-bottom:4px;
-      background:var(--surface);
-    }
-    .orders-section__head .muted{color:var(--muted); font-size:.9rem;}
-    .orders-cards{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      padding-right:4px;
-    }
-    .orders-section__head h3{margin:0; font-size:1.1rem;}
-    .order-card .q-meta{color:#374151;}
-    .order-card{cursor:pointer;}
-    .order-card:focus-visible{outline:2px solid var(--accent); outline-offset:4px;}
-    .order-meta-row{display:flex; flex-wrap:wrap; gap:8px 12px; margin:6px 0;}
-    .order-pill{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--brand-weak); color:var(--brand-ink); font-size:.85rem;}
-    .order-pill svg{width:14px; height:14px;}
-    .order-card .card-body{display:flex; flex-direction:column; gap:6px;}
-    .order-summary{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px 16px;
-      font-size:.9rem;
-      color:var(--ink);
-      margin:6px 0 4px;
-    }
-    .order-summary span{display:flex; align-items:center; gap:6px;}
-    .order-summary strong{color:var(--ink);}
-    :root[data-theme="dark"] .order-summary{color:#e5e7eb;}
-    :root[data-theme="dark"] .order-summary strong{color:#f9fafb;}
-    .order-sub{color:var(--muted); font-size:.9rem; margin-top:2px;}
-    .order-head-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px;}
-    .order-card-head{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
-    }
-    .status-pill{
-      background:#e5f3ff;
-      color:#0f172a;
-      font-size:.78rem;
-      font-weight:700;
-      padding:4px 12px;
-      border-radius:999px;
-      text-transform:capitalize;
-    }
-    .order-section-empty{ margin:10px 0; }
-    .order-card .btn{
-      background:var(--brand-strong);
-      color:var(--brand-ink);
-      border:1px solid var(--brand-strong);
-      transition:.15s ease;
-    }
-    .order-card .btn:hover{ filter:brightness(.95); }
-    .btn-danger{
-      background:#f87171;
-      color:#111;
-      border:1px solid #f87171;
-    }
-    .btn-danger:hover{ background:#ef4444; border-color:#ef4444; }
-  </style>
-</head>
-<body>
-  <header class="header">
-    <div class="topbar container">
-      <a href="/" class="logo" aria-label="Ir al inicio">
-        <!-- Logo minimal -->
-        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
-        <span>MiMarket</span>
-      </a>
-
-      <!-- Buscador -->
-      <form class="search" role="search" aria-label="Buscar productos">
-        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" aria-label="Buscar"/>
-        <button type="submit" aria-label="Buscar">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
-        </button>
-        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
-      </form>
-
-      <!-- Acciones derecha -->
-      <nav class="actions" aria-label="Acciones de usuario">
-        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
-    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
-    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
-    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
-  </svg>
-
-  <!-- Nuevo badge dinÃ¡mico -->
-  <span id="cartBadge" class="badge hidden"></span>
-  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
-    <div class="cart-empty">No hay productos en el carrito</div>
-  </div>
-</div>
-
-
-        <div class="profile" aria-label="MenÃº de perfil">
-          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
-    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
-    <span id="profileLabel">Iniciar sesi&oacute;n</span>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
-  </button>
-                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
-            <li role="menuitem"><a href="#">Ingresar</a></li>
-            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
-            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
-            <li role="menuitem"><a href="/vender.html">Vender</a></li>
-            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
-          </ul>
-        </div>
-
-        <button id="hamburger" class="hamburger" aria-label="Abrir menÃº" aria-controls="catNav" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Categor&iacute;as -->
-    <nav id="catNav" class="categories" aria-label="Categorías">
-  <ul class="container">
-    <li class="cat has-mega">
-      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
-      <div class="mega">
-        <div>
-          <h4>Celulares</h4>
-          <a href="#">Smartphones</a>
-          <a href="#">Accesorios</a>
-          <a href="#">Wearables</a>
-        </div>
-        <div>
-          <h4>Computaci&oacute;n</h4>
-          <a href="#">Laptops</a>
-          <a href="#">Perif&eacute;ricos</a>
-          <a href="#">Componentes</a>
-        </div>
-        <div>
-          <h4>TV y Audio</h4>
-          <a href="#">Televisores</a>
-          <a href="#">Bocinas</a>
-          <a href="#">Streaming</a>
-        </div>
-      </div>
-    </li>
-    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
-    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
-    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
-    <li class="cat"><a href="#">Moda</a></li>
-    <li class="cat"><a href="#">Juegos y juguetes</a></li>
-    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
-  </ul>
-</nav>
-  </header>
-
-  <main class="container" style="padding:18px 0 34px;">
-    <div class="orders-wrap">
-      <div class="strip-head">
-        <h2>Mis pedidos</h2>
-        <p class="form-hint" style="margin:4px 0 0;">Consulta tus pedidos como comprador o vendedor.</p>
-      </div>
-      <div id="orders-empty" class="cart-empty" style="display:none">No has comprado nada todavía.</div>
-      <div id="orders-list" class="orders-sections"></div>
-    </div>
-  </main>
-  <!-- Modal detalle de pedido -->
-  <div id="orderModal" class="modal hidden">
-    <div class="modal-content" style="max-width:520px; border-radius:18px;">
-      <button class="modal-close" data-close>&times;</button>
-      <h2 style="margin:0 0 8px;">Detalle del pedido</h2>
-      <div class="form-hint" id="orderModalId"></div>
-      <div class="form-group">
-        <div class="form-label">Estado</div>
-        <div id="orderModalStatus"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">Total</div>
-        <div id="orderModalTotal"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">Creado</div>
-        <div id="orderModalCreated"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">Pagado</div>
-        <div id="orderModalPaid"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">M&eacute;todo de pago</div>
-        <div id="orderModalMethod"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">Vendido por</div>
-        <div id="orderModalSeller"></div>
-      </div>
-    </div>
-  </div>
-
-
-
-    <footer class="footer">
-    <div class="container footer-grid">
-      <div>
-        <h4>Pagos</h4>
-        <a href="/metodos_pago.html" title="Actualmente aceptamos pagos mediante transferencia bancaria y sistemas de pago digitales confiables. Todos los pagos se procesan dentro de la plataforma para mayor seguridad entre comprador y vendedor.">M&eacute;todos de pago</a>
-        <a href="/seguridad.html" title="Nos esforzamos por mantener la seguridad de cada transacci&oacute;n. La informaci&oacute;n personal y financiera de los usuarios no se comparte con terceros y se almacena de forma protegida.">Seguridad</a>
-        <a href="/facturacion.html" title="Cada compra genera un comprobante interno que puedes consultar desde tu perfil. No emitimos facturas oficiales, pero mantenemos registro de todas las operaciones.">Facturaci&oacute;n</a>
-      </div>
-      <div>
-        <h4>Compras</h4>
-        <a href="/envios.html" title="El env&iacute;o o entrega se coordina entre comprador y vendedor; sugiere un punto seguro dentro o cerca de la universidad.">Env&iacute;os</a>
-        <a href="/devoluciones.html" title="Las devoluciones dependen del acuerdo entre ambas partes; puedes notificar problemas para recibir ayuda.">Devoluciones</a>
-        <a href="/reembolsos.html" title="El pago se retiene hasta confirmar recepci&oacute;n; si no se concreta la entrega, procesamos el reembolso lo antes posible.">Reembolsos</a>
-      </div>
-      <div>
-        <h4>Nosotros</h4>
-        <a href="/sobre_nosotros.html" title="Proyecto universitario para un espacio seguro donde la comunidad compra, vende o intercambia productos y servicios.">Sobre nosotros</a>
-      </div>
-      <div>
-        <h4>Ayuda</h4>
-        <a href="/centro_de_ayuda.html" title="Respuestas a preguntas comunes sobre compras, ventas, entregas y reembolsos.">Centro de ayuda</a>
-        <a href="/contacto.html" title="Soporte personalizado por formulario o correo oficial del proyecto.">Contacto</a>
-        <a href="/terminos_privacidad.html" title="Datos usados solo para operar la plataforma; no se comparten con terceros.">T&eacute;rminos y privacidad</a>
-      </div>
-    </div>
-    <div class="copy">&copy; <span id="year"></span> MiMarket</div>
-  </footer>
-
-  <script src="public/js/app.js"></script>
-  <script>
-    (async function(){
-      try{
-        const r = await fetch('/backend/session.php', { credentials:'include' });
-        const s = await r.json();
-        if (!s.logged_in){ location.replace('/?login=1'); return; }
-        window.CURRENT_USER_ID = Number(s.user?.id) || null;
-      }catch(_){ /* fallback sin backend */ }
-
-      const list = document.getElementById('orders-list');
-      const empty = document.getElementById('orders-empty');
-      list.innerHTML = '';
-      const ordersMap = new Map();
-
-      async function fetchOrders(){
-        try{
-          const r = await fetch('/backend/my_orders.php', { credentials:'include' });
-          if (!r.ok) throw new Error('no-endpoint');
-          const data = await r.json();
-          return Array.isArray(data) ? data : (Array.isArray(data.orders) ? data.orders : []);
-        }catch(_){
-          return [];
-        }
-      }
-
-      const fmtDate = (v) => {
-        if (!v) return 'Sin fecha';
-        try{
-          const d = new Date(v);
-          return d.toLocaleDateString('es-MX',{year:'numeric',month:'short',day:'numeric'});
-        }catch(_){
-          return v.toString().slice(0,10);
-        }
-      };
-
-      const fmtMoney = (cents) => {
-        if (cents==null) return '$0.00';
-        return (cents/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
-      };
-
-      function createCard(o, role){
-        const card = document.createElement('div');
-        card.className = 'card order-card';
-        card.dataset.orderId = o.id || '';
-        card.tabIndex = 0;
-        const date = fmtDate(o.created_at || o.date || '');
-        const total = fmtMoney(o.total_cents);
-        const statusRaw = (o.status || '').toString().toLowerCase();
-        const counterpart = role === 'buyer'
-          ? `Vendedor: ${o.seller_name || ''}`
-          : `Comprador: ${o.buyer_name || ''}`;
-        const method = (() => {
-          const raw = (o.payment_method_label || '').replace(/demo/gi, '').trim();
-          const base = raw || (o.payment_method_type === 'cash' ? 'Efectivo' : 'Tarjeta');
-          const last4 = (o.payment_method_last4 || '').toString().slice(-4);
-          return last4 ? `${base} (**** ${last4})` : base;
-        })();
-        const roleLabel = role === 'buyer' ? 'Como comprador' : 'Como vendedor';
-        const counterpartName = counterpart.replace(/^(Vendedor:|Comprador:)\s*/, '').trim() || 'Sin datos';
-        const statusLabel = (o.status || 'pendiente').toString();
-        const canConfirmDelivery = role === 'seller' && statusRaw !== 'delivered' && statusRaw !== 'cancelled';
-        const canCancel = statusRaw !== 'delivered' && statusRaw !== 'cancelled';
-
-        card.innerHTML = `
-          <div class="card-body">
-            <div class="order-card-head">
-              <div>
-                <h3 class="card-title" style="margin:0;">Pedido #${o.id || ''}</h3>
-                <div class="order-sub">${role === 'buyer' ? 'Vendedor' : 'Comprador'}: ${counterpartName}</div>
-              </div>
-              <div class="order-head-right">
-                <span class="price"><span class="now">${total}</span></span>
-                <span class="status-pill">${statusLabel}</span>
-              </div>
-            </div>
-            <div class="order-meta-row">
-              <span class="order-pill" aria-label="${roleLabel}">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                ${roleLabel}
-              </span>
-              <span class="order-pill" aria-label="Metodo de pago">${method}</span>
-            </div>
-            <div class="order-summary">
-              <span><strong>Fecha:</strong> ${date}</span>
-              <span><strong>${role === 'buyer' ? 'Vendedor' : 'Comprador'}:</strong> ${counterpartName}</span>
-              <span><strong>Total:</strong> ${total}</span>
-              <span><strong>Pago:</strong> ${method}</span>
-              <span><strong>Estado:</strong> ${statusLabel}</span>
-            </div>
-            <div class="card-actions" style="margin-top:10px;">
-              <button class="btn" type="button" data-view-order="${o.id || ''}">Ver detalles</button>
-              ${canConfirmDelivery ? `<button class="btn" type="button" data-confirm-delivery="${o.id || ''}">Confirmar entrega</button>` : ''}
-              ${canCancel ? `<button class="btn btn-danger" type="button" data-cancel-order="${o.id || ''}">Cancelar</button>` : ''}
-            </div>
-          </div>
-        `;
-        return card;
-      }
-
-      
-function renderGroup(title, items, role){
-        const sec = document.createElement('section');
-        sec.className = 'orders-group card';
-        const head = document.createElement('div');
-        head.className = 'orders-section__head';
-        const h3 = document.createElement('h3');
-        h3.textContent = title;
-        const qty = document.createElement('span');
-        qty.className = 'muted';
-        qty.textContent = `${items.length} ${items.length === 1 ? 'pedido' : 'pedidos'}`;
-        head.append(h3, qty);
-        sec.appendChild(head);
-
-        if (!items.length){
-          const msg = document.createElement('div');
-          msg.className = 'order-section-empty';
-          msg.textContent = role === 'buyer' ? 'Aún no has comprado.' : 'Aún no has vendido.';
-          sec.appendChild(msg);
-        } else {
-          const wrap = document.createElement('div');
-          wrap.className = 'orders-cards';
-          items.forEach(o => wrap.appendChild(createCard(o, role)));
-          sec.appendChild(wrap);
-        }
-        list.appendChild(sec);
-      }
-
-      const orders = await fetchOrders();
-      const uid = window.CURRENT_USER_ID || null;
-      let purchases = uid ? orders.filter(o => String(o.buyer_id) === String(uid)) : orders;
-      const sales = uid ? orders.filter(o => String(o.seller_id) === String(uid)) : [];
-      if (uid && purchases.length === 0 && orders.length){
-        purchases = orders;
-      }
-      orders.forEach(o => {
-        const role = uid ? (String(o.buyer_id) === String(uid) ? 'buyer' : 'seller') : 'buyer';
-        ordersMap.set(String(o.id), { ...o, _role: role });
-      });
-
-      if (!purchases.length && !sales.length){
-        if (orders.length){
-          empty.style.display = 'none';
-          renderGroup('Pedidos', orders, 'buyer');
-        } else {
-          empty.style.display = 'block';
-        }
-      } else {
-        empty.style.display = 'none';
-        renderGroup('Pedidos realizados', purchases, 'buyer');
-        renderGroup('Pedidos vendidos', sales, 'seller');
-      }
-
-      function goToOrder(id){
-        if (!id) return;
-        const data = ordersMap.get(String(id));
-        if (data) showOrderModal(data);
-      }
-
-      list.addEventListener('click', (e)=>{
-        const confirmBtn = e.target.closest('[data-confirm-delivery]');
-        if (confirmBtn){
-          e.stopPropagation();
-          confirmDelivery(confirmBtn.dataset.confirmDelivery, confirmBtn);
-          return;
-        }
-        const cancelBtn = e.target.closest('[data-cancel-order]');
-        if (cancelBtn){
-          e.stopPropagation();
-          const oid = cancelBtn.dataset.cancelOrder;
-          if (!oid) return;
-          const ok = window.confirm('¿Seguro que deseas cancelar este pedido? Se procesará un reembolso si aplica.');
-          if (ok) cancelOrder(oid, cancelBtn);
-          return;
-        }
-        const btn = e.target.closest('[data-view-order]');
-        if (btn){
-          e.stopPropagation();
-          goToOrder(btn.dataset.viewOrder);
-          return;
-        }
-        const card = e.target.closest('[data-order-id]');
-        if (card){
-          goToOrder(card.dataset.orderId);
-        }
-      });
-      list.addEventListener('keydown', (e)=>{
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        const card = e.target.closest('[data-order-id]');
-        if (card){
-          e.preventDefault();
-          goToOrder(card.dataset.orderId);
-        }
-      });
-
-      const modal = document.getElementById('orderModal');
-      const modalClose = modal?.querySelector('[data-close]');
-      const modalFields = {
-        id: document.getElementById('orderModalId'),
-        status: document.getElementById('orderModalStatus'),
-        total: document.getElementById('orderModalTotal'),
-        created: document.getElementById('orderModalCreated'),
-        paid: document.getElementById('orderModalPaid'),
-        method: document.getElementById('orderModalMethod'),
-        seller: document.getElementById('orderModalSeller'),
-      };
-      function showOrderModal(order){
-        if (!modal) return;
-        const payLabel = (() => {
-          const raw = (order.payment_method_label || '').replace(/demo/gi,'').trim();
-          const base = raw || (order.payment_method_type === 'cash' ? 'Efectivo' : 'Tarjeta');
-          const last4 = (order.payment_method_last4 || '').toString().slice(-4);
-          return last4 ? `${base} (**** ${last4})` : base;
-        })();
-        if (modalFields.id) modalFields.id.textContent = `Pedido #${order.id || ''}`;
-        if (modalFields.status) modalFields.status.textContent = order.status || '';
-        if (modalFields.total) modalFields.total.textContent = fmtMoney(order.total_cents || 0);
-        if (modalFields.created) modalFields.created.textContent = fmtDate(order.created_at || '') || '—';
-        if (modalFields.paid) modalFields.paid.textContent = order.payment_paid_at ? fmtDate(order.payment_paid_at) : 'No pagado';
-        if (modalFields.method) modalFields.method.textContent = payLabel || 'No definido';
-        if (modalFields.seller) modalFields.seller.textContent = order.seller_name || '—';
-        modal.classList.remove('hidden');
-      }
-      function hideOrderModal(){
-        modal?.classList.add('hidden');
-      }
-      modalClose?.addEventListener('click', hideOrderModal);
-      modal?.addEventListener('click', (e)=>{ if (e.target === modal) hideOrderModal(); });
-
-      async function confirmDelivery(orderId, btn){
-        if (!orderId) return;
-        const prev = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = 'Confirmando...';
-        try{
-          const fd = new FormData();
-          fd.append('order_id', orderId);
-          const res = await fetch('/backend/mark_delivered.php', { method:'POST', body: fd, credentials:'include' });
-          const data = await res.json();
-          if (!res.ok || data.error){
-            alert(data.error || 'No se pudo confirmar la entrega');
-            btn.disabled = false;
-            btn.textContent = prev;
-            return;
-          }
-          const card = btn.closest('.order-card');
-          if (card){
-            const pill = card.querySelector('.status-pill');
-            if (pill) pill.textContent = 'Entregado';
-          }
-          btn.textContent = 'Entregado';
-        }catch(_){
-          alert('No se pudo confirmar la entrega');
-          btn.disabled = false;
-          btn.textContent = prev;
-        }
-      }
-
-      async function cancelOrder(orderId, btn){
-        const prev = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = 'Cancelando...';
-        try{
-          const res = await fetch('/backend/cancel_order.php', {
-            method:'POST',
-            credentials:'include',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ order_id: Number(orderId) })
-          });
-          const data = await res.json();
-          if (!res.ok || data.error){
-            throw new Error(data.error || 'No se pudo cancelar el pedido');
-          }
-          const card = btn.closest('.order-card');
-          if (card){
-            card.querySelector('.status-pill')?.textContent = 'cancelled';
-            card.querySelector('[data-confirm-delivery]')?.remove();
-            btn.remove();
-          }
-          const stored = ordersMap.get(Number(orderId)) || {};
-          ordersMap.set(Number(orderId), { ...stored, status: 'cancelled' });
-          alert('Pedido cancelado. Se marca reembolso en transacciones si aplica.');
-        }catch(err){
-          alert(err?.message || 'No se pudo cancelar el pedido');
-          btn.disabled = false;
-          btn.textContent = prev;
-        }
-      }
-    })();
-  </script>
-</body>
-</html>
-
-
-
-
-
-
-
-
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mis pedidos</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+  <style>
+    .orders-wrap{display:flex; flex-direction:column; gap:16px;}
+    .orders-sections{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:18px;
+    }
+    .orders-group{
+      padding:16px;
+      background:var(--surface);
+      border:1px solid var(--divider);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height:560px;
+      overflow-y:auto;
+    }
+    .orders-section__head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:8px;
+      position:sticky;
+      top:0;
+      padding-bottom:4px;
+      background:var(--surface);
+    }
+    .orders-section__head .muted{color:var(--muted); font-size:.9rem;}
+    .orders-cards{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding-right:4px;
+    }
+    .orders-section__head h3{margin:0; font-size:1.1rem;}
+    .order-card .q-meta{color:#374151;}
+    .order-card{cursor:pointer;}
+    .order-card:focus-visible{outline:2px solid var(--accent); outline-offset:4px;}
+    .order-meta-row{display:flex; flex-wrap:wrap; gap:8px 12px; margin:6px 0;}
+    .order-pill{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--brand-weak); color:var(--brand-ink); font-size:.85rem;}
+    .order-pill svg{width:14px; height:14px;}
+    .order-card .card-body{display:flex; flex-direction:column; gap:6px;}
+    .order-summary{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px 16px;
+      font-size:.9rem;
+      color:var(--ink);
+      margin:6px 0 4px;
+    }
+    .order-summary span{display:flex; align-items:center; gap:6px;}
+    .order-summary strong{color:var(--ink);}
+    :root[data-theme="dark"] .order-summary{color:#e5e7eb;}
+    :root[data-theme="dark"] .order-summary strong{color:#f9fafb;}
+    .order-sub{color:var(--muted); font-size:.9rem; margin-top:2px;}
+    .order-head-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px;}
+    .order-card-head{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
+    }
+    .status-pill{
+      background:#e5f3ff;
+      color:#0f172a;
+      font-size:.78rem;
+      font-weight:700;
+      padding:4px 12px;
+      border-radius:999px;
+      text-transform:capitalize;
+    }
+    .order-section-empty{ margin:10px 0; }
+    .order-card .btn{
+      background:var(--brand-strong);
+      color:var(--brand-ink);
+      border:1px solid var(--brand-strong);
+      transition:.15s ease;
+    }
+    .order-card .btn:hover{ filter:brightness(.95); }
+    .btn-danger{
+      background:#f87171;
+      color:#111;
+      border:1px solid #f87171;
+    }
+    .btn-danger:hover{ background:#ef4444; border-color:#ef4444; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <!-- Logo minimal -->
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>Utzmplace</span>
+      </a>
+
+      <!-- Buscador -->
+      <form class="search" role="search" aria-label="Buscar productos">
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y mÃ¡s" aria-label="Buscar"/>
+        <button type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+        </button>
+        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
+      </form>
+
+      <!-- Acciones derecha -->
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
+    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
+    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
+    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
+  </svg>
+
+  <!-- Nuevo badge dinÃƒÂ¡mico -->
+  <span id="cartBadge" class="badge hidden"></span>
+  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+    <div class="cart-empty">No hay productos en el carrito</div>
+  </div>
+</div>
+
+
+        <div class="profile" aria-label="MenÃƒÂº de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+    <span id="profileLabel">Iniciar sesi&oacute;n</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+  </button>
+                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
+          </ul>
+        </div>
+
+        <button id="hamburger" class="hamburger" aria-label="Abrir menÃƒÂº" aria-controls="catNav" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Categor&iacute;as -->
+    <nav id="catNav" class="categories" aria-label="CategorÃ­as">
+  <ul class="container">
+    <li class="cat has-mega">
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+      <div class="mega">
+        <div>
+          <h4>Celulares</h4>
+          <a href="#">Smartphones</a>
+          <a href="#">Accesorios</a>
+          <a href="#">Wearables</a>
+        </div>
+        <div>
+          <h4>Computaci&oacute;n</h4>
+          <a href="#">Laptops</a>
+          <a href="#">Perif&eacute;ricos</a>
+          <a href="#">Componentes</a>
+        </div>
+        <div>
+          <h4>TV y Audio</h4>
+          <a href="#">Televisores</a>
+          <a href="#">Bocinas</a>
+          <a href="#">Streaming</a>
+        </div>
+      </div>
+    </li>
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+    <li class="cat"><a href="#">Moda</a></li>
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+  </ul>
+</nav>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <div class="orders-wrap">
+      <div class="strip-head">
+        <h2>Mis pedidos</h2>
+        <p class="form-hint" style="margin:4px 0 0;">Consulta tus pedidos como comprador o vendedor.</p>
+      </div>
+      <div id="orders-empty" class="cart-empty" style="display:none">No has comprado nada todavÃ­a.</div>
+      <div id="orders-list" class="orders-sections"></div>
+    </div>
+  </main>
+  <!-- Modal detalle de pedido -->
+  <div id="orderModal" class="modal hidden">
+    <div class="modal-content" style="max-width:520px; border-radius:18px;">
+      <button class="modal-close" data-close>&times;</button>
+      <h2 style="margin:0 0 8px;">Detalle del pedido</h2>
+      <div class="form-hint" id="orderModalId"></div>
+      <div class="form-group">
+        <div class="form-label">Estado</div>
+        <div id="orderModalStatus"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Total</div>
+        <div id="orderModalTotal"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Creado</div>
+        <div id="orderModalCreated"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Pagado</div>
+        <div id="orderModalPaid"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">M&eacute;todo de pago</div>
+        <div id="orderModalMethod"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Vendido por</div>
+        <div id="orderModalSeller"></div>
+      </div>
+    </div>
+  </div>
+
+
+
+    <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h4>Pagos</h4>
+        <a href="/metodos_pago.html" title="Actualmente aceptamos pagos mediante transferencia bancaria y sistemas de pago digitales confiables. Todos los pagos se procesan dentro de la plataforma para mayor seguridad entre comprador y vendedor.">M&eacute;todos de pago</a>
+        <a href="/seguridad.html" title="Nos esforzamos por mantener la seguridad de cada transacci&oacute;n. La informaci&oacute;n personal y financiera de los usuarios no se comparte con terceros y se almacena de forma protegida.">Seguridad</a>
+        <a href="/facturacion.html" title="Cada compra genera un comprobante interno que puedes consultar desde tu perfil. No emitimos facturas oficiales, pero mantenemos registro de todas las operaciones.">Facturaci&oacute;n</a>
+      </div>
+      <div>
+        <h4>Compras</h4>
+        <a href="/envios.html" title="El env&iacute;o o entrega se coordina entre comprador y vendedor; sugiere un punto seguro dentro o cerca de la universidad.">Env&iacute;os</a>
+        <a href="/devoluciones.html" title="Las devoluciones dependen del acuerdo entre ambas partes; puedes notificar problemas para recibir ayuda.">Devoluciones</a>
+        <a href="/reembolsos.html" title="El pago se retiene hasta confirmar recepci&oacute;n; si no se concreta la entrega, procesamos el reembolso lo antes posible.">Reembolsos</a>
+      </div>
+      <div>
+        <h4>Nosotros</h4>
+        <a href="/sobre_nosotros.html" title="Proyecto universitario para un espacio seguro donde la comunidad compra, vende o intercambia productos y servicios.">Sobre nosotros</a>
+      </div>
+      <div>
+        <h4>Ayuda</h4>
+        <a href="/centro_de_ayuda.html" title="Respuestas a preguntas comunes sobre compras, ventas, entregas y reembolsos.">Centro de ayuda</a>
+        <a href="/contacto.html" title="Soporte personalizado por formulario o correo oficial del proyecto.">Contacto</a>
+        <a href="/terminos_privacidad.html" title="Datos usados solo para operar la plataforma; no se comparten con terceros.">T&eacute;rminos y privacidad</a>
+      </div>
+    </div>
+    <div class="copy">&copy; <span id="year"></span> Utzmplace</div>
+  </footer>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    (async function(){
+      try{
+        const r = await fetch('/backend/session.php', { credentials:'include' });
+        const s = await r.json();
+        if (!s.logged_in){ location.replace('/?login=1'); return; }
+        window.CURRENT_USER_ID = Number(s.user?.id) || null;
+      }catch(_){ /* fallback sin backend */ }
+
+      const list = document.getElementById('orders-list');
+      const empty = document.getElementById('orders-empty');
+      list.innerHTML = '';
+      const ordersMap = new Map();
+
+      async function fetchOrders(){
+        try{
+          const r = await fetch('/backend/my_orders.php', { credentials:'include' });
+          if (!r.ok) throw new Error('no-endpoint');
+          const data = await r.json();
+          return Array.isArray(data) ? data : (Array.isArray(data.orders) ? data.orders : []);
+        }catch(_){
+          return [];
+        }
+      }
+
+      const fmtDate = (v) => {
+        if (!v) return 'Sin fecha';
+        try{
+          const d = new Date(v);
+          return d.toLocaleDateString('es-MX',{year:'numeric',month:'short',day:'numeric'});
+        }catch(_){
+          return v.toString().slice(0,10);
+        }
+      };
+
+      const fmtMoney = (cents) => {
+        if (cents==null) return '$0.00';
+        return (cents/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
+      };
+
+      function createCard(o, role){
+        const card = document.createElement('div');
+        card.className = 'card order-card';
+        card.dataset.orderId = o.id || '';
+        card.tabIndex = 0;
+        const date = fmtDate(o.created_at || o.date || '');
+        const total = fmtMoney(o.total_cents);
+        const statusRaw = (o.status || '').toString().toLowerCase();
+        const counterpart = role === 'buyer'
+          ? `Vendedor: ${o.seller_name || ''}`
+          : `Comprador: ${o.buyer_name || ''}`;
+        const method = (() => {
+          const raw = (o.payment_method_label || '').replace(/demo/gi, '').trim();
+          const base = raw || (o.payment_method_type === 'cash' ? 'Efectivo' : 'Tarjeta');
+          const last4 = (o.payment_method_last4 || '').toString().slice(-4);
+          return last4 ? `${base} (**** ${last4})` : base;
+        })();
+        const roleLabel = role === 'buyer' ? 'Como comprador' : 'Como vendedor';
+        const counterpartName = counterpart.replace(/^(Vendedor:|Comprador:)\s*/, '').trim() || 'Sin datos';
+        const statusLabel = (o.status || 'pendiente').toString();
+        const canConfirmDelivery = role === 'seller' && statusRaw !== 'delivered' && statusRaw !== 'cancelled';
+        const canCancel = statusRaw !== 'delivered' && statusRaw !== 'cancelled';
+
+        card.innerHTML = `
+          <div class="card-body">
+            <div class="order-card-head">
+              <div>
+                <h3 class="card-title" style="margin:0;">Pedido #${o.id || ''}</h3>
+                <div class="order-sub">${role === 'buyer' ? 'Vendedor' : 'Comprador'}: ${counterpartName}</div>
+              </div>
+              <div class="order-head-right">
+                <span class="price"><span class="now">${total}</span></span>
+                <span class="status-pill">${statusLabel}</span>
+              </div>
+            </div>
+            <div class="order-meta-row">
+              <span class="order-pill" aria-label="${roleLabel}">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                ${roleLabel}
+              </span>
+              <span class="order-pill" aria-label="Metodo de pago">${method}</span>
+            </div>
+            <div class="order-summary">
+              <span><strong>Fecha:</strong> ${date}</span>
+              <span><strong>${role === 'buyer' ? 'Vendedor' : 'Comprador'}:</strong> ${counterpartName}</span>
+              <span><strong>Total:</strong> ${total}</span>
+              <span><strong>Pago:</strong> ${method}</span>
+              <span><strong>Estado:</strong> ${statusLabel}</span>
+            </div>
+            <div class="card-actions" style="margin-top:10px;">
+              <button class="btn" type="button" data-view-order="${o.id || ''}">Ver detalles</button>
+              ${canConfirmDelivery ? `<button class="btn" type="button" data-confirm-delivery="${o.id || ''}">Confirmar entrega</button>` : ''}
+              ${canCancel ? `<button class="btn btn-danger" type="button" data-cancel-order="${o.id || ''}">Cancelar</button>` : ''}
+            </div>
+          </div>
+        `;
+        return card;
+      }
+
+      
+function renderGroup(title, items, role){
+        const sec = document.createElement('section');
+        sec.className = 'orders-group card';
+        const head = document.createElement('div');
+        head.className = 'orders-section__head';
+        const h3 = document.createElement('h3');
+        h3.textContent = title;
+        const qty = document.createElement('span');
+        qty.className = 'muted';
+        qty.textContent = `${items.length} ${items.length === 1 ? 'pedido' : 'pedidos'}`;
+        head.append(h3, qty);
+        sec.appendChild(head);
+
+        if (!items.length){
+          const msg = document.createElement('div');
+          msg.className = 'order-section-empty';
+          msg.textContent = role === 'buyer' ? 'AÃºn no has comprado.' : 'AÃºn no has vendido.';
+          sec.appendChild(msg);
+        } else {
+          const wrap = document.createElement('div');
+          wrap.className = 'orders-cards';
+          items.forEach(o => wrap.appendChild(createCard(o, role)));
+          sec.appendChild(wrap);
+        }
+        list.appendChild(sec);
+      }
+
+      const orders = await fetchOrders();
+      const uid = window.CURRENT_USER_ID || null;
+      const purchases = uid ? orders.filter(o => String(o.buyer_id) === String(uid)) : [];
+      const sales = uid ? orders.filter(o => String(o.seller_id) === String(uid)) : [];
+      orders.forEach(o => {
+        const role = uid ? (String(o.buyer_id) === String(uid) ? 'buyer' : 'seller') : 'buyer';
+        ordersMap.set(String(o.id), { ...o, _role: role });
+      });
+
+      if (!purchases.length && !sales.length){
+        empty.style.display = 'block';
+      } else {
+        empty.style.display = 'none';
+        renderGroup('Pedidos realizados', purchases, 'buyer');
+        renderGroup('Pedidos vendidos', sales, 'seller');
+      }
+
+      function goToOrder(id){
+        if (!id) return;
+        const data = ordersMap.get(String(id));
+        if (data) showOrderModal(data);
+      }
+
+      list.addEventListener('click', (e)=>{
+        const confirmBtn = e.target.closest('[data-confirm-delivery]');
+        if (confirmBtn){
+          e.stopPropagation();
+          confirmDelivery(confirmBtn.dataset.confirmDelivery, confirmBtn);
+          return;
+        }
+        const cancelBtn = e.target.closest('[data-cancel-order]');
+        if (cancelBtn){
+          e.stopPropagation();
+          const oid = cancelBtn.dataset.cancelOrder;
+          if (!oid) return;
+          const ok = window.confirm('Â¿Seguro que deseas cancelar este pedido? Se procesarÃ¡ un reembolso si aplica.');
+          if (ok) cancelOrder(oid, cancelBtn);
+          return;
+        }
+        const btn = e.target.closest('[data-view-order]');
+        if (btn){
+          e.stopPropagation();
+          goToOrder(btn.dataset.viewOrder);
+          return;
+        }
+        const card = e.target.closest('[data-order-id]');
+        if (card){
+          goToOrder(card.dataset.orderId);
+        }
+      });
+      list.addEventListener('keydown', (e)=>{
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const card = e.target.closest('[data-order-id]');
+        if (card){
+          e.preventDefault();
+          goToOrder(card.dataset.orderId);
+        }
+      });
+
+      const modal = document.getElementById('orderModal');
+      const modalClose = modal?.querySelector('[data-close]');
+      const modalFields = {
+        id: document.getElementById('orderModalId'),
+        status: document.getElementById('orderModalStatus'),
+        total: document.getElementById('orderModalTotal'),
+        created: document.getElementById('orderModalCreated'),
+        paid: document.getElementById('orderModalPaid'),
+        method: document.getElementById('orderModalMethod'),
+        seller: document.getElementById('orderModalSeller'),
+      };
+      function showOrderModal(order){
+        if (!modal) return;
+        const payLabel = (() => {
+          const raw = (order.payment_method_label || '').replace(/demo/gi,'').trim();
+          const base = raw || (order.payment_method_type === 'cash' ? 'Efectivo' : 'Tarjeta');
+          const last4 = (order.payment_method_last4 || '').toString().slice(-4);
+          return last4 ? `${base} (**** ${last4})` : base;
+        })();
+        if (modalFields.id) modalFields.id.textContent = `Pedido #${order.id || ''}`;
+        if (modalFields.status) modalFields.status.textContent = order.status || '';
+        if (modalFields.total) modalFields.total.textContent = fmtMoney(order.total_cents || 0);
+        if (modalFields.created) modalFields.created.textContent = fmtDate(order.created_at || '') || 'Â—';
+        if (modalFields.paid) modalFields.paid.textContent = order.payment_paid_at ? fmtDate(order.payment_paid_at) : 'No pagado';
+        if (modalFields.method) modalFields.method.textContent = payLabel || 'No definido';
+        if (modalFields.seller) modalFields.seller.textContent = order.seller_name || 'Â—';
+        modal.classList.remove('hidden');
+      }
+      function hideOrderModal(){
+        modal?.classList.add('hidden');
+      }
+      modalClose?.addEventListener('click', hideOrderModal);
+      modal?.addEventListener('click', (e)=>{ if (e.target === modal) hideOrderModal(); });
+
+      async function confirmDelivery(orderId, btn){
+        if (!orderId) return;
+        const prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Confirmando...';
+        try{
+          const fd = new FormData();
+          fd.append('order_id', orderId);
+          const res = await fetch('/backend/mark_delivered.php', { method:'POST', body: fd, credentials:'include' });
+          const data = await res.json();
+          if (!res.ok || data.error){
+            alert(data.error || 'No se pudo confirmar la entrega');
+            btn.disabled = false;
+            btn.textContent = prev;
+            return;
+          }
+          const card = btn.closest('.order-card');
+          if (card){
+            const pill = card.querySelector('.status-pill');
+            if (pill) pill.textContent = 'Entregado';
+          }
+          btn.textContent = 'Entregado';
+        }catch(_){
+          alert('No se pudo confirmar la entrega');
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      }
+
+      async function cancelOrder(orderId, btn){
+        const prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Cancelando...';
+        try{
+          const res = await fetch('/backend/cancel_order.php', {
+            method:'POST',
+            credentials:'include',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ order_id: Number(orderId) })
+          });
+          const data = await res.json();
+          if (!res.ok || data.error){
+            throw new Error(data.error || 'No se pudo cancelar el pedido');
+          }
+          const card = btn.closest('.order-card');
+          if (card){
+            const pill = card.querySelector('.status-pill');
+            if (pill) pill.textContent = 'cancelled';
+            card.querySelector('[data-confirm-delivery]')?.remove();
+            btn.remove();
+          }
+          const stored = ordersMap.get(String(orderId)) || {};
+          ordersMap.set(String(orderId), { ...stored, status: 'cancelled' });
+          alert('Pedido cancelado. Se marca reembolso en transacciones si aplica.');
+        }catch(err){
+          alert(err?.message || 'No se pudo cancelar el pedido');
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
 

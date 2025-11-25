@@ -49,6 +49,8 @@ body{
 .logo{display:flex; gap:10px; align-items:center; text-decoration:none; color:var(--brand-ink); font-weight:800; letter-spacing:.3px}
 .logo svg{width:36px; height:36px; fill:var(--brand)}
 .logo span{font-size:1.15rem}
+:root[data-theme="dark"] .logo{color:var(--ink);}
+:root[data-theme="dark"] .logo svg{fill:#38bdf8;}
 
 /* Search */
 .search{display:flex; position:relative; margin-top:6px}
@@ -227,11 +229,14 @@ input[type=number]{ -moz-appearance:textfield }
 .btn-add:hover{opacity:.9}
 
 /* Footer */
-.footer{background:#111; color:#fff; padding:36px 0 0}
+.footer{background:#f3f4f6; color:#111; padding:36px 0 0}
 .footer-grid{display:grid; gap:20px; grid-template-columns: repeat(4, minmax(0,1fr))}
 .footer-grid h4{margin:0 0 10px}
-.footer-grid a{display:block; color:#d1d5db; text-decoration:none; padding:6px 0}
-.footer-grid a:hover{color:#fff}
+.footer-grid a{display:block; color:#4b5563; text-decoration:none; padding:6px 0}
+.footer-grid a:hover{color:#111}
+:root[data-theme="dark"] .footer{background:#0b1222; color:var(--ink);}
+:root[data-theme="dark"] .footer-grid a{color:#d1d5db;}
+:root[data-theme="dark"] .footer-grid a:hover{color:#fff;}
 .socials{display:flex; gap:8px}
 .socials a{display:grid; place-items:center; width:34px; height:34px; background:#222; border-radius:10px; color:#fff; text-decoration:none}
 .copy{text-align:center; padding:12px 0; color:#9ca3af}
@@ -256,6 +261,7 @@ input[type=number]{ -moz-appearance:textfield }
 
 /* Modales (login/register) */
 .modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; justify-content: center; align-items: center; padding: 20px; }
+.modal .modal-content{ margin-top:60px; }
 .modal.hidden { display: none; }
 .modal-content { position: relative; background: #fff; padding: 28px; border-radius: 14px; width: 330px; max-width: 90%; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,.16); }
 .modal-content input { padding: 12px 14px; border-radius: 8px; border: 1px solid #ddd; background: #fafafa; transition: .2s; }
@@ -378,8 +384,21 @@ textarea.form-control{resize:none}
 /* -------- PÃ¡gina de producto -------- */
 .product{background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:18px}
 .pgrid{display:grid; grid-template-columns: 1.2fr 1fr; gap:20px}
-.gallery-main{background:#f3f4f6; border-radius:16px; overflow:hidden}
-.gallery-main img{width:100%; height:auto; display:block}
+.gallery-main{
+  background:#f3f4f6;
+  border-radius:16px;
+  overflow:hidden;
+  aspect-ratio:4/3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.gallery-main img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 .gallery-thumbs{display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; margin-top:10px}
 .gallery-thumbs img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px; cursor:pointer}
 .pinfo{display:flex; flex-direction:column; gap:10px}
@@ -399,6 +418,14 @@ textarea.form-control{resize:none}
 .q-meta{color:var(--muted); font-size:.9rem; margin-top:4px}
 .a-text{background:var(--brand-weak); padding:10px; border-radius:10px; margin-top:8px}
 .ans-row{display:flex; gap:8px; margin-top:8px}
+:root[data-theme="dark"] .product,
+:root[data-theme="dark"] .qna{background:var(--surface); color:var(--ink);}
+:root[data-theme="dark"] .gallery-main{background:#0f172a;}
+:root[data-theme="dark"] .gallery-thumbs img{filter:brightness(.95);}
+:root[data-theme="dark"] .pdesc{color:var(--muted);}
+:root[data-theme="dark"] .q-item{border-color:var(--divider);}
+:root[data-theme="dark"] .q-meta{color:var(--muted);}
+:root[data-theme="dark"] .a-text{background:var(--accent-weak); color:var(--ink);}
 .ans-row .btn{white-space:nowrap}
 
 /* -------- Uploader mÃºltiple (pÃ¡g. Vender) -------- */
@@ -700,6 +727,8 @@ textarea.form-control{resize:none}
 }
 .messages-upload input{display:none;}
 .messages-upload svg{width:18px; height:18px; fill:currentColor;}
+
+.attachment-preview[hidden]{display:none !important;}
 .attachment-preview{
   display:flex;
   align-items:center;

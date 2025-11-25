@@ -1,569 +1,570 @@
-﻿<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8"/>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Pagar</title>
-  <link rel="stylesheet" href="public/css/styles.css">
-  <link rel="icon" href="data:,">
-</head>
-<body>
-  <header class="header">
-    <div class="topbar container">
-      <a href="#" class="logo" aria-label="Ir al inicio">
-        <!-- Logo minimal -->
-        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
-        <span>MiMarket</span>
-      </a>
-
-      <!-- Buscador -->
-      <form class="search" role="search" aria-label="Buscar productos">
-        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" aria-label="Buscar"/>
-        <button type="submit" aria-label="Buscar">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
-        </button>
-        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
-      </form>
-
-      <!-- Acciones derecha -->
-      <nav class="actions" aria-label="Acciones de usuario">
-        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
-    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
-    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
-    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
-  </svg>
-
-  <!-- Nuevo badge dinÃ¡mico -->
-  <span id="cartBadge" class="badge hidden"></span>
-  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
-    <div class="cart-empty">No hay productos en el carrito</div>
-  </div>
-</div>
-
-
-        <div class="profile" aria-label="MenÃº de perfil">
-          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
-    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
-    <span id="profileLabel">Iniciar sesi&oacute;n</span>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
-  </button>
-                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
-            <li role="menuitem"><a href="#">Ingresar</a></li>
-            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
-            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
-            <li role="menuitem"><a href="/vender.html">Vender</a></li>
-            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
-          </ul>
-        </div>
-
-        <button id="hamburger" class="hamburger" aria-label="Abrir menÃº" aria-controls="catNav" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Categor&iacute;as -->
-    <nav id="catNav" class="categories" aria-label="Categorías">
-  <ul class="container">
-    <li class="cat has-mega">
-      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
-      <div class="mega">
-        <div>
-          <h4>Celulares</h4>
-          <a href="#">Smartphones</a>
-          <a href="#">Accesorios</a>
-          <a href="#">Wearables</a>
-        </div>
-        <div>
-          <h4>Computaci&oacute;n</h4>
-          <a href="#">Laptops</a>
-          <a href="#">Perif&eacute;ricos</a>
-          <a href="#">Componentes</a>
-        </div>
-        <div>
-          <h4>TV y Audio</h4>
-          <a href="#">Televisores</a>
-          <a href="#">Bocinas</a>
-          <a href="#">Streaming</a>
-        </div>
-      </div>
-    </li>
-    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
-    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
-    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
-    <li class="cat"><a href="#">Moda</a></li>
-    <li class="cat"><a href="#">Juegos y juguetes</a></li>
-    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
-  </ul>
-</nav>
-  </header>
-
-  <main class="container" style="padding:18px 0 34px; display:flex; justify-content:center;">
-    <section class="card" style="padding:16px; max-width:720px; width:100%; color:#111;">
-      <h2 style="margin-top:0; color:#111;">Completar pago</h2>
-      <p class="form-hint" style="color:#111;">Elige un m&eacute;todo para finalizar tu compra.</p>
-
-      <form class="form" id="payForm" novalidate>
-        <div class="form-group">
-          <label class="form-label" style="color:#111;">M&eacute;todo de pago</label>
-          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
-            <label><input type="radio" name="pm" value="card" checked> Tarjeta</label>
-            <label><input type="radio" name="pm" value="cash"> Efectivo</label>
-          </div>
-        </div>
-
-        <div id="savedMethods" class="form-group" style="display:none; margin-top:8px;">
-          <label class="form-label" style="color:#111;">Tus m&eacute;todos guardados</label>
-          <div id="savedMethodsList" style="display:flex; flex-direction:column; gap:8px;"></div>
-        </div>
-        <div id="savedCvvRow" class="form-group" style="display:none; margin-top:8px;">
-          <label class="form-label" for="saved-cvv" style="color:#111;">CVV de la tarjeta guardada</label>
-          <input id="saved-cvv" class="form-control" type="password" inputmode="numeric" placeholder="123">
-          <p class="form-error" id="saved-cvv-error"></p>
-        </div>
-
-        <div id="cardFields" class="form-grid" style="margin-top:6px">
-          <div class="form-group">
-            <label class="form-label" for="cc-name" style="color:#111;">Nombre en la tarjeta</label>
-            <input id="cc-name" class="form-control" type="text" placeholder="Tu nombre" autocomplete="cc-name">
-            <p class="form-error" id="cc-name-error"></p>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="cc-number" style="color:#111;">N&uacute;mero de tarjeta</label>
-            <input id="cc-number" class="form-control" type="text" inputmode="numeric" placeholder="4111 1111 1111 1111" autocomplete="cc-number">
-            <p class="form-error" id="cc-number-error"></p>
-          </div>
-          <div class="form-row-2">
-            <div class="form-group">
-              <label class="form-label" for="cc-exp" style="color:#111;">Vencimiento</label>
-              <input id="cc-exp" class="form-control" type="text" inputmode="numeric" placeholder="MM/AA" autocomplete="cc-exp">
-              <p class="form-error" id="cc-exp-error"></p>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cc-cvv" style="color:#111;">CVV</label>
-              <input id="cc-cvv" class="form-control" type="password" inputmode="numeric" placeholder="123" autocomplete="cc-csc">
-              <p class="form-error" id="cc-cvv-error"></p>
-            </div>
-          </div>
-        </div>
-
-        <div id="cashBox" class="form-group" style="display:none; margin-top:6px">
-          <div class="form-hint">Se generar&aacute; una referencia y confirmaremos tu pago.
-          </div>
-        </div>
-
-        <div class="cart-total" style="margin-top:10px">
-          <span>Total</span>
-          <strong id="checkoutTotal">$0.00</strong>
-        </div>
-
-        <div class="form-actions" style="margin-top:12px">
-          <button id="btnPayNow" class="btn" type="button">Pagar</button>
-          <a href="/" class="btn" style="background:#374151">Cancelar</a>
-        </div>
-      </form>
-    </section>
-  </main>
-
-    <footer class="footer">
-    <div class="container footer-grid">
-      <div>
-        <h4>Pagos</h4>
-        <a href="#">M&eacute;todos de pago</a>
-        <a href="#">Seguridad</a>
-        <a href="#">Facturaci&oacute;n</a>
-      </div>
-      <div>
-        <h4>Compras</h4>
-        <a href="#">Env&iacute;os</a>
-        <a href="#">Devoluciones</a>
-        <a href="#">Reembolsos</a>
-      </div>
-      <div>
-        <h4>Nosotros</h4>
-        <a href="#">Sobre nosotros</a>
-        <a href="#">Prensa</a>
-        <a href="#">Empleo</a>
-      </div>
-      <div>
-        <h4>Ayuda</h4>
-        <a href="#">Centro de ayuda</a>
-        <a href="#">Contacto</a>
-        <a href="#">T&eacute;rminos y privacidad</a>
-      </div>
-    </div>
-    <div class="copy">&copy; <span id="year"></span> MiMarket</div>
-  </footer>
-
-  <script src="public/js/app.js"></script>
-  <script>
-    async function initPay(){
-      const totalEl = document.getElementById('checkoutTotal');
-      const items = (typeof CART !== "undefined" ? CART : []);
-      const currency = (c)=> (c/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
-      const totalCents = items.reduce((s,it)=> s + it.qty*it.price_cents, 0);
-      totalEl.textContent = currency(totalCents);
-      if (!items.length) {
-        alert('Tu carrito está vacío');
-        location.href = '/';
-      }
-    }
-
-    // Require login to access checkout y luego preparar total
-    (async function ensureAuth(){
-      try {
-        const res = await fetch('/backend/session.php', { credentials: 'include' });
-        const s = await res.json();
-        if (!s.logged_in) {
-          location.replace('/?login=1');
-          return;
-        }
-        // Propaga la sesión al contexto global usado por app.js
-        try { SESSION = s; } catch(_){}
-        window.SESSION = s;
-        try { CART_LOADED = false; FAV_LOADED = false; loadCartFromStorage(); updateCartBadge(); renderCartMenu(); } catch(_) {}
-        await initPay();
-      } catch (e) {
-        location.replace('/?login=1');
-        return;
-      }
-    })();
-
-    const savedMethodsWrap = document.getElementById('savedMethods');
-    const savedMethodsList = document.getElementById('savedMethodsList');
-    const savedCvvRow = document.getElementById('savedCvvRow');
-    const savedCvvInput = document.getElementById('saved-cvv');
-    let savedMethods = [];
-    function setSavedCvvError(message){
-      const errorEl = document.getElementById('saved-cvv-error');
-      if (errorEl) errorEl.textContent = message || '';
-      if (savedCvvInput) savedCvvInput.classList.toggle('input-error', Boolean(message));
-    }
-    function resetSavedCvv(){
-      if (savedCvvInput) savedCvvInput.value = '';
-      setSavedCvvError('');
-    }
-    savedCvvInput?.addEventListener('input', () => {
-      savedCvvInput.value = savedCvvInput.value.replace(/\D/g,'').slice(0, savedCvvInput.maxLength || 4);
-      if (savedCvvInput.value.length) setSavedCvvError('');
-    });
-
-    const getSelectedSavedMethod = () => {
-      const v = document.querySelector('input[name="pm"]:checked')?.value;
-      if (!v || !v.startsWith('saved:')) return null;
-      const id = parseInt(v.split(':')[1], 10);
-      if (!Number.isFinite(id)) return null;
-      return savedMethods.find(m => m.id === id) || null;
-    };
-
-    const updateMethodVisibility = () => {
-      const v = document.querySelector('input[name="pm"]:checked')?.value;
-      const isSaved = v && v.startsWith('saved:');
-      document.getElementById('cardFields').style.display = (v === 'card') ? 'grid' : 'none';
-      document.getElementById('cashBox').style.display = (v === 'cash') ? 'block' : 'none';
-      if (isSaved) {
-        document.getElementById('cardFields').style.display = 'none';
-        document.getElementById('cashBox').style.display = 'none';
-        if (savedCvvRow && savedCvvInput) {
-          const selected = getSelectedSavedMethod();
-          const len = selected?.cvv_length === 4 ? 4 : 3;
-          savedCvvInput.maxLength = len;
-          savedCvvInput.placeholder = len === 4 ? '1234' : '123';
-          savedCvvRow.style.display = 'block';
-        }
-      } else {
-        if (savedCvvRow) {
-          savedCvvRow.style.display = 'none';
-          resetSavedCvv();
-        }
-      }
-    };
-
-    document.querySelectorAll('input[name="pm"]').forEach(r => {
-      r.addEventListener('change', () => {
-        if (!r.value.startsWith('saved:')) {
-          resetSavedCvv();
-        }
-        updateMethodVisibility();
-      });
-    });
-    updateMethodVisibility();
-
-    async function loadSavedMethods(){
-      try{
-        const r = await fetch('/backend/payment_methods.php', { credentials:'include' });
-        if (!r.ok) return;
-        const data = await r.json();
-        const methods = Array.isArray(data.methods) ? data.methods : [];
-        savedMethods = methods
-          .filter(m => m.type === 'card' && m.last4)
-          .map(m => ({
-            ...m,
-            cvv_length: (m.cvv_length === 4 ? 4 : 3)
-          }));
-        if (!savedMethods.length || !savedMethodsList) {
-          if (savedMethodsWrap) savedMethodsWrap.style.display = 'none';
-          if (savedCvvRow) savedCvvRow.style.display = 'none';
-          return;
-        }
-        savedMethodsWrap.style.display = 'block';
-        savedMethodsList.innerHTML = '';
-        savedMethods.forEach(m => {
-          const label = `${m.label || 'Tarjeta'} (**** ${m.last4})`;
-          const id = `pm-saved-${m.id}`;
-          const wrap = document.createElement('label');
-          wrap.style.display = 'flex';
-          wrap.style.alignItems = 'center';
-          wrap.style.gap = '8px';
-          wrap.innerHTML = `<input type="radio" name="pm" value="saved:${m.id}" id="${id}"> ${label}`;
-          wrap.querySelector('input').addEventListener('change', () => {
-            resetSavedCvv();
-            updateMethodVisibility();
-          });
-          savedMethodsList.appendChild(wrap);
-        });
-        updateMethodVisibility();
-      }catch(_){
-        if (savedMethodsWrap) savedMethodsWrap.style.display = 'none';
-        if (savedCvvRow) savedCvvRow.style.display = 'none';
-      }
-    }
-    loadSavedMethods();
-
-    const cardInputs = {
-      name: document.getElementById('cc-name'),
-      number: document.getElementById('cc-number'),
-      exp: document.getElementById('cc-exp'),
-      cvv: document.getElementById('cc-cvv')
-    };
-    const CARD_FIELD_IDS = ['cc-name','cc-number','cc-exp','cc-cvv'];
-
-    function setFieldError(fieldId, message){
-      const errorEl = document.getElementById(`${fieldId}-error`);
-      if (errorEl) errorEl.textContent = message || '';
-      const inputEl = document.getElementById(fieldId);
-      if (inputEl) inputEl.classList.toggle('input-error', Boolean(message));
-    }
-
-    function resetCardErrors(){
-      CARD_FIELD_IDS.forEach(id => setFieldError(id, ''));
-    }
-
-    function detectCardBrand(digits){
-      if (digits.startsWith('3')) return 'amex';
-      if (digits.startsWith('4')) return 'visa';
-      if (digits.startsWith('5')) return 'mastercard';
-      return null;
-    }
-
-    function applyBrandUI(brand){
-      if (!cardInputs.cvv) return;
-      const placeholder = brand === 'amex' ? '1234' : '123';
-      cardInputs.cvv.placeholder = placeholder;
-      cardInputs.cvv.maxLength = brand === 'amex' ? 4 : 3;
-    }
-
-    function formatCardNumberInput(){
-      if (!cardInputs.number) return;
-      const digits = cardInputs.number.value.replace(/\D/g,'');
-      const brand = detectCardBrand(digits);
-      const limit = brand === 'amex' ? 15 : 16;
-      const trimmed = digits.slice(0, limit);
-      applyBrandUI(brand);
-      cardInputs.number.value = trimmed.replace(/(.{4})/g,'$1 ').trim();
-    }
-
-    function formatExpInput(){
-      if (!cardInputs.exp) return;
-      const digits = cardInputs.exp.value.replace(/\D/g,'').slice(0,4);
-      if (digits.length > 2) {
-        cardInputs.exp.value = `${digits.slice(0,2)}/${digits.slice(2)}`;
-      } else {
-        cardInputs.exp.value = digits;
-      }
-    }
-
-    function enforceCvvDigits(){
-      if (!cardInputs.cvv) return;
-      const max = cardInputs.cvv.maxLength || 4;
-      cardInputs.cvv.value = cardInputs.cvv.value.replace(/\D/g,'').slice(0, max);
-    }
-
-    cardInputs.number?.addEventListener('input', formatCardNumberInput);
-    cardInputs.exp?.addEventListener('input', formatExpInput);
-    cardInputs.cvv?.addEventListener('input', enforceCvvDigits);
-    formatCardNumberInput(); // aplica placeholder inicial
-
-    function validateCardPayment(){
-      if (!cardInputs.number || !cardInputs.exp || !cardInputs.cvv || !cardInputs.name) return false;
-      resetCardErrors();
-
-      const numberRaw = cardInputs.number.value.replace(/\s+/g,'');
-      const expRaw = cardInputs.exp.value.trim();
-      const cvvRaw = cardInputs.cvv.value.trim();
-      const holder = cardInputs.name.value.trim();
-
-      let valid = true;
-      if (!holder) {
-        setFieldError('cc-name','Ingresa el nombre del titular.');
-        valid = false;
-      }
-
-      let brand = null;
-      if (!numberRaw) {
-        setFieldError('cc-number','Ingresa el numero de la tarjeta.');
-        valid = false;
-      } else if (!/^\d+$/.test(numberRaw)) {
-        setFieldError('cc-number','El numero de tarjeta solo acepta digitos.');
-        valid = false;
-      } else {
-        brand = detectCardBrand(numberRaw);
-        applyBrandUI(brand);
-        if (!brand) {
-          setFieldError('cc-number','Solo se aceptan tarjetas Visa, Mastercard o American Express.');
-          valid = false;
-        } else {
-          const expectedLength = brand === 'amex' ? 15 : 16;
-          if (numberRaw.length !== expectedLength) {
-            setFieldError('cc-number', `La tarjeta debe tener ${expectedLength} digitos.`);
-            valid = false;
-          }
-        }
-      }
-
-      if (!cvvRaw) {
-        setFieldError('cc-cvv','Ingresa el CVV.');
-        valid = false;
-      } else if (!/^\d+$/.test(cvvRaw)) {
-        setFieldError('cc-cvv','El CVV solo acepta digitos.');
-        valid = false;
-      } else if (brand === 'amex' && cvvRaw.length !== 4) {
-        setFieldError('cc-cvv','El CVV AMEX debe tener 4 digitos.');
-        valid = false;
-      } else if (brand && brand !== 'amex' && cvvRaw.length !== 3) {
-        setFieldError('cc-cvv','El CVV debe tener 3 digitos.');
-        valid = false;
-      }
-
-      const expDigits = expRaw.replace(/\D/g,'');
-      if (expDigits.length < 4) {
-        setFieldError('cc-exp','Completa mes y anio (MM/AA).');
-        valid = false;
-      } else {
-        const month = parseInt(expDigits.slice(0,2), 10);
-        const year = 2000 + parseInt(expDigits.slice(2), 10);
-        if (month < 1 || month > 12) {
-          setFieldError('cc-exp','El mes no es valido.');
-          valid = false;
-        } else {
-          const now = new Date();
-          const expDate = new Date(year, month - 1, 1);
-          expDate.setMonth(expDate.getMonth() + 1);
-          if (expDate <= now) {
-            setFieldError('cc-exp','La tarjeta esta vencida.');
-            valid = false;
-          }
-        }
-      }
-
-      return valid ? { brand, numberRaw, cvvRaw } : false;
-    }
-
-    // Simular pago
-    document.getElementById('btnPayNow')?.addEventListener('click', async () => {
-      const methodVal = document.querySelector('input[name="pm"]:checked')?.value || 'card';
-      const isSavedMethod = methodVal.startsWith('saved:');
-      const method = isSavedMethod ? 'saved' : methodVal;
-      let cvvToSend = null;
-      let cardData = null;
-      const btn = document.getElementById('btnPayNow');
-      btn.disabled = true; btn.textContent = 'Procesando...';
-      try {
-        if (method === 'card') {
-          cardData = validateCardPayment();
-          if (!cardData) {
-            btn.disabled = false;
-            btn.textContent = 'Pagar';
-            return;
-          }
-          cvvToSend = cardData.cvvRaw;
-        }
-        const brandLabels = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
-        let paymentMeta;
-        if (method === 'saved') {
-          const id = parseInt(methodVal.split(':')[1], 10);
-          const saved = savedMethods.find(m => m.id === id);
-          if (!saved) throw new Error('M\u00e9todo guardado no encontrado');
-          const expectedLen = saved.cvv_length === 4 ? 4 : 3;
-          const entered = savedCvvInput?.value.trim() || '';
-          if (!/^\d+$/.test(entered) || entered.length !== expectedLen) {
-            setSavedCvvError(`Ingresa el CVV de ${expectedLen} d\u00edgitos.`);
-            btn.disabled = false;
-            btn.textContent = 'Pagar';
-            return;
-          }
-          setSavedCvvError('');
-          cvvToSend = entered;
-          paymentMeta = { payment_method_id: id, type: 'card', label: saved.label, last4: saved.last4 };
-        } else if (method === 'card') {
-          paymentMeta = {
-            type: 'card',
-            label: cardData?.brand ? `Tarjeta ${brandLabels[cardData.brand] || cardData.brand.toUpperCase()}` : 'Tarjeta',
-            last4: cardData?.numberRaw ? cardData.numberRaw.slice(-4) : null,
-          };
-        } else {
-          paymentMeta = { type: 'cash', label: 'Efectivo', last4: null };
-        }
-        if (method === 'card' && !paymentMeta.last4) {
-          btn.disabled = false;
-          btn.textContent = 'Pagar';
-          return;
-        }
-        if ((method === 'card' || method === 'saved') && cvvToSend) {
-          paymentMeta.cvv = cvvToSend;
-        }
-        await comprar(paymentMeta);
-        alert(method === 'cash' ? 'Pago en efectivo confirmado' : 'Pago con tarjeta aprobado');
-        location.href = '/';
-      } catch (err) {
-        console.error(err);
-        if (err?.message === 'CART_EMPTY') {
-          alert('Tu carrito está vacío, agrega productos antes de pagar.');
-        } else if (err?.message === 'NO_SESSION') {
-          alert('Debes iniciar sesión de nuevo.');
-        } else {
-          alert('No se pudo completar el pago');
-        }
-      } finally {
-        btn.disabled = false; btn.textContent = 'Pagar';
-      }
-    });
-  </script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Pagar</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <!-- Logo minimal -->
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>Utzmplace</span>
+      </a>
+
+      <!-- Buscador -->
+      <form class="search" role="search" aria-label="Buscar productos">
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y mÃ¡s" aria-label="Buscar"/>
+        <button type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+        </button>
+        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
+      </form>
+
+      <!-- Acciones derecha -->
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
+    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
+    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
+    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
+  </svg>
+
+  <!-- Nuevo badge dinÃƒÂ¡mico -->
+  <span id="cartBadge" class="badge hidden"></span>
+  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+    <div class="cart-empty">No hay productos en el carrito</div>
+  </div>
+</div>
+
+
+        <div class="profile" aria-label="MenÃƒÂº de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+    <span id="profileLabel">Iniciar sesi&oacute;n</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+  </button>
+                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
+          </ul>
+        </div>
+
+        <button id="hamburger" class="hamburger" aria-label="Abrir menÃƒÂº" aria-controls="catNav" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Categor&iacute;as -->
+    <nav id="catNav" class="categories" aria-label="CategorÃ­as">
+  <ul class="container">
+    <li class="cat has-mega">
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+      <div class="mega">
+        <div>
+          <h4>Celulares</h4>
+          <a href="#">Smartphones</a>
+          <a href="#">Accesorios</a>
+          <a href="#">Wearables</a>
+        </div>
+        <div>
+          <h4>Computaci&oacute;n</h4>
+          <a href="#">Laptops</a>
+          <a href="#">Perif&eacute;ricos</a>
+          <a href="#">Componentes</a>
+        </div>
+        <div>
+          <h4>TV y Audio</h4>
+          <a href="#">Televisores</a>
+          <a href="#">Bocinas</a>
+          <a href="#">Streaming</a>
+        </div>
+      </div>
+    </li>
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+    <li class="cat"><a href="#">Moda</a></li>
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+  </ul>
+</nav>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px; display:flex; justify-content:center;">
+    <section class="card" style="padding:16px; max-width:720px; width:100%; color:#111;">
+      <h2 style="margin-top:0; color:#111;">Completar pago</h2>
+      <p class="form-hint" style="color:#111;">Elige un m&eacute;todo para finalizar tu compra.</p>
+
+      <form class="form" id="payForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" style="color:#111;">M&eacute;todo de pago</label>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+            <label><input type="radio" name="pm" value="card" checked> Tarjeta</label>
+            <label><input type="radio" name="pm" value="cash"> Efectivo</label>
+          </div>
+        </div>
+
+        <div id="savedMethods" class="form-group" style="display:none; margin-top:8px;">
+          <label class="form-label" style="color:#111;">Tus m&eacute;todos guardados</label>
+          <div id="savedMethodsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+        <div id="savedCvvRow" class="form-group" style="display:none; margin-top:8px;">
+          <label class="form-label" for="saved-cvv" style="color:#111;">CVV de la tarjeta guardada</label>
+          <input id="saved-cvv" class="form-control" type="password" inputmode="numeric" placeholder="123">
+          <p class="form-error" id="saved-cvv-error"></p>
+        </div>
+
+        <div id="cardFields" class="form-grid" style="margin-top:6px">
+          <div class="form-group">
+            <label class="form-label" for="cc-name" style="color:#111;">Nombre en la tarjeta</label>
+            <input id="cc-name" class="form-control" type="text" placeholder="Tu nombre" autocomplete="cc-name">
+            <p class="form-error" id="cc-name-error"></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cc-number" style="color:#111;">N&uacute;mero de tarjeta</label>
+            <input id="cc-number" class="form-control" type="text" inputmode="numeric" placeholder="4111 1111 1111 1111" autocomplete="cc-number">
+            <p class="form-error" id="cc-number-error"></p>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="cc-exp" style="color:#111;">Vencimiento</label>
+              <input id="cc-exp" class="form-control" type="text" inputmode="numeric" placeholder="MM/AA" autocomplete="cc-exp">
+              <p class="form-error" id="cc-exp-error"></p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cc-cvv" style="color:#111;">CVV</label>
+              <input id="cc-cvv" class="form-control" type="password" inputmode="numeric" placeholder="123" autocomplete="cc-csc">
+              <p class="form-error" id="cc-cvv-error"></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="cashBox" class="form-group" style="display:none; margin-top:6px">
+          <div class="form-hint">Se generar&aacute; una referencia y confirmaremos tu pago.
+          </div>
+        </div>
+
+        <div class="cart-total" style="margin-top:10px">
+          <span>Total</span>
+          <strong id="checkoutTotal">$0.00</strong>
+        </div>
+
+        <div class="form-actions" style="margin-top:12px">
+          <button id="btnPayNow" class="btn" type="button">Pagar</button>
+          <a href="/" class="btn" style="background:#374151">Cancelar</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+    <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h4>Pagos</h4>
+        <a href="/metodos_pago.html" title="Actualmente aceptamos pagos mediante transferencia bancaria y sistemas de pago digitales confiables. Todos los pagos se procesan dentro de la plataforma para mayor seguridad entre comprador y vendedor.">M&eacute;todos de pago</a>
+        <a href="/seguridad.html" title="Nos esforzamos por mantener la seguridad de cada transacci&oacute;n. La informaci&oacute;n personal y financiera de los usuarios no se comparte con terceros y se almacena de forma protegida.">Seguridad</a>
+        <a href="/facturacion.html" title="Cada compra genera un comprobante interno que puedes consultar desde tu perfil. No emitimos facturas oficiales, pero mantenemos registro de todas las operaciones.">Facturaci&oacute;n</a>
+      </div>
+      <div>
+        <h4>Compras</h4>
+        <a href="/envios.html" title="El env&iacute;o o entrega se coordina entre comprador y vendedor; sugiere un punto seguro dentro o cerca de la universidad.">Env&iacute;os</a>
+        <a href="/devoluciones.html" title="Las devoluciones dependen del acuerdo entre ambas partes; puedes notificar problemas para recibir ayuda.">Devoluciones</a>
+        <a href="/reembolsos.html" title="El pago se retiene hasta confirmar recepci&oacute;n; si no se concreta la entrega, procesamos el reembolso lo antes posible.">Reembolsos</a>
+      </div>
+      <div>
+        <h4>Nosotros</h4>
+        <a href="/sobre_nosotros.html" title="Proyecto universitario para un espacio seguro donde la comunidad compra, vende o intercambia productos y servicios.">Sobre nosotros</a>
+      </div>
+      <div>
+        <h4>Ayuda</h4>
+        <a href="/centro_de_ayuda.html" title="Respuestas a preguntas comunes sobre compras, ventas, entregas y reembolsos.">Centro de ayuda</a>
+        <a href="/contacto.html" title="Soporte personalizado por formulario o correo oficial del proyecto.">Contacto</a>
+        <a href="/terminos_privacidad.html" title="Datos usados solo para operar la plataforma; no se comparten con terceros.">T&eacute;rminos y privacidad</a>
+      </div>
+    </div>
+    <div class="copy">&copy; <span id="year"></span> Utzmplace</div>
+  </footer>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    async function initPay(){
+      const totalEl = document.getElementById('checkoutTotal');
+      const items = (typeof CART !== "undefined" ? CART : []);
+      const currency = (c)=> (c/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
+      const totalCents = items.reduce((s,it)=> s + it.qty*it.price_cents, 0);
+      totalEl.textContent = currency(totalCents);
+      if (!items.length) {
+        alert('Tu carrito estÃ¡ vacÃ­o');
+        location.href = '/';
+      }
+    }
+
+    // Require login to access checkout y luego preparar total
+    (async function ensureAuth(){
+      try {
+        const res = await fetch('/backend/session.php', { credentials: 'include' });
+        const s = await res.json();
+        if (!s.logged_in) {
+          location.replace('/?login=1');
+          return;
+        }
+        // Propaga la sesiÃ³n al contexto global usado por app.js
+        try { SESSION = s; } catch(_){}
+        window.SESSION = s;
+        try { CART_LOADED = false; FAV_LOADED = false; loadCartFromStorage(); updateCartBadge(); renderCartMenu(); } catch(_) {}
+        await initPay();
+      } catch (e) {
+        location.replace('/?login=1');
+        return;
+      }
+    })();
+
+    const savedMethodsWrap = document.getElementById('savedMethods');
+    const savedMethodsList = document.getElementById('savedMethodsList');
+    const savedCvvRow = document.getElementById('savedCvvRow');
+    const savedCvvInput = document.getElementById('saved-cvv');
+    let savedMethods = [];
+    function setSavedCvvError(message){
+      const errorEl = document.getElementById('saved-cvv-error');
+      if (errorEl) errorEl.textContent = message || '';
+      if (savedCvvInput) savedCvvInput.classList.toggle('input-error', Boolean(message));
+    }
+    function resetSavedCvv(){
+      if (savedCvvInput) savedCvvInput.value = '';
+      setSavedCvvError('');
+    }
+    savedCvvInput?.addEventListener('input', () => {
+      savedCvvInput.value = savedCvvInput.value.replace(/\D/g,'').slice(0, savedCvvInput.maxLength || 4);
+      if (savedCvvInput.value.length) setSavedCvvError('');
+    });
+
+    const getSelectedSavedMethod = () => {
+      const v = document.querySelector('input[name="pm"]:checked')?.value;
+      if (!v || !v.startsWith('saved:')) return null;
+      const id = parseInt(v.split(':')[1], 10);
+      if (!Number.isFinite(id)) return null;
+      return savedMethods.find(m => m.id === id) || null;
+    };
+
+    const updateMethodVisibility = () => {
+      const v = document.querySelector('input[name="pm"]:checked')?.value;
+      const isSaved = v && v.startsWith('saved:');
+      document.getElementById('cardFields').style.display = (v === 'card') ? 'grid' : 'none';
+      document.getElementById('cashBox').style.display = (v === 'cash') ? 'block' : 'none';
+      if (isSaved) {
+        document.getElementById('cardFields').style.display = 'none';
+        document.getElementById('cashBox').style.display = 'none';
+        if (savedCvvRow && savedCvvInput) {
+          const selected = getSelectedSavedMethod();
+          const len = selected?.cvv_length === 4 ? 4 : 3;
+          savedCvvInput.maxLength = len;
+          savedCvvInput.placeholder = len === 4 ? '1234' : '123';
+          savedCvvRow.style.display = 'block';
+        }
+      } else {
+        if (savedCvvRow) {
+          savedCvvRow.style.display = 'none';
+          resetSavedCvv();
+        }
+      }
+    };
+
+    document.querySelectorAll('input[name="pm"]').forEach(r => {
+      r.addEventListener('change', () => {
+        if (!r.value.startsWith('saved:')) {
+          resetSavedCvv();
+        }
+        updateMethodVisibility();
+      });
+    });
+    updateMethodVisibility();
+
+    async function loadSavedMethods(){
+      try{
+        const r = await fetch('/backend/payment_methods.php', { credentials:'include' });
+        if (!r.ok) return;
+        const data = await r.json();
+        const methods = Array.isArray(data.methods) ? data.methods : [];
+        savedMethods = methods
+          .filter(m => m.type === 'card' && m.last4)
+          .map(m => ({
+            ...m,
+            cvv_length: (m.cvv_length === 4 ? 4 : 3)
+          }));
+        if (!savedMethods.length || !savedMethodsList) {
+          if (savedMethodsWrap) savedMethodsWrap.style.display = 'none';
+          if (savedCvvRow) savedCvvRow.style.display = 'none';
+          return;
+        }
+        savedMethodsWrap.style.display = 'block';
+        savedMethodsList.innerHTML = '';
+        savedMethods.forEach(m => {
+          const label = `${m.label || 'Tarjeta'} (**** ${m.last4})`;
+          const id = `pm-saved-${m.id}`;
+          const wrap = document.createElement('label');
+          wrap.style.display = 'flex';
+          wrap.style.alignItems = 'center';
+          wrap.style.gap = '8px';
+          wrap.innerHTML = `<input type="radio" name="pm" value="saved:${m.id}" id="${id}"> ${label}`;
+          wrap.querySelector('input').addEventListener('change', () => {
+            resetSavedCvv();
+            updateMethodVisibility();
+          });
+          savedMethodsList.appendChild(wrap);
+        });
+        updateMethodVisibility();
+      }catch(_){
+        if (savedMethodsWrap) savedMethodsWrap.style.display = 'none';
+        if (savedCvvRow) savedCvvRow.style.display = 'none';
+      }
+    }
+    loadSavedMethods();
+
+    const cardInputs = {
+      name: document.getElementById('cc-name'),
+      number: document.getElementById('cc-number'),
+      exp: document.getElementById('cc-exp'),
+      cvv: document.getElementById('cc-cvv')
+    };
+    const CARD_FIELD_IDS = ['cc-name','cc-number','cc-exp','cc-cvv'];
+
+    function setFieldError(fieldId, message){
+      const errorEl = document.getElementById(`${fieldId}-error`);
+      if (errorEl) errorEl.textContent = message || '';
+      const inputEl = document.getElementById(fieldId);
+      if (inputEl) inputEl.classList.toggle('input-error', Boolean(message));
+    }
+
+    function resetCardErrors(){
+      CARD_FIELD_IDS.forEach(id => setFieldError(id, ''));
+    }
+
+    function detectCardBrand(digits){
+      if (digits.startsWith('3')) return 'amex';
+      if (digits.startsWith('4')) return 'visa';
+      if (digits.startsWith('5')) return 'mastercard';
+      return null;
+    }
+
+    function applyBrandUI(brand){
+      if (!cardInputs.cvv) return;
+      const placeholder = brand === 'amex' ? '1234' : '123';
+      cardInputs.cvv.placeholder = placeholder;
+      cardInputs.cvv.maxLength = brand === 'amex' ? 4 : 3;
+    }
+
+    function formatCardNumberInput(){
+      if (!cardInputs.number) return;
+      const digits = cardInputs.number.value.replace(/\D/g,'');
+      const brand = detectCardBrand(digits);
+      const limit = brand === 'amex' ? 15 : 16;
+      const trimmed = digits.slice(0, limit);
+      applyBrandUI(brand);
+      cardInputs.number.value = trimmed.replace(/(.{4})/g,'$1 ').trim();
+    }
+
+    function formatExpInput(){
+      if (!cardInputs.exp) return;
+      const digits = cardInputs.exp.value.replace(/\D/g,'').slice(0,4);
+      if (digits.length > 2) {
+        cardInputs.exp.value = `${digits.slice(0,2)}/${digits.slice(2)}`;
+      } else {
+        cardInputs.exp.value = digits;
+      }
+    }
+
+    function enforceCvvDigits(){
+      if (!cardInputs.cvv) return;
+      const max = cardInputs.cvv.maxLength || 4;
+      cardInputs.cvv.value = cardInputs.cvv.value.replace(/\D/g,'').slice(0, max);
+    }
+
+    cardInputs.number?.addEventListener('input', formatCardNumberInput);
+    cardInputs.exp?.addEventListener('input', formatExpInput);
+    cardInputs.cvv?.addEventListener('input', enforceCvvDigits);
+    formatCardNumberInput(); // aplica placeholder inicial
+
+    function validateCardPayment(){
+      if (!cardInputs.number || !cardInputs.exp || !cardInputs.cvv || !cardInputs.name) return false;
+      resetCardErrors();
+
+      const numberRaw = cardInputs.number.value.replace(/\s+/g,'');
+      const expRaw = cardInputs.exp.value.trim();
+      const cvvRaw = cardInputs.cvv.value.trim();
+      const holder = cardInputs.name.value.trim();
+
+      let valid = true;
+      if (!holder) {
+        setFieldError('cc-name','Ingresa el nombre del titular.');
+        valid = false;
+      }
+
+      let brand = null;
+      if (!numberRaw) {
+        setFieldError('cc-number','Ingresa el numero de la tarjeta.');
+        valid = false;
+      } else if (!/^\d+$/.test(numberRaw)) {
+        setFieldError('cc-number','El numero de tarjeta solo acepta digitos.');
+        valid = false;
+      } else {
+        brand = detectCardBrand(numberRaw);
+        applyBrandUI(brand);
+        if (!brand) {
+          setFieldError('cc-number','Solo se aceptan tarjetas Visa, Mastercard o American Express.');
+          valid = false;
+        } else {
+          const expectedLength = brand === 'amex' ? 15 : 16;
+          if (numberRaw.length !== expectedLength) {
+            setFieldError('cc-number', `La tarjeta debe tener ${expectedLength} digitos.`);
+            valid = false;
+          }
+        }
+      }
+
+      if (!cvvRaw) {
+        setFieldError('cc-cvv','Ingresa el CVV.');
+        valid = false;
+      } else if (!/^\d+$/.test(cvvRaw)) {
+        setFieldError('cc-cvv','El CVV solo acepta digitos.');
+        valid = false;
+      } else if (brand === 'amex' && cvvRaw.length !== 4) {
+        setFieldError('cc-cvv','El CVV AMEX debe tener 4 digitos.');
+        valid = false;
+      } else if (brand && brand !== 'amex' && cvvRaw.length !== 3) {
+        setFieldError('cc-cvv','El CVV debe tener 3 digitos.');
+        valid = false;
+      }
+
+      const expDigits = expRaw.replace(/\D/g,'');
+      if (expDigits.length < 4) {
+        setFieldError('cc-exp','Completa mes y anio (MM/AA).');
+        valid = false;
+      } else {
+        const month = parseInt(expDigits.slice(0,2), 10);
+        const year = 2000 + parseInt(expDigits.slice(2), 10);
+        if (month < 1 || month > 12) {
+          setFieldError('cc-exp','El mes no es valido.');
+          valid = false;
+        } else {
+          const now = new Date();
+          const expDate = new Date(year, month - 1, 1);
+          expDate.setMonth(expDate.getMonth() + 1);
+          if (expDate <= now) {
+            setFieldError('cc-exp','La tarjeta esta vencida.');
+            valid = false;
+          }
+        }
+      }
+
+      return valid ? { brand, numberRaw, cvvRaw } : false;
+    }
+
+    // Simular pago
+    document.getElementById('btnPayNow')?.addEventListener('click', async () => {
+      const methodVal = document.querySelector('input[name="pm"]:checked')?.value || 'card';
+      const isSavedMethod = methodVal.startsWith('saved:');
+      const method = isSavedMethod ? 'saved' : methodVal;
+      let cvvToSend = null;
+      let cardData = null;
+      const btn = document.getElementById('btnPayNow');
+      btn.disabled = true; btn.textContent = 'Procesando...';
+      try {
+        if (method === 'card') {
+          cardData = validateCardPayment();
+          if (!cardData) {
+            btn.disabled = false;
+            btn.textContent = 'Pagar';
+            return;
+          }
+          cvvToSend = cardData.cvvRaw;
+        }
+        const brandLabels = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
+        let paymentMeta;
+        if (method === 'saved') {
+          const id = parseInt(methodVal.split(':')[1], 10);
+          const saved = savedMethods.find(m => m.id === id);
+          if (!saved) throw new Error('M\u00e9todo guardado no encontrado');
+          const expectedLen = saved.cvv_length === 4 ? 4 : 3;
+          const entered = savedCvvInput?.value.trim() || '';
+          if (!/^\d+$/.test(entered) || entered.length !== expectedLen) {
+            setSavedCvvError(`Ingresa el CVV de ${expectedLen} d\u00edgitos.`);
+            btn.disabled = false;
+            btn.textContent = 'Pagar';
+            return;
+          }
+          setSavedCvvError('');
+          cvvToSend = entered;
+          paymentMeta = { payment_method_id: id, type: 'card', label: saved.label, last4: saved.last4 };
+        } else if (method === 'card') {
+          paymentMeta = {
+            type: 'card',
+            label: cardData?.brand ? `Tarjeta ${brandLabels[cardData.brand] || cardData.brand.toUpperCase()}` : 'Tarjeta',
+            last4: cardData?.numberRaw ? cardData.numberRaw.slice(-4) : null,
+          };
+        } else {
+          paymentMeta = { type: 'cash', label: 'Efectivo', last4: null };
+        }
+        if (method === 'card' && !paymentMeta.last4) {
+          btn.disabled = false;
+          btn.textContent = 'Pagar';
+          return;
+        }
+        if ((method === 'card' || method === 'saved') && cvvToSend) {
+          paymentMeta.cvv = cvvToSend;
+        }
+        await comprar(paymentMeta);
+        alert(method === 'cash' ? 'Pago en efectivo confirmado' : 'Pago con tarjeta aprobado');
+        location.href = '/';
+      } catch (err) {
+        console.error(err);
+        if (err?.message === 'CART_EMPTY') {
+          alert('Tu carrito estÃ¡ vacÃ­o, agrega productos antes de pagar.');
+        } else if (err?.message === 'NO_SESSION') {
+          alert('Debes iniciar sesiÃ³n de nuevo.');
+        } else if (typeof err?.message === 'string' && err.message.toLowerCase().includes('cvv')) {
+          alert('CVV incorrecto');
+        } else {
+          alert('No se pudo completar el pago');
+        }
+      } finally {
+        btn.disabled = false; btn.textContent = 'Pagar';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

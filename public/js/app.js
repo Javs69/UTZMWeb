@@ -18,6 +18,7 @@ const IS_VENDER = typeof location !== 'undefined' && /\/vender\.html$/i.test(loc
 const CART_STORAGE_KEY = 'CART';
 const FAV_STORAGE_KEY = 'FAVS';
 const USER_KEY = 'USER_ID';
+const GUEST_ID = 'GUEST';
 
 // Año en el footer
 try { document.getElementById('year') && (document.getElementById('year').textContent = String(new Date().getFullYear())); } catch(_) {}
@@ -43,7 +44,25 @@ function resolveUserForStorage(){
   const sessionUser = getSessionUserId();
   if (sessionUser) return sessionUser;
   const stored = getStoredUserId();
-  return stored || 'GUEST';
+  return stored || GUEST_ID;
+}
+
+function readStoreMap(key){
+  try{
+    const raw = localStorage.getItem(key);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)){
+      return { [GUEST_ID]: parsed };
+    }
+    if (parsed && typeof parsed === 'object') return parsed;
+  }catch(_){}
+  return {};
+}
+function writeStoreMap(key, map){
+  try{
+    localStorage.setItem(key, JSON.stringify(map || {}));
+  }catch(_){}
 }
 
 function setModalMessage(box, message = '', variant = 'error'){
@@ -65,58 +84,94 @@ function resetAuthMessages(){
 
 function loadCartFromStorage(){
   try{
-    const raw = localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) return;
-    const who = getStoredUserId();
-    const currentUser = getSessionUserId();
-    if (currentUser && who && who !== currentUser){
-      CART.splice(0, CART.length);
-      localStorage.setItem(USER_KEY, currentUser);
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(CART));
-      return;
+    const map = readStoreMap(CART_STORAGE_KEY);
+    const currentUser = getSessionUserId() || getStoredUserId() || GUEST_ID;
+    let arr = Array.isArray(map[currentUser]) ? map[currentUser] : [];
+    if (!arr.length && currentUser !== GUEST_ID && Array.isArray(map[GUEST_ID]) && map[GUEST_ID].length){
+      // Migra datos guardados como invitado hacia el usuario actual
+      arr = map[GUEST_ID];
+      map[currentUser] = arr;
+      map[GUEST_ID] = [];
+      writeStoreMap(CART_STORAGE_KEY, map);
     }
-    const arr = JSON.parse(raw);
-    if (Array.isArray(arr)){
-      CART.splice(0, CART.length, ...arr);
-      if (currentUser) localStorage.setItem(USER_KEY, currentUser);
-    }
+    CART.splice(0, CART.length, ...arr);
+    localStorage.setItem(USER_KEY, currentUser);
   }catch(_){ }
   CART_LOADED = true;
 }
-function saveCartToStorage(){
+function saveCartToStorage(items){
   try{
     const currentUser = resolveUserForStorage();
+    const map = readStoreMap(CART_STORAGE_KEY);
+    map[currentUser] = Array.isArray(items) ? items : CART;
     localStorage.setItem(USER_KEY, currentUser);
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(CART));
+    writeStoreMap(CART_STORAGE_KEY, map);
   }catch(_){ }
 }
 
 function loadFavsFromStorage(){
   try{
-    const raw = localStorage.getItem(FAV_STORAGE_KEY);
-    if (!raw) return;
-    const who = getStoredUserId();
-    const currentUser = getSessionUserId();
-    if (currentUser && who && who !== currentUser){
-      FAVS.splice(0, FAVS.length);
-      localStorage.setItem(USER_KEY, currentUser);
-      localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(FAVS));
-      return;
+    const map = readStoreMap(FAV_STORAGE_KEY);
+    const currentUser = getSessionUserId() || getStoredUserId() || GUEST_ID;
+    let arr = Array.isArray(map[currentUser]) ? map[currentUser] : [];
+    if (!arr.length && currentUser !== GUEST_ID && Array.isArray(map[GUEST_ID]) && map[GUEST_ID].length){
+      // Migra favoritos de invitado al usuario actual
+      arr = map[GUEST_ID];
+      map[currentUser] = arr;
+      map[GUEST_ID] = [];
+      writeStoreMap(FAV_STORAGE_KEY, map);
     }
-    const arr = JSON.parse(raw);
-    if (Array.isArray(arr)){
-      FAVS.splice(0, FAVS.length, ...arr);
-      if (currentUser) localStorage.setItem(USER_KEY, currentUser);
-    }
+    FAVS.splice(0, FAVS.length, ...arr);
+    localStorage.setItem(USER_KEY, currentUser);
   }catch(_){}
   FAV_LOADED = true;
 }
-function saveFavsToStorage(){
+function saveFavsToStorage(items){
   try{
     const currentUser = resolveUserForStorage();
+    const map = readStoreMap(FAV_STORAGE_KEY);
+    map[currentUser] = Array.isArray(items) ? items : FAVS;
     localStorage.setItem(USER_KEY, currentUser);
-    localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(FAVS));
+    writeStoreMap(FAV_STORAGE_KEY, map);
   }catch(_){}
+}
+
+
+function migrateGuestDataToUser(){
+  const uid = getSessionUserId();
+  if (!uid || uid === GUEST_ID) return;
+  // Carrito
+  try{
+    const cartMap = readStoreMap(CART_STORAGE_KEY);
+    if (Array.isArray(cartMap[GUEST_ID]) && cartMap[GUEST_ID].length){
+      cartMap[uid] = Array.isArray(cartMap[uid]) && cartMap[uid].length ? cartMap[uid] : cartMap[GUEST_ID];
+      cartMap[GUEST_ID] = [];
+      writeStoreMap(CART_STORAGE_KEY, cartMap);
+    }
+  }catch(_){ }
+  // Favoritos
+  try{
+    const favMap = readStoreMap(FAV_STORAGE_KEY);
+    if (Array.isArray(favMap[GUEST_ID]) && favMap[GUEST_ID].length){
+      favMap[uid] = Array.isArray(favMap[uid]) && favMap[uid].length ? favMap[uid] : favMap[GUEST_ID];
+      favMap[GUEST_ID] = [];
+      writeStoreMap(FAV_STORAGE_KEY, favMap);
+    }
+  }catch(_){ }
+}
+
+function resetLocalDataForGuest(){
+  try{
+    const cartMap = readStoreMap(CART_STORAGE_KEY);
+    cartMap[GUEST_ID] = [];
+    writeStoreMap(CART_STORAGE_KEY, cartMap);
+    const favMap = readStoreMap(FAV_STORAGE_KEY);
+    favMap[GUEST_ID] = [];
+    writeStoreMap(FAV_STORAGE_KEY, favMap);
+  }catch(_){}
+  CART.splice(0, CART.length);
+  FAVS.splice(0, FAVS.length);
+  try { updateCartBadge(); renderCartMenu(); renderFavMenu(); } catch(_){}
 }
 
 function ensureMessagesLinkEl(){
@@ -533,6 +588,14 @@ async function refreshSessionUI() {
     SESSION = { logged_in: false, user: null };
   }
 
+  if (SESSION.logged_in) {
+    migrateGuestDataToUser();
+    try {
+      const uid = getSessionUserId();
+      if (uid) localStorage.setItem(USER_KEY, uid);
+    } catch(_){}
+  }
+
   mountMessagesLink();
   mountOrdersLink();
   ensureFavoritesWidget();
@@ -859,17 +922,20 @@ document.getElementById("registerSubmit")?.addEventListener("click", async () =>
       credentials: "include",
       body: JSON.stringify({ full_name, email, password }),
     });
-    const data = await res.json();
-    if (data.error) {
-      setModalMessage(registerErrorBox, data.error, "error");
+
+    let data = {};
+    try { data = await res.json(); } catch (_) { data = {}; }
+
+    if (!res.ok || data.error) {
+      setModalMessage(registerErrorBox, data.error || "No se pudo crear la cuenta. Intenta de nuevo.", "error");
       return;
     }
-    setModalMessage(
-      registerErrorBox,
-      "Cuenta creada con \u00E9xito. Bienvenido, " + (data.user.full_name || data.user.email || ""),
-      "success"
-    );
-    await refreshSessionUI();
+
+    const user = data.user || {};
+    const name = user.full_name || user.email || full_name || email || "";
+    setModalMessage(registerErrorBox, "Cuenta creada con \u00E9xito. Bienvenido, " + name, "success");
+
+    try { await refreshSessionUI(); } catch (_) {}
     setTimeout(() => {
       closeModals();
       setModalMessage(registerErrorBox);
@@ -925,26 +991,28 @@ document.addEventListener("DOMContentLoaded", () => {
   } catch (_) {}
   const links = Array.from(profileMenu?.querySelectorAll("a") || []);
   const logoutLink = links.find(a => a.hasAttribute('data-logout') || a.textContent?.trim().toLowerCase().includes("cerrar") || a.textContent?.trim().toLowerCase().includes("salir"));
-  if (logoutLink) {
-    if (IS_VENDER) {
-      // En la pantalla de vender, deshabilitar logout para evitar errores
-      logoutLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        profileMenu?.classList.remove("open");
-        profileBtn?.setAttribute("aria-expanded", "false");
-      });
-      // También ocultamos el item si es posible
-      logoutLink.closest('li')?.setAttribute('hidden','true');
-    } else {
-      logoutLink.addEventListener("click", async (e) => {
-        e.preventDefault();
-        try { await fetch("/backend/logout.php", { credentials: "include" }); } catch (_) {}
-        await refreshSessionUI();
-        profileMenu?.classList.remove("open");
-        profileBtn?.setAttribute("aria-expanded", "false");
-        document.getElementById("loginModal")?.classList.remove("hidden");
-      });
-    }
+    if (logoutLink) {
+      if (IS_VENDER) {
+        // En la pantalla de vender, deshabilitar logout para evitar errores
+        logoutLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          profileMenu?.classList.remove("open");
+          profileBtn?.setAttribute("aria-expanded", "false");
+        });
+        // También ocultamos el item si es posible
+        logoutLink.closest('li')?.setAttribute('hidden','true');
+      } else {
+        logoutLink.addEventListener("click", async (e) => {
+          e.preventDefault();
+          try { saveCartToStorage(); saveFavsToStorage(); } catch(_){}
+          try { await fetch("/backend/logout.php", { credentials: "include" }); } catch (_) {}
+          resetLocalDataForGuest();
+          await refreshSessionUI();
+          profileMenu?.classList.remove("open");
+          profileBtn?.setAttribute("aria-expanded", "false");
+          document.getElementById("loginModal")?.classList.remove("hidden");
+        });
+      }
   }
   const loginLink = links.find(a => a.textContent?.trim().toLowerCase().includes("ingresar"));
   if (loginLink) {
@@ -1106,10 +1174,11 @@ try { wireCategoryFilters(); } catch(_) {}
 /* ==========================================================
    COMPRAR (CREAR ORDEN + GUARDAR PAGO)
 ========================================================== */
-async function comprar() {
-  if (CART.length === 0) return;
-
-  const buyer_id = 2; // luego sustituir por sesiÃ³n
+async function comprar(paymentMeta) {
+  if (CART.length === 0) throw new Error('CART_EMPTY');
+  if (!SESSION?.logged_in) throw new Error('NO_SESSION');
+  const buyer_id = SESSION.user?.id;
+  if (!buyer_id) throw new Error('NO_SESSION');
 
   const porVendedor = {};
   CART.forEach((i) => {
@@ -1124,17 +1193,24 @@ async function comprar() {
       body: JSON.stringify({ buyer_id, seller_id: Number(seller_id), items }),
     });
     const order = await res.json();
-    if (order.error) return alert(order.error);
+    if (order.error) throw new Error(order.error);
 
-    await fetch("/backend/pay_order.php", {
+    const payPayload = {
+      order_id: order.order_id,
+      amount_cents: order.total_cents,
+      payment_method_id: paymentMeta?.payment_method_id || 0,
+      payment_method_type: paymentMeta?.type || 'card',
+      payment_method_label: paymentMeta?.label || null,
+      payment_method_last4: paymentMeta?.last4 || null,
+      cvv: paymentMeta?.cvv || null,
+    };
+    const payRes = await fetch("/backend/pay_order.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        order_id: order.order_id,
-        payment_method_id: 1,
-        amount_cents: order.total_cents,
-      }),
+      body: JSON.stringify(payPayload),
     });
+    const payData = await payRes.json();
+    if (!payRes.ok || payData.error) throw new Error(payData.error || 'No se pudo registrar el pago');
   }
 
   alert("Compra realizada"); CART.length = 0; try { saveCartToStorage(); updateCartBadge(); renderCartMenu(); } catch(_) {}

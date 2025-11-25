@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
@@ -11,10 +11,10 @@
 <body>
   <header class="header">
     <div class="topbar container">
-      <a href="#" class="logo" aria-label="Ir al inicio">
+      <a href="/" class="logo" aria-label="Ir al inicio">
         <!-- Logo minimal -->
         <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
-        <span>MiMarket</span>
+        <span>Utzmplace</span>
       </a>
 
       <!-- Buscador -->
@@ -36,7 +36,7 @@
     7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
   </svg>
 
-  <!-- Nuevo badge dinÃ¡mico -->
+  <!-- Nuevo badge dinámico -->
   <span id="cartBadge" class="badge hidden"></span>
   <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
     <div class="cart-empty">No hay productos en el carrito</div>
@@ -44,7 +44,7 @@
 </div>
 
 
-        <div class="profile" aria-label="MenÃº de perfil">
+        <div class="profile" aria-label="Menú de perfil">
           <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
     <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
     <span id="profileLabel">Iniciar sesi&oacute;n</span>
@@ -59,7 +59,7 @@
           </ul>
         </div>
 
-        <button id="hamburger" class="hamburger" aria-label="Abrir menÃº" aria-controls="catNav" aria-expanded="false">
+        <button id="hamburger" class="hamburger" aria-label="Abrir menú" aria-controls="catNav" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </nav>
@@ -125,7 +125,7 @@
 
     async function loadMyProducts(){
       const list = document.getElementById('myList');
-      list.innerHTML = '<div class="form-hint">Cargando…</div>';
+      list.innerHTML = '<div class="form-hint">Cargandoâ€¦</div>';
       try{
         const r = await fetch('/backend/get_my_products.php', { credentials: 'include' });
         const arr = await r.json();
@@ -192,7 +192,7 @@
       const category = card.querySelector('[data-field="category"]').value;
       const description = card.querySelector('[data-field="description"]').value.trim();
       if (!name || !description || !(price>0) || !Number.isInteger(stock) || stock < 0) { alert('Completa nombre, descripción, precio y stock válidos.'); return; }
-      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardando…';
+      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardandoâ€¦';
       try{
         const r = await fetch('/backend/update_product.php', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ id, name, price, description, stock, category }) });
         const j = await r.json();
@@ -207,4 +207,5 @@
   </script>
 </body>
 </html>
+
 

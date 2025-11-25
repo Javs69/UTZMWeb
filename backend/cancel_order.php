@@ -25,7 +25,7 @@ if ($order_id <= 0) {
   exit;
 }
 
-$stmt = $pdo->prepare("SELECT id, buyer_id, status FROM orders WHERE id = ?");
+$stmt = $pdo->prepare("SELECT id, buyer_id, seller_id, status FROM orders WHERE id = ?");
 $stmt->execute([$order_id]);
 $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -35,9 +35,12 @@ if (!$order) {
   exit;
 }
 
-if ((int)$order['buyer_id'] !== $user_id) {
+$isBuyer = ((int)$order['buyer_id'] === $user_id);
+$isSeller = ((int)$order['seller_id'] === $user_id);
+
+if (!$isBuyer && !$isSeller) {
   http_response_code(403);
-  echo json_encode(['error' => 'Solo el comprador puede cancelar este pedido']);
+  echo json_encode(['error' => 'No puedes cancelar este pedido']);
   exit;
 }
 
