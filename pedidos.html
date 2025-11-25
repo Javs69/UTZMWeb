@@ -95,7 +95,7 @@
 <body>
   <header class="header">
     <div class="topbar container">
-      <a href="#" class="logo" aria-label="Ir al inicio">
+      <a href="/" class="logo" aria-label="Ir al inicio">
         <!-- Logo minimal -->
         <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
         <span>MiMarket</span>
@@ -195,32 +195,64 @@
       <div id="orders-list" class="orders-sections"></div>
     </div>
   </main>
+  <!-- Modal detalle de pedido -->
+  <div id="orderModal" class="modal hidden">
+    <div class="modal-content" style="max-width:520px; border-radius:18px;">
+      <button class="modal-close" data-close>&times;</button>
+      <h2 style="margin:0 0 8px;">Detalle del pedido</h2>
+      <div class="form-hint" id="orderModalId"></div>
+      <div class="form-group">
+        <div class="form-label">Estado</div>
+        <div id="orderModalStatus"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Total</div>
+        <div id="orderModalTotal"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Creado</div>
+        <div id="orderModalCreated"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Pagado</div>
+        <div id="orderModalPaid"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">M&eacute;todo de pago</div>
+        <div id="orderModalMethod"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Vendido por</div>
+        <div id="orderModalSeller"></div>
+      </div>
+    </div>
+  </div>
+
+
 
     <footer class="footer">
     <div class="container footer-grid">
       <div>
         <h4>Pagos</h4>
-        <a href="#">M&eacute;todos de pago</a>
-        <a href="#">Seguridad</a>
-        <a href="#">Facturaci&oacute;n</a>
+        <a href="/metodos_pago.html" title="Actualmente aceptamos pagos mediante transferencia bancaria y sistemas de pago digitales confiables. Todos los pagos se procesan dentro de la plataforma para mayor seguridad entre comprador y vendedor.">M&eacute;todos de pago</a>
+        <a href="/seguridad.html" title="Nos esforzamos por mantener la seguridad de cada transacci&oacute;n. La informaci&oacute;n personal y financiera de los usuarios no se comparte con terceros y se almacena de forma protegida.">Seguridad</a>
+        <a href="/facturacion.html" title="Cada compra genera un comprobante interno que puedes consultar desde tu perfil. No emitimos facturas oficiales, pero mantenemos registro de todas las operaciones.">Facturaci&oacute;n</a>
       </div>
       <div>
         <h4>Compras</h4>
-        <a href="#">Env&iacute;os</a>
-        <a href="#">Devoluciones</a>
-        <a href="#">Reembolsos</a>
+        <a href="/envios.html" title="El env&iacute;o o entrega se coordina entre comprador y vendedor; sugiere un punto seguro dentro o cerca de la universidad.">Env&iacute;os</a>
+        <a href="/devoluciones.html" title="Las devoluciones dependen del acuerdo entre ambas partes; puedes notificar problemas para recibir ayuda.">Devoluciones</a>
+        <a href="/reembolsos.html" title="El pago se retiene hasta confirmar recepci&oacute;n; si no se concreta la entrega, procesamos el reembolso lo antes posible.">Reembolsos</a>
       </div>
       <div>
         <h4>Nosotros</h4>
-        <a href="#">Sobre nosotros</a>
-        <a href="#">Prensa</a>
-        <a href="#">Empleo</a>
+        <a href="/sobre_nosotros.html" title="Proyecto universitario para un espacio seguro donde la comunidad compra, vende o intercambia productos y servicios.">Sobre nosotros</a>
       </div>
       <div>
         <h4>Ayuda</h4>
-        <a href="#">Centro de ayuda</a>
-        <a href="#">Contacto</a>
-        <a href="#">T&eacute;rminos y privacidad</a>
+        <a href="/centro_de_ayuda.html" title="Respuestas a preguntas comunes sobre compras, ventas, entregas y reembolsos.">Centro de ayuda</a>
+        <a href="/contacto.html" title="Soporte personalizado por formulario o correo oficial del proyecto.">Contacto</a>
+        <a href="/terminos_privacidad.html" title="Datos usados solo para operar la plataforma; no se comparten con terceros.">T&eacute;rminos y privacidad</a>
       </div>
     </div>
     <div class="copy">&copy; <span id="year"></span> MiMarket</div>
@@ -239,6 +271,7 @@
       const list = document.getElementById('orders-list');
       const empty = document.getElementById('orders-empty');
       list.innerHTML = '';
+      const ordersMap = new Map();
 
       async function fetchOrders(){
         try{
@@ -277,13 +310,17 @@
         const counterpart = role === 'buyer'
           ? `Vendedor: ${o.seller_name || ''}`
           : `Comprador: ${o.buyer_name || ''}`;
-        const method = o.payment_method_label
-          ? `${o.payment_method_label}${o.payment_method_last4 ? ' **** ' + o.payment_method_last4 : ''}`
-          : (o.payment_method_last4 ? '**** ' + o.payment_method_last4 : 'M?todo no definido');
+        const method = (() => {
+          const raw = (o.payment_method_label || '').replace(/demo/gi, '').trim();
+          const base = raw || (o.payment_method_type === 'cash' ? 'Efectivo' : 'Tarjeta');
+          const last4 = (o.payment_method_last4 || '').toString().slice(-4);
+          return last4 ? `${base} (**** ${last4})` : base;
+        })();
         const roleLabel = role === 'buyer' ? 'Como comprador' : 'Como vendedor';
         const counterpartName = counterpart.replace(/^(Vendedor:|Comprador:)\s*/, '').trim() || 'Sin datos';
         const statusLabel = (o.status || 'pendiente').toString();
         const canConfirmDelivery = role === 'seller' && statusRaw !== 'delivered' && statusRaw !== 'cancelled';
+        const canCancel = statusRaw !== 'delivered' && statusRaw !== 'cancelled';
 
         card.innerHTML = `
           <div class="card-body">
@@ -314,7 +351,7 @@
             <div class="card-actions" style="margin-top:10px;">
               <button class="btn" type="button" data-view-order="${o.id || ''}">Ver detalles</button>
               ${canConfirmDelivery ? `<button class="btn" type="button" data-confirm-delivery="${o.id || ''}">Confirmar entrega</button>` : ''}
-              <button class="btn btn-danger" type="button">Cancelar</button>
+              ${canCancel ? `<button class="btn btn-danger" type="button" data-cancel-order="${o.id || ''}">Cancelar</button>` : ''}
             </div>
           </div>
         `;
@@ -351,21 +388,33 @@ function renderGroup(title, items, role){
 
       const orders = await fetchOrders();
       const uid = window.CURRENT_USER_ID || null;
-      const purchases = uid ? orders.filter(o => Number(o.buyer_id) === uid) : orders;
-      const sales = uid ? orders.filter(o => Number(o.seller_id) === uid) : [];
+      let purchases = uid ? orders.filter(o => String(o.buyer_id) === String(uid)) : orders;
+      const sales = uid ? orders.filter(o => String(o.seller_id) === String(uid)) : [];
+      if (uid && purchases.length === 0 && orders.length){
+        purchases = orders;
+      }
+      orders.forEach(o => {
+        const role = uid ? (String(o.buyer_id) === String(uid) ? 'buyer' : 'seller') : 'buyer';
+        ordersMap.set(String(o.id), { ...o, _role: role });
+      });
 
       if (!purchases.length && !sales.length){
-        empty.style.display = 'block';
-        return;
+        if (orders.length){
+          empty.style.display = 'none';
+          renderGroup('Pedidos', orders, 'buyer');
+        } else {
+          empty.style.display = 'block';
+        }
+      } else {
+        empty.style.display = 'none';
+        renderGroup('Pedidos realizados', purchases, 'buyer');
+        renderGroup('Pedidos vendidos', sales, 'seller');
       }
-      empty.style.display = 'none';
-      renderGroup('Pedidos realizados', purchases, 'buyer');
-      renderGroup('Pedidos vendidos', sales, 'seller');
 
       function goToOrder(id){
         if (!id) return;
-        const url = `/pedidos.html?order=${encodeURIComponent(id)}`;
-        location.href = url;
+        const data = ordersMap.get(String(id));
+        if (data) showOrderModal(data);
       }
 
       list.addEventListener('click', (e)=>{
@@ -373,6 +422,15 @@ function renderGroup(title, items, role){
         if (confirmBtn){
           e.stopPropagation();
           confirmDelivery(confirmBtn.dataset.confirmDelivery, confirmBtn);
+          return;
+        }
+        const cancelBtn = e.target.closest('[data-cancel-order]');
+        if (cancelBtn){
+          e.stopPropagation();
+          const oid = cancelBtn.dataset.cancelOrder;
+          if (!oid) return;
+          const ok = window.confirm('¿Seguro que deseas cancelar este pedido? Se procesará un reembolso si aplica.');
+          if (ok) cancelOrder(oid, cancelBtn);
           return;
         }
         const btn = e.target.closest('[data-view-order]');
@@ -394,6 +452,40 @@ function renderGroup(title, items, role){
           goToOrder(card.dataset.orderId);
         }
       });
+
+      const modal = document.getElementById('orderModal');
+      const modalClose = modal?.querySelector('[data-close]');
+      const modalFields = {
+        id: document.getElementById('orderModalId'),
+        status: document.getElementById('orderModalStatus'),
+        total: document.getElementById('orderModalTotal'),
+        created: document.getElementById('orderModalCreated'),
+        paid: document.getElementById('orderModalPaid'),
+        method: document.getElementById('orderModalMethod'),
+        seller: document.getElementById('orderModalSeller'),
+      };
+      function showOrderModal(order){
+        if (!modal) return;
+        const payLabel = (() => {
+          const raw = (order.payment_method_label || '').replace(/demo/gi,'').trim();
+          const base = raw || (order.payment_method_type === 'cash' ? 'Efectivo' : 'Tarjeta');
+          const last4 = (order.payment_method_last4 || '').toString().slice(-4);
+          return last4 ? `${base} (**** ${last4})` : base;
+        })();
+        if (modalFields.id) modalFields.id.textContent = `Pedido #${order.id || ''}`;
+        if (modalFields.status) modalFields.status.textContent = order.status || '';
+        if (modalFields.total) modalFields.total.textContent = fmtMoney(order.total_cents || 0);
+        if (modalFields.created) modalFields.created.textContent = fmtDate(order.created_at || '') || '—';
+        if (modalFields.paid) modalFields.paid.textContent = order.payment_paid_at ? fmtDate(order.payment_paid_at) : 'No pagado';
+        if (modalFields.method) modalFields.method.textContent = payLabel || 'No definido';
+        if (modalFields.seller) modalFields.seller.textContent = order.seller_name || '—';
+        modal.classList.remove('hidden');
+      }
+      function hideOrderModal(){
+        modal?.classList.add('hidden');
+      }
+      modalClose?.addEventListener('click', hideOrderModal);
+      modal?.addEventListener('click', (e)=>{ if (e.target === modal) hideOrderModal(); });
 
       async function confirmDelivery(orderId, btn){
         if (!orderId) return;
@@ -419,6 +511,37 @@ function renderGroup(title, items, role){
           btn.textContent = 'Entregado';
         }catch(_){
           alert('No se pudo confirmar la entrega');
+          btn.disabled = false;
+          btn.textContent = prev;
+        }
+      }
+
+      async function cancelOrder(orderId, btn){
+        const prev = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Cancelando...';
+        try{
+          const res = await fetch('/backend/cancel_order.php', {
+            method:'POST',
+            credentials:'include',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ order_id: Number(orderId) })
+          });
+          const data = await res.json();
+          if (!res.ok || data.error){
+            throw new Error(data.error || 'No se pudo cancelar el pedido');
+          }
+          const card = btn.closest('.order-card');
+          if (card){
+            card.querySelector('.status-pill')?.textContent = 'cancelled';
+            card.querySelector('[data-confirm-delivery]')?.remove();
+            btn.remove();
+          }
+          const stored = ordersMap.get(Number(orderId)) || {};
+          ordersMap.set(Number(orderId), { ...stored, status: 'cancelled' });
+          alert('Pedido cancelado. Se marca reembolso en transacciones si aplica.');
+        }catch(err){
+          alert(err?.message || 'No se pudo cancelar el pedido');
           btn.disabled = false;
           btn.textContent = prev;
         }
