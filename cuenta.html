@@ -1,0 +1,432 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Cuenta</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+  <style>
+    .table-transactions{width:100%;border-collapse:separate;border-spacing:0;}
+    .table-transactions th,.table-transactions td{padding:14px 20px;line-height:1.45;text-align:left;font-size:.95rem;vertical-align:top;}
+    .table-transactions tbody tr + tr td{border-top:1px solid #e5e7eb;}
+    .status-pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.8rem;font-weight:600;text-transform:capitalize;}
+    .pill-captured{background:#e0f2fe;color:#0369a1;}
+    .pill-refunded{background:#e7f5e6;color:#1b5e20;}
+    .pill-failed{background:#fdecea;color:#b71c1c;}
+    .transactions-scroll{overflow:auto;}
+  </style>
+</head>
+<body class="account-page">
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+  <defs><clipPath id="logoClip"><circle cx="24" cy="24" r="22"/></clipPath></defs>
+  <image href="/public/uploads/logo.jpeg" x="2" y="2" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#logoClip)"/>
+  <circle cx="24" cy="24" r="22" fill="none" stroke="#38bdf8" stroke-width="2"/>
+</svg>
+        <span>Utzmplace</span>
+      </a>
+
+      <nav class="actions" aria-label="Acciones de usuario" style="margin-left:auto; gap:14px; align-items:center;">
+
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/></svg>
+          <span id="cartBadge" class="badge hidden"></span>
+          <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+            <div class="cart-empty">No hay productos en el carrito</div>
+          </div>
+        </div>
+
+        <div class="profile" aria-label="Men? de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+            <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+            <span id="profileLabel">javi</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <div class="account-shell">
+      <aside class="account-nav" aria-label="MenÃº lateral de cuenta">
+        <div class="account-nav__header">
+          <div class="account-nav__avatar">
+            <img id="navAvatar" src="/public/uploads/blank-profile.png" alt="Avatar de cuenta">
+          </div>
+            <div class="account-nav__meta">
+            <div class="account-nav__eyebrow">Perfil</div>
+            <div id="navName" class="account-nav__name">Invitado</div>
+          </div>
+        </div>
+        <div class="account-nav__group">
+          <p class="account-nav__title">Cuenta</p>
+          <div class="account-nav__list">
+            <a class="account-nav__link is-active" data-panel="panel-cuenta" href="#panel-cuenta">
+              <span class="account-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"/></svg></span>
+              <span>Cuenta</span>
+            </a>
+            <a class="account-nav__link" data-panel="panel-seguridad" href="#panel-seguridad">
+              <span class="account-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5.25 3.66 10.74 9 12 5.34-1.26 9-6.75 9-12V5Zm0 2.18 6 2.67v5.15c0 1.61-.37 3.24-1.08 4.74-.78 1.67-1.9 3.15-3.31 4.31-1.05.86-1.73 1.16-1.61 1.1-1.48-.67-2.45-1.46-3.3-2.23-1.41-1.25-2.53-2.74-3.31-4.41C4.36 12.54 4 10.9 4 9.3V5.85Z"/></svg></span>
+              <span>ContraseÃ±a y seguridad</span>
+            </a>
+          </div>
+        </div>
+        <div class="account-nav__group">
+          <p class="account-nav__title">Pagos y recompensas</p>
+          <div class="account-nav__list">
+            <a class="account-nav__link" data-panel="panel-pagos" href="#panel-pagos">
+              <span class="account-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 4H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM3 6h18v4H3V6zm0 10v-4h18v4H3z"/></svg></span>
+              <span>ConfiguraciÃ³n de pagos</span>
+            </a>
+            <a class="account-nav__link" data-panel="panel-transacciones" href="#panel-transacciones">
+              <span class="account-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3C7.03 3 3 7.03 3 12H0l4 4 4-4H5c0-3.86 3.14-7 7-7 3.86 0 7 3.14 7 7s-3.14 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C7.27 19.99 9.51 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H11z"/></svg></span>
+              <span>Transacciones</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <section class="account-main">
+        <div id="panel-cuenta" class="card account-card panel open" style="padding:18px; width:100%; max-width:1100px;">
+          <div class="account-card__head">
+            <div>
+              <p class="eyebrow">Cuenta</p>
+              <h2 style="margin:0 0 6px">Perfil</h2>
+              <p class="form-hint" style="margin:0;">Gestiona los datos de tu cuenta.</p>
+            </div>
+          </div>
+          <form class="form" id="accountForm" novalidate>
+            <div class="form-hint" style="margin-bottom:8px;">ID: <span id="acc-id">-</span></div>
+
+            <div class="form-grid" style="grid-template-columns: repeat(auto-fit,minmax(260px,1fr));">
+              <div class="form-group">
+                <label class="form-label" for="acc-name">Nombre en pantalla</label>
+                <input id="acc-name" class="form-control" type="text" placeholder="Tu nombre">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-email">Correo electrÃ³nico</label>
+                <input id="acc-email" class="form-control" type="email" placeholder="correo@dominio.com">
+              </div>
+            </div>
+
+            <hr style="border:0; border-top:1px solid #1f2937; margin:18px 0;">
+            <h3 style="margin:0 0 6px">Foto de perfil</h3>
+            <div class="form-group">
+              <div class="avatar-upload">
+                <img id="acc-avatar" src="/public/uploads/blank-profile.png" alt="Avatar" class="avatar-preview"/>
+                <div class="avatar-picker">
+                  <label for="acc-file">Seleccionar foto</label>
+                  <input id="acc-file" type="file" accept="image/*">
+                  <div id="acc-file-name" class="form-hint">JPG/PNG. MÃ¡x. 5MB.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions" style="margin-top:14px;">
+              <button id="acc-save" class="btn" type="button">Guardar cambios</button>
+              <a class="btn" style="background:#1f2937; color:#e5e7eb" href="/">Cancelar</a>
+            </div>
+          </form>
+        </div>
+
+        <div id="panel-pagos" class="card account-card panel" style="padding:18px; width:100%; max-width:1100px; display:none;">
+          <div class="account-card__head">
+            <div>
+              <p class="eyebrow">Cuenta</p>
+              <h2 style="margin:0 0 6px">ConfiguraciÃ³n de pagos</h2>
+              <p class="form-hint" style="margin:0;">Administra tus mÃ©todos guardados.</p>
+            </div>
+          </div>
+          <div id="pmEmpty" class="form-hint" style="margin:12px 0;">AÃºn no tienes mÃ©todos guardados.</div>
+          <div id="pmList" class="pm-list"></div>
+        </div>
+
+        <div id="panel-transacciones" class="card account-card panel" style="padding:18px; width:100%; max-width:1100px; display:none;">
+          <div class="account-card__head">
+            <div>
+              <p class="eyebrow">Cuenta</p>
+              <h2 style="margin:0 0 6px">Transacciones</h2>
+              <p class="form-hint" style="margin:0;">Pagos y reembolsos de tus pedidos.</p>
+            </div>
+          </div>
+          <div id="txEmpty" class="cart-empty" style="display:none">No cuentas con transacciones.</div>
+          <div class="card card-contrast">
+            <div class="card-body">
+              <div class="transactions-scroll">
+                <table class="table table-transactions" aria-label="Transacciones">
+                  <thead>
+                    <tr>
+                      <th>Tipo</th>
+                      <th>Metodo</th>
+                      <th>Estado</th>
+                      <th>Monto</th>
+                      <th>Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody id="txBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-seguridad" class="card account-card panel" style="padding:18px; width:100%; max-width:1100px; display:none;">
+          <div class="account-card__head">
+            <div>
+              <p class="eyebrow">Cuenta</p>
+              <h2 style="margin:0 0 6px">ContraseÃ±a y seguridad</h2>
+              <p class="form-hint" style="margin:0;">Actualiza tu contraseÃ±a cuando lo necesites.</p>
+            </div>
+          </div>
+          <form class="form" id="securityForm" novalidate>
+            <div class="form-grid" style="grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); margin-top:6px;">
+              <div class="form-group">
+                <label class="form-label" for="acc-pass-old">ContraseÃ±a actual</label>
+                <input id="acc-pass-old" class="form-control" type="password" placeholder="****">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-pass">Nueva contraseÃ±a (opcional)</label>
+                <input id="acc-pass" class="form-control" type="password" placeholder="****">
+              </div>
+            </div>
+            <div class="form-actions" style="margin-top:12px;">
+              <button id="acc-pass-save" class="btn" type="button">Actualizar contraseÃ±a</button>
+            </div>
+          </form>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    // Panel switcher
+    document.querySelectorAll('.account-nav__link[data-panel]').forEach((link)=>{
+      link.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const target = link.getAttribute('data-panel');
+        document.querySelectorAll('.account-nav__link[data-panel]').forEach(a=>a.classList.remove('is-active'));
+        link.classList.add('is-active');
+        document.querySelectorAll('.panel').forEach(p=>{
+          p.classList.remove('open');
+          p.style.display = 'none';
+        });
+        const panel = document.getElementById(target);
+        if (panel){
+          panel.classList.add('open');
+          panel.style.display = 'block';
+        }
+        if (target === 'panel-transacciones') {
+          loadTransactions();
+        }
+        document.getElementById(target)?.scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+    });
+
+    (async function init(){
+      try{
+        const r = await fetch("/backend/session.php",{credentials:"include"});
+        const s = await r.json();
+        if(!s.logged_in){ location.replace("/?login=1"); return; }
+        document.getElementById("acc-id").textContent = s.user.id || "-";
+        document.getElementById("acc-name").value = s.user.full_name || "";
+        document.getElementById("acc-email").value = s.user.email || "";
+        const avatar = s.user.avatar_url || "/public/uploads/blank-profile.png";
+        document.getElementById("acc-avatar").src = avatar;
+        const navName = document.getElementById("navName");
+        const navEmail = document.getElementById("navEmail");
+        const navAvatar = document.getElementById("navAvatar");
+        if (navName) navName.textContent = s.user.full_name || s.user.email || "Cuenta";
+        if (navEmail) navEmail.textContent = s.user.email || "";
+        if (navAvatar) navAvatar.src = avatar;
+        loadPaymentMethods();
+        loadTransactions();
+      }catch(_){ location.replace("/?login=1"); }
+    })();
+
+    document.getElementById("acc-save")?.addEventListener("click", async () => {
+      const full_name = document.getElementById("acc-name").value.trim();
+      const email = document.getElementById("acc-email").value.trim();
+      if (!full_name || !email){ alert("Completa nombre y correo"); return; }
+      try{
+        const res = await fetch("/backend/update_user.php",{
+          method:"POST", headers:{"Content-Type":"application/json"}, credentials:"include",
+          body: JSON.stringify({ full_name, email })
+        });
+        const data = await res.json();
+        if (data.error){ alert(data.error); return; }
+        const f = document.getElementById("acc-file").files?.[0];
+        if (f){ const fd = new FormData(); fd.append("avatar", f); await fetch("/backend/upload_avatar.php",{ method:"POST", body: fd, credentials:"include" }); }
+        alert("Cuenta actualizada"); location.reload();
+      }catch(_){ alert("No se pudo actualizar la cuenta"); }
+    });
+
+    document.getElementById("acc-pass-save")?.addEventListener("click", async () => {
+      const old_password = document.getElementById("acc-pass-old").value;
+      const password = document.getElementById("acc-pass").value;
+      if (!old_password || !password){ alert("Escribe tu contraseÃ±a actual y la nueva."); return; }
+      try{
+        const res = await fetch("/backend/update_user.php",{
+          method:"POST", headers:{"Content-Type":"application/json"}, credentials:"include",
+          body: JSON.stringify({ password, old_password })
+        });
+        const data = await res.json();
+        if (data.error){ alert(data.error); return; }
+        alert("ContraseÃ±a actualizada"); location.reload();
+      }catch(_){ alert("No se pudo actualizar la contraseÃ±a"); }
+    });
+
+    document.getElementById("acc-file")?.addEventListener("change", (e) => {
+      const lbl = document.getElementById("acc-file-name");
+      const f = e.target.files?.[0];
+      if (lbl){
+        lbl.textContent = f ? f.name : "JPG/PNG. MÃ¡x. 5MB.";
+      }
+    });
+
+    function detectBrand(n){
+      const num = String(n || "").replace(/\\D/g,"");
+      if (/^3[47]/.test(num)) return "AMEX";
+      if (/^(5[1-5]|2[2-7])/.test(num)) return "Mastercard";
+      if (/^4/.test(num)) return "Visa";
+      return (n || "Tarjeta").toUpperCase();
+    }
+
+    async function loadPaymentMethods(){
+      const list = document.getElementById("pmList");
+      const empty = document.getElementById("pmEmpty");
+      if (!list || !empty) return;
+      list.innerHTML = "";
+      empty.style.display = "block";
+      try{
+        const res = await fetch("/backend/payment_methods.php",{credentials:"include"});
+        const payload = await res.json();
+        const data = Array.isArray(payload?.methods) ? payload.methods : (Array.isArray(payload) ? payload : []);
+        if (!data.length){
+          empty.textContent = "AÃºn no tienes mÃ©todos guardados.";
+          return;
+        }
+        empty.style.display = "none";
+        data.forEach((m)=>{
+          const item = document.createElement("div");
+          item.className = "pm-item";
+          const brand = m.label || detectBrand(m.card_number || m.brand);
+          const last4 = String(m.last4 || (m.card_number||"").slice(-4)).slice(-4);
+          item.innerHTML = `
+            <div>
+              <div class="pm-brand">${brand}</div>
+              <div class="pm-mask">â€¢â€¢â€¢â€¢ ${last4 || "----"}</div>
+            </div>
+            <button type="button" data-del="${m.id || m.payment_id || ''}">Eliminar</button>
+          `;
+          list.appendChild(item);
+        });
+      }catch(_){
+        empty.style.display = "block";
+        empty.textContent = "No se pudieron cargar los mÃ©todos.";
+      }
+    }
+
+    document.getElementById("pmList")?.addEventListener("click", async (e)=>{
+      const btn = e.target.closest("button[data-del]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-del");
+      if (!id) return;
+      try{
+        await fetch("/backend/delete_payment_method.php",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          credentials:"include",
+          body: JSON.stringify({ id })
+        });
+      }catch(_){}
+      loadPaymentMethods();
+    });
+
+    async function loadTransactions(){
+      const body = document.getElementById('txBody');
+      const empty = document.getElementById('txEmpty');
+      if (!body || !empty) return;
+      body.innerHTML = '';
+      empty.style.display = 'none';
+
+      const formatMoney = (cents) => {
+        if (typeof cents !== 'number') return '$0.00';
+        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cents / 100);
+      };
+      const formatDateTime = (value) => {
+        if (!value) return '';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return value;
+        return d.toLocaleString('es-MX', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      };
+      const typeClassMap = { refund:'tx-type-refund', expense:'tx-type-expense', earning:'tx-type-earning' };
+      const fallbackTypeLabel = (type) => {
+        if (type === 'earning') return 'Ganancia';
+        if (type === 'refund') return 'Reembolso';
+        return 'Gasto';
+      };
+      const formatSignedAmount = (tx) => {
+        if (!tx) return '';
+        const base = formatMoney(tx.amount_cents);
+        if (!tx.type) return base;
+        if (tx.type === 'expense') return `- ${base}`;
+        return `+ ${base}`;
+      };
+
+      try{
+        const r = await fetch('/backend/transactions.php', { credentials:'include' });
+        if (!r.ok) throw new Error('NO_TX');
+        const data = await r.json();
+        const list = Array.isArray(data.transactions) ? data.transactions : [];
+        const filtered = list.filter((tx) => {
+          const role = (tx.role || '').toLowerCase();
+          const orderStatus = (tx.order_status || '').toLowerCase();
+          if (role === 'seller' && orderStatus !== 'delivered') return false; // solo ganancias cuando ya se entregÃ³
+          return true; // buyer: gastos y reembolsos
+        });
+        if (!filtered.length){
+          empty.style.display = 'block';
+          body.innerHTML = '';
+          return;
+        }
+        empty.style.display = 'none';
+        body.innerHTML = filtered.map((tx) => {
+          const pillClass = tx.status_class || (tx.status === 'refunded' ? 'pill-refunded' : (tx.status === 'captured' ? 'pill-captured' : 'pill-failed'));
+          const statusLabel = tx.status_label || tx.status || '';
+          const typeLabel = tx.type_label || fallbackTypeLabel(tx.type);
+          const typeClass = typeClassMap[tx.type] || typeClassMap.expense;
+          const methodLabel = `${(tx.payment_method_label || tx.payment_method_type || '').replace(/^Tarjeta\\s*/i,'').trim()}${tx.payment_method_last4 ? ' (**** ' + tx.payment_method_last4 + ')' : ''}`;
+          return `
+            <tr>
+              <td><span class="tx-type-pill ${typeClass}">${typeLabel}</span></td>
+              <td>${methodLabel}</td>
+              <td><span class="status-pill ${pillClass}">${statusLabel}</span></td>
+              <td>${formatSignedAmount(tx)}</td>
+              <td>${formatDateTime(tx.paid_at)}</td>
+            </tr>
+          `;
+        }).join('');
+      }catch(_){
+        empty.style.display = 'block';
+        body.innerHTML = '';
+      }
+    }
+
+  </script>
+</body>
+</html>
+

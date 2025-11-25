@@ -1,4 +1,4 @@
-/*!
+﻿/*!
   * Bootstrap v4.0.0 (https://getbootstrap.com)
   * Copyright 2011-2018 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
@@ -3353,7 +3353,7 @@ var modifiers = {
    * Modifier used to prevent the popper from being positioned outside the boundary.
    *
    * An scenario exists where the reference itself is not within the boundaries.<br />
-   * We can say it has "escaped the boundaries" — or just "escaped".<br />
+   * We can say it has "escaped the boundaries" â€” or just "escaped".<br />
    * In this case we need to decide whether the popper should either:
    *
    * - detach from the reference and remain "trapped" in the boundaries, or
@@ -6326,3 +6326,4 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 //# sourceMappingURL=bootstrap.bundle.js.map
+

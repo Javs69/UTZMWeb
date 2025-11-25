@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mis pedidos</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg>
+        <span>Utzmplace</span>
+      </a>
+
+      <form class="search" role="search" aria-label="Buscar productos">
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" aria-label="Buscar"/>
+        <button type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+        </button>
+        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
+      </form>
+
+      <nav class="actions" aria-label="Acciones de usuario">
+        <a href="/pedidos.html" class="link">Pedidos</a>
+        <a href="/centro_de_ayuda.html" class="link">Ayuda</a>
+
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/></svg>
+          <span id="cartBadge" class="badge hidden"></span>
+          <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+            <div class="cart-empty">No hay productos en el carrito</div>
+          </div>
+        </div>
+
+        <div class="profile" aria-label="Menú de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+            <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+            <span id="profileLabel">Iniciar sesión</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="/ajustes.html">Ajustes</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#">Favoritos</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <section class="strip">
+      <div class="strip-head">
+        <h2>Mis pedidos</h2>
+      </div>
+      <div id="orders-empty" class="cart-empty" style="display:none">No tienes pedidos todavía</div>
+      <div id="orders-list" class="grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h4>Pagos</h4>
+        <a href="/metodos_pago.html">Métodos de pago</a>
+        <a href="/seguridad.html">Seguridad</a>
+        <a href="/facturacion.html">Facturación</a>
+      </div>
+      <div>
+        <h4>Compras</h4>
+        <a href="/envios.html">Envíos</a>
+        <a href="/devoluciones.html">Devoluciones</a>
+      </div>
+      <div>
+        <h4>Nosotros</h4>
+        <a href="/centro_de_ayuda.html">Centro de ayuda</a>
+        <a href="/contacto.html">Contacto</a>
+      </div>
+      <div>
+        <h4>Síguenos</h4>
+        <div class="socials">
+          <a href="#" aria-label="Twitter">T</a>
+          <a href="#" aria-label="Facebook">F</a>
+          <a href="#" aria-label="Instagram">I</a>
+        </div>
+      </div>
+    </div>
+    <div class="copy">© <span id="year"></span> Utzmplace</div>
+  </footer>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    (async function(){
+      // Ensure user is logged in
+      try{
+        const r = await fetch('/backend/session.php', { credentials:'include' });
+        const s = await r.json();
+        if (!s.logged_in){ location.replace('/?login=1'); return; }
+      }catch(_){ /* si no hay backend, solo muestra vacío */ }
+
+      const list = document.getElementById('orders-list');
+      const empty = document.getElementById('orders-empty');
+
+      async function fetchOrders(){
+        try{
+          const r = await fetch('/backend/my_orders.php', { credentials:'include' });
+          if (!r.ok) throw new Error('no-endpoint');
+          const data = await r.json();
+          return Array.isArray(data) ? data : (Array.isArray(data.orders) ? data.orders : []);
+        }catch(_){
+          // Fallback demo data
+          return [];
+        }
+      }
+
+      const orders = await fetchOrders();
+      if (!orders.length){ empty.style.display = 'block'; return; }
+
+      orders.forEach(o => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const date = (o.created_at || o.date || '').toString().slice(0,10);
+        const total = (o.total_cents!=null? (o.total_cents/100).toFixed(2):'0.00');
+        card.innerHTML = `
+          <div class="card-body">
+            <h3 class="card-title">Pedido #${o.id || ''}</h3>
+            <div class="q-meta">${date || ''} — ${o.status || 'Procesando'}</div>
+            <div class="price"><span class="now">$${total}</span></div>
+            <button class="btn" type="button">Ver detalles</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

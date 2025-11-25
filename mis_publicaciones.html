@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mis publicaciones</title>
+  <link rel="stylesheet" href="public/css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <header class="header">
+    <div class="topbar container">
+      <a href="/" class="logo" aria-label="Ir al inicio">
+        <!-- Logo minimal -->
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+  <defs><clipPath id="logoClip"><circle cx="24" cy="24" r="22"/></clipPath></defs>
+  <image href="/public/uploads/logo.jpeg" x="2" y="2" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#logoClip)"/>
+  <circle cx="24" cy="24" r="22" fill="none" stroke="#38bdf8" stroke-width="2"/>
+</svg>
+        <span>Utzmplace</span>
+      </a>
+
+      <!-- Buscador -->
+      <form class="search" role="search" aria-label="Buscar productos">
+        <input id="searchInput" type="search" placeholder="Buscar productos, marcas y más" aria-label="Buscar"/>
+        <button type="submit" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zM9.5 14C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/></svg>
+        </button>
+        <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="Sugerencias"></ul>
+      </form>
+
+      <!-- Acciones derecha -->
+      <nav class="actions" aria-label="Acciones de usuario">
+        <div id="cartBtn" class="icon-btn" role="button" aria-label="Carrito" aria-haspopup="menu" aria-expanded="false" tabindex="0">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
+    0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.45c.75 0 1.4-.41 
+    1.73-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H1v2h2l3.6 
+    7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42l.74-1z"/>
+  </svg>
+
+  <!-- Nuevo badge dinámico -->
+  <span id="cartBadge" class="badge hidden"></span>
+  <div id="cartMenu" class="cart-menu" role="menu" aria-label="Carrito">
+    <div class="cart-empty">No hay productos en el carrito</div>
+  </div>
+</div>
+
+
+        <div class="profile" aria-label="Menú de perfil">
+          <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
+    <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
+    <span id="profileLabel">Iniciar sesi&oacute;n</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+  </button>
+                              <ul id="profileMenu" class="profile-menu" role="menu" aria-label="Opciones de cuenta">
+            <li role="menuitem"><a href="#">Ingresar</a></li>
+            <li role="menuitem"><a href="/mis_publicaciones.html">Mis publicaciones</a></li>
+            <li role="menuitem"><a href="/cuenta.html">Cuenta</a></li>
+            <li role="menuitem"><a href="/vender.html">Vender</a></li>
+            <li role="menuitem"><a href="#" data-logout="true">Cerrar sesión</a></li>
+          </ul>
+        </div>
+
+        <button id="hamburger" class="hamburger" aria-label="Abrir menú" aria-controls="catNav" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Categor&iacute;as -->
+    <nav id="catNav" class="categories" aria-label="Categorías">
+  <ul class="container">
+    <li class="cat has-mega">
+      <button class="cat-btn" aria-haspopup="true" aria-expanded="false">Electr&oacute;nica</button>
+      <div class="mega">
+        <div>
+          <h4>Celulares</h4>
+          <a href="#">Smartphones</a>
+          <a href="#">Accesorios</a>
+          <a href="#">Wearables</a>
+        </div>
+        <div>
+          <h4>Computaci&oacute;n</h4>
+          <a href="#">Laptops</a>
+          <a href="#">Perif&eacute;ricos</a>
+          <a href="#">Componentes</a>
+        </div>
+        <div>
+          <h4>TV y Audio</h4>
+          <a href="#">Televisores</a>
+          <a href="#">Bocinas</a>
+          <a href="#">Streaming</a>
+        </div>
+      </div>
+    </li>
+    <li class="cat"><a href="#">Papeler&iacute;a</a></li>
+    <li class="cat"><a href="#">Veh&iacute;culos</a></li>
+    <li class="cat"><a href="#">Electrodom&eacute;sticos</a></li>
+    <li class="cat"><a href="#">Moda</a></li>
+    <li class="cat"><a href="#">Juegos y juguetes</a></li>
+    <li class="cat"><a href="#">Salud y equipo m&eacute;dico</a></li>
+  </ul>
+</nav>
+  </header>
+
+  <main class="container" style="padding:18px 0 34px;">
+    <section class="strip">
+      <div class="strip-head">
+        <h2>Mis publicaciones</h2>
+      </div>
+      <div id="myList" class="grid"></div>
+    </section>
+  </main>
+
+  <script src="public/js/app.js"></script>
+  <script>
+    // Requiere sesión
+    (async function ensureAuth(){
+      try {
+        const res = await fetch('/backend/session.php', { credentials: 'include' });
+        const s = await res.json();
+        if (!s.logged_in) { location.replace('/?login=1'); }
+      } catch (e) { location.replace('/?login=1'); }
+    })();
+
+    function currency(c){ try { return (c/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});}catch(_){ return '$'+(c/100).toFixed(2);} }
+
+    async function loadMyProducts(){
+      const list = document.getElementById('myList');
+      list.innerHTML = '<div class="form-hint">Cargandoâ€¦</div>';
+      try{
+        const r = await fetch('/backend/get_my_products.php', { credentials: 'include' });
+        const arr = await r.json();
+        if (arr.error){ list.innerHTML = '<div class="form-hint">'+arr.error+'</div>'; return; }
+        if (!Array.isArray(arr) || !arr.length){ list.innerHTML = '<div class="form-hint">Aún no tienes publicaciones.</div>'; return; }
+        list.innerHTML = '';
+        arr.forEach(p => {
+          const card = document.createElement('article');
+          card.className = 'card';
+          const price = currency(p.price_cents||0);
+          card.innerHTML = `
+            <div class="card-media" style="aspect-ratio: 3/2; overflow:hidden">
+              <img src="${p.image || 'https://picsum.photos/seed/'+p.id+'/600/400'}" alt="${p.name}">
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input class="form-control" type="text" value="${p.name||''}" data-field="name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Precio (MXN)</label>
+                <input class="form-control" type="number" step="0.01" min="0" value="${(p.price_cents||0)/100}" data-field="price" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Stock</label>
+                <input class="form-control" type="number" step="1" min="0" value="${p.stock || 0}" data-field="stock" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <select class="form-control" data-field="category">
+                  <option value="">Sin categoría</option>
+                  <option value="1" ${p.category_id == 1 ? 'selected' : ''}>Electrónica</option>
+                  <option value="2" ${p.category_id == 2 ? 'selected' : ''}>Papelería</option>
+                  <option value="3" ${p.category_id == 3 ? 'selected' : ''}>Vehículos</option>
+                  <option value="4" ${p.category_id == 4 ? 'selected' : ''}>Electrodomésticos</option>
+                  <option value="5" ${p.category_id == 5 ? 'selected' : ''}>Moda</option>
+                  <option value="juegos" ${p.category_id === 'juegos' ? 'selected' : ''}>Juegos y juguetes</option>
+                  <option value="salud" ${p.category_id === 'salud' ? 'selected' : ''}>Salud y equipo médico</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" rows="3" data-field="description">${(p.description||'')}</textarea>
+              </div>
+              <div class="form-actions">
+                <button class="btn" data-action="save" data-id="${p.id}">Guardar</button>
+                <a class="btn" href="/producto.html?id=${p.id}" style="background:#374151">Ver</a>
+              </div>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }catch(_){ list.innerHTML = '<div class="form-hint">No se pudieron cargar tus publicaciones.</div>'; }
+    }
+
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-action="save"]');
+      if (!btn) return;
+      const card = btn.closest('.card');
+      const id = Number(btn.getAttribute('data-id'));
+      const name = card.querySelector('[data-field="name"]').value.trim();
+      const price = parseFloat(card.querySelector('[data-field="price"]').value);
+      const stock = parseInt(card.querySelector('[data-field="stock"]').value || '0', 10);
+      const category = card.querySelector('[data-field="category"]').value;
+      const description = card.querySelector('[data-field="description"]').value.trim();
+      if (!name || !description || !(price>0) || !Number.isInteger(stock) || stock < 0) { alert('Completa nombre, descripción, precio y stock válidos.'); return; }
+      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardandoâ€¦';
+      try{
+        const r = await fetch('/backend/update_product.php', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ id, name, price, description, stock, category }) });
+        const j = await r.json();
+        if (j.error) return alert(j.error);
+        alert('Guardado');
+        await loadMyProducts();
+      }catch(_){ alert('No se pudo guardar'); }
+      finally { btn.disabled = false; btn.textContent = old; }
+    });
+
+    loadMyProducts();
+  </script>
+</body>
+</html>
+
+
