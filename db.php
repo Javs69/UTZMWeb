@@ -4,7 +4,7 @@ $port = "5432";
 $dbname = "utzmweb";
 $user = "utzmweb_user";
 $pass = "Pyxpes0xRMHfiHjjxQbCXqosJP3s7Vn2";
-$sslmode = "require"; // Render requires TLS
+$sslmode = "require"; // Render requiere TLS
 
 try {
   $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname;sslmode=$sslmode", $user, $pass);
