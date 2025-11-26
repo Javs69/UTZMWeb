@@ -9,6 +9,18 @@ if (!isset($_SESSION['user'])) {
   exit;
 }
 
+function detect_brand($value){
+  $text = strtolower(trim((string)$value));
+  $digits = preg_replace('/\D/', '', (string)$value);
+  if (preg_match('/^3[47]/', $digits)) return 'AMEX';
+  if (preg_match('/^(5[1-5]|2[2-7])/', $digits)) return 'Mastercard';
+  if (preg_match('/^4/', $digits)) return 'Visa';
+  if (strpos($text, 'visa') !== false) return 'Visa';
+  if (strpos($text, 'master') !== false) return 'Mastercard';
+  if (strpos($text, 'amex') !== false || strpos($text, 'american express') !== false) return 'AMEX';
+  return null;
+}
+
 $user_id = (int)($_SESSION['user']['id'] ?? 0);
 $limit = isset($_GET['limit']) ? max(1, min(200, (int)$_GET['limit'])) : 100;
 
@@ -126,6 +138,7 @@ foreach ($rows as $row) {
     'payment_method_type' => $row['payment_method_type'],
     'payment_method_label' => $cleanLabel,
     'payment_method_last4' => $row['payment_method_last4'],
+    'payment_method_brand' => detect_brand($cleanLabel) ?? detect_brand($row['payment_method_type']),
     'role' => $row['role'],
     'order_status' => $orderStatus,
     'type' => $type,

@@ -196,7 +196,7 @@
       const category = card.querySelector('[data-field="category"]').value;
       const description = card.querySelector('[data-field="description"]').value.trim();
       if (!name || !description || !(price>0) || !Number.isInteger(stock) || stock < 0) { alert('Completa nombre, descripción, precio y stock válidos.'); return; }
-      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardandoâ€¦';
+      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardando';
       try{
         const r = await fetch('/backend/update_product.php', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ id, name, price, description, stock, category }) });
         const j = await r.json();

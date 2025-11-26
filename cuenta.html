@@ -40,7 +40,7 @@
           </div>
         </div>
 
-        <div class="profile" aria-label="Men? de perfil">
+        <div class="profile" aria-label="Menú de perfil">
           <button id="profileBtn" class="profile-btn" aria-haspopup="menu" aria-expanded="false">
             <img id="avatarImg" src="/public/uploads/blank-profile.png" alt="Avatar" />
             <span id="profileLabel">javi</span>
@@ -60,7 +60,7 @@
 
   <main class="container" style="padding:18px 0 34px;">
     <div class="account-shell">
-      <aside class="account-nav" aria-label="MenÃº lateral de cuenta">
+      <aside class="account-nav" aria-label="Menú lateral de cuenta">
         <div class="account-nav__header">
           <div class="account-nav__avatar">
             <img id="navAvatar" src="/public/uploads/blank-profile.png" alt="Avatar de cuenta">
@@ -79,7 +79,7 @@
             </a>
             <a class="account-nav__link" data-panel="panel-seguridad" href="#panel-seguridad">
               <span class="account-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5.25 3.66 10.74 9 12 5.34-1.26 9-6.75 9-12V5Zm0 2.18 6 2.67v5.15c0 1.61-.37 3.24-1.08 4.74-.78 1.67-1.9 3.15-3.31 4.31-1.05.86-1.73 1.16-1.61 1.1-1.48-.67-2.45-1.46-3.3-2.23-1.41-1.25-2.53-2.74-3.31-4.41C4.36 12.54 4 10.9 4 9.3V5.85Z"/></svg></span>
-              <span>ContraseÃ±a y seguridad</span>
+              <span>Contraseña y seguridad</span>
             </a>
           </div>
         </div>
@@ -88,7 +88,7 @@
           <div class="account-nav__list">
             <a class="account-nav__link" data-panel="panel-pagos" href="#panel-pagos">
               <span class="account-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 4H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM3 6h18v4H3V6zm0 10v-4h18v4H3z"/></svg></span>
-              <span>ConfiguraciÃ³n de pagos</span>
+              <span>Configuración de pagos</span>
             </a>
             <a class="account-nav__link" data-panel="panel-transacciones" href="#panel-transacciones">
               <span class="account-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3C7.03 3 3 7.03 3 12H0l4 4 4-4H5c0-3.86 3.14-7 7-7 3.86 0 7 3.14 7 7s-3.14 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C7.27 19.99 9.51 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H11z"/></svg></span>
@@ -116,7 +116,7 @@
                 <input id="acc-name" class="form-control" type="text" placeholder="Tu nombre">
               </div>
               <div class="form-group">
-                <label class="form-label" for="acc-email">Correo electrÃ³nico</label>
+                <label class="form-label" for="acc-email">Correo electrónico</label>
                 <input id="acc-email" class="form-control" type="email" placeholder="correo@dominio.com">
               </div>
             </div>
@@ -129,7 +129,7 @@
                 <div class="avatar-picker">
                   <label for="acc-file">Seleccionar foto</label>
                   <input id="acc-file" type="file" accept="image/*">
-                  <div id="acc-file-name" class="form-hint">JPG/PNG. MÃ¡x. 5MB.</div>
+                  <div id="acc-file-name" class="form-hint">JPG/PNG. Máx. 5 MB.</div>
                 </div>
               </div>
             </div>
@@ -145,11 +145,11 @@
           <div class="account-card__head">
             <div>
               <p class="eyebrow">Cuenta</p>
-              <h2 style="margin:0 0 6px">ConfiguraciÃ³n de pagos</h2>
-              <p class="form-hint" style="margin:0;">Administra tus mÃ©todos guardados.</p>
+              <h2 style="margin:0 0 6px">Configuración de pagos</h2>
+              <p class="form-hint" style="margin:0;">Administra tus métodos guardados.</p>
             </div>
           </div>
-          <div id="pmEmpty" class="form-hint" style="margin:12px 0;">AÃºn no tienes mÃ©todos guardados.</div>
+          <div id="pmEmpty" class="form-hint" style="margin:12px 0;">Aún no tienes métodos guardados.</div>
           <div id="pmList" class="pm-list"></div>
         </div>
 
@@ -169,7 +169,7 @@
                   <thead>
                     <tr>
                       <th>Tipo</th>
-                      <th>Metodo</th>
+                      <th>Método</th>
                       <th>Estado</th>
                       <th>Monto</th>
                       <th>Fecha</th>
@@ -186,23 +186,23 @@
           <div class="account-card__head">
             <div>
               <p class="eyebrow">Cuenta</p>
-              <h2 style="margin:0 0 6px">ContraseÃ±a y seguridad</h2>
-              <p class="form-hint" style="margin:0;">Actualiza tu contraseÃ±a cuando lo necesites.</p>
+              <h2 style="margin:0 0 6px">Contraseña y seguridad</h2>
+              <p class="form-hint" style="margin:0;">Actualiza tu contraseña cuando lo necesites.</p>
             </div>
           </div>
           <form class="form" id="securityForm" novalidate>
             <div class="form-grid" style="grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); margin-top:6px;">
               <div class="form-group">
-                <label class="form-label" for="acc-pass-old">ContraseÃ±a actual</label>
+                <label class="form-label" for="acc-pass-old">Contraseña actual</label>
                 <input id="acc-pass-old" class="form-control" type="password" placeholder="****">
               </div>
               <div class="form-group">
-                <label class="form-label" for="acc-pass">Nueva contraseÃ±a (opcional)</label>
+                <label class="form-label" for="acc-pass">Nueva contraseña (opcional)</label>
                 <input id="acc-pass" class="form-control" type="password" placeholder="****">
               </div>
             </div>
             <div class="form-actions" style="margin-top:12px;">
-              <button id="acc-pass-save" class="btn" type="button">Actualizar contraseÃ±a</button>
+              <button id="acc-pass-save" class="btn" type="button">Actualizar contraseña</button>
             </div>
           </form>
         </div>
@@ -277,7 +277,7 @@
     document.getElementById("acc-pass-save")?.addEventListener("click", async () => {
       const old_password = document.getElementById("acc-pass-old").value;
       const password = document.getElementById("acc-pass").value;
-      if (!old_password || !password){ alert("Escribe tu contraseÃ±a actual y la nueva."); return; }
+      if (!old_password || !password){ alert("Escribe tu contraseña actual y la nueva."); return; }
       try{
         const res = await fetch("/backend/update_user.php",{
           method:"POST", headers:{"Content-Type":"application/json"}, credentials:"include",
@@ -285,24 +285,29 @@
         });
         const data = await res.json();
         if (data.error){ alert(data.error); return; }
-        alert("ContraseÃ±a actualizada"); location.reload();
-      }catch(_){ alert("No se pudo actualizar la contraseÃ±a"); }
+        alert("Contraseña actualizada"); location.reload();
+      }catch(_){ alert("No se pudo actualizar la contraseña"); }
     });
 
     document.getElementById("acc-file")?.addEventListener("change", (e) => {
       const lbl = document.getElementById("acc-file-name");
       const f = e.target.files?.[0];
       if (lbl){
-        lbl.textContent = f ? f.name : "JPG/PNG. MÃ¡x. 5MB.";
+        lbl.textContent = f ? f.name : "JPG/PNG. Máx. 5 MB.";
       }
     });
 
     function detectBrand(n){
-      const num = String(n || "").replace(/\\D/g,"");
+      const text = String(n || "");
+      const num = text.replace(/\\D/g,"");
       if (/^3[47]/.test(num)) return "AMEX";
       if (/^(5[1-5]|2[2-7])/.test(num)) return "Mastercard";
       if (/^4/.test(num)) return "Visa";
-      return (n || "Tarjeta").toUpperCase();
+      const lower = text.toLowerCase();
+      if (lower.includes("visa")) return "Visa";
+      if (lower.includes("master")) return "Mastercard";
+      if (lower.includes("amex") || lower.includes("american express")) return "AMEX";
+      return "Tarjeta";
     }
 
     async function loadPaymentMethods(){
@@ -316,19 +321,19 @@
         const payload = await res.json();
         const data = Array.isArray(payload?.methods) ? payload.methods : (Array.isArray(payload) ? payload : []);
         if (!data.length){
-          empty.textContent = "AÃºn no tienes mÃ©todos guardados.";
+          empty.textContent = "Aún no tienes métodos guardados.";
           return;
         }
         empty.style.display = "none";
         data.forEach((m)=>{
           const item = document.createElement("div");
           item.className = "pm-item";
-          const brand = m.label || detectBrand(m.card_number || m.brand);
+          const brand = detectBrand(m.card_number || m.brand || m.label);
           const last4 = String(m.last4 || (m.card_number||"").slice(-4)).slice(-4);
           item.innerHTML = `
             <div>
               <div class="pm-brand">${brand}</div>
-              <div class="pm-mask">â€¢â€¢â€¢â€¢ ${last4 || "----"}</div>
+              <div class="pm-mask">**** **** **** ${last4 || "----"}</div>
             </div>
             <button type="button" data-del="${m.id || m.payment_id || ''}">Eliminar</button>
           `;
@@ -336,7 +341,7 @@
         });
       }catch(_){
         empty.style.display = "block";
-        empty.textContent = "No se pudieron cargar los mÃ©todos.";
+        empty.textContent = "No se pudieron cargar los métodos.";
       }
     }
 
@@ -395,7 +400,7 @@
         const filtered = list.filter((tx) => {
           const role = (tx.role || '').toLowerCase();
           const orderStatus = (tx.order_status || '').toLowerCase();
-          if (role === 'seller' && orderStatus !== 'delivered') return false; // solo ganancias cuando ya se entregÃ³
+          if (role === 'seller' && orderStatus !== 'delivered') return false; // solo ganancias cuando ya se entregó
           return true; // buyer: gastos y reembolsos
         });
         if (!filtered.length){
@@ -409,7 +414,8 @@
           const statusLabel = tx.status_label || tx.status || '';
           const typeLabel = tx.type_label || fallbackTypeLabel(tx.type);
           const typeClass = typeClassMap[tx.type] || typeClassMap.expense;
-          const methodLabel = `${(tx.payment_method_label || tx.payment_method_type || '').replace(/^Tarjeta\\s*/i,'').trim()}${tx.payment_method_last4 ? ' (**** ' + tx.payment_method_last4 + ')' : ''}`;
+          const brand = detectBrand(tx.payment_method_brand || tx.payment_method_label || tx.payment_method_type);
+          const methodLabel = `${brand}${tx.payment_method_last4 ? ' (**** ' + tx.payment_method_last4 + ')' : ''}`;
           return `
             <tr>
               <td><span class="tx-type-pill ${typeClass}">${typeLabel}</span></td>
