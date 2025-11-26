@@ -5,8 +5,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 $q = trim($_GET['q'] ?? '');
 $category = (int)($_GET['category'] ?? 0);
-$params = [];
+
 $where = "WHERE p.stock > 0";
+$params = [];
 
 if ($category > 0) {
   $where .= " AND p.category_id = ?";
@@ -14,7 +15,7 @@ if ($category > 0) {
 }
 
 if ($q !== '') {
-  // Busca de forma laxa por cada token en nombre o descripción
+  // Busca de forma laxa por tokens en nombre o descripción
   $tokens = preg_split('/\s+/', $q);
   $tokens = array_filter($tokens, fn($t) => $t !== '');
   if ($tokens) {
@@ -30,9 +31,6 @@ if ($q !== '') {
 }
 
 $sql = "
-header('Content-Type: application/json');
-
-$stmt = $pdo->query("
   SELECT
     p.id,
     p.name,
@@ -48,10 +46,5 @@ $stmt = $pdo->query("
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
-    (SELECT url FROM product_images WHERE product_id = p.id ORDER BY sort_order LIMIT 1) AS image
-  FROM products p
-  WHERE p.stock > 0
-  ORDER BY p.created_at DESC
-");
 
 echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
