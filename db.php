@@ -1,14 +1,15 @@
 <?php
-$host = "localhost";
+$host = "dpg-d4jk3hngi27c739p6p40-a.oregon-postgres.render.com";
 $port = "5432";
-$dbname = "UTZMWeb";
-$user = "postgres";
-$pass = "200612";
+$dbname = "utzmweb";
+$user = "utzmweb_user";
+$pass = "Pyxpes0xRMHfiHjjxQbCXqosJP3s7Vn2";
+$sslmode = "require"; // Render requires TLS
 
 try {
-  $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $pass);
+  $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname;sslmode=$sslmode", $user, $pass);
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (Exception $e) {
-  echo json_encode(["error" => "Error de conexión: " . $e->getMessage()]);
+  echo json_encode(["error" => "Error de conexion: " . $e->getMessage()]);
   exit;
 }
