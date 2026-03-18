@@ -78,7 +78,8 @@ export const accountService = {
       method: 'POST',
       body: JSON.stringify({ id }),
     }),
-  getTransactions: () => request('/backend/transactions.php'),
+  getTransactions: (role = 'buyer') =>
+    request(`/backend/transactions.php?role=${encodeURIComponent(role)}`),
 }
 
 export const paymentService = {

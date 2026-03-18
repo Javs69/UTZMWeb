@@ -79,6 +79,20 @@ function Header() {
     navigate(`/?${params}`)
   }
 
+  function closeProfileMenu() {
+    setIsProfileOpen(false)
+  }
+
+  function handleAuthMenu(mode) {
+    closeProfileMenu()
+    openAuth(mode)
+  }
+
+  function handleLogout() {
+    closeProfileMenu()
+    logout()
+  }
+
   return (
     <header className="header">
       <div className="topbar container">
@@ -143,7 +157,7 @@ function Header() {
             <span className="theme-toggle__knob" aria-hidden="true" />
           </button>
 
-          <div className="icon-btn" onClick={() => setIsFavoritesOpen((current) => !current)} role="button" tabIndex={0}>
+          <div className="icon-btn favorites-toggle" onClick={() => setIsFavoritesOpen((current) => !current)} role="button" tabIndex={0} aria-label="Favoritos">
             ♥
             {favorites.length ? <span className="badge">{favorites.length}</span> : null}
             <div className={`cart-menu${isFavoritesOpen ? ' open' : ''}`}>
@@ -253,16 +267,16 @@ function Header() {
                 <path d="M7 10l5 5 5-5z" />
               </svg>
             </button>
-            <ul id="profileMenu" className={`profile-menu${isProfileOpen ? ' open' : ''}`} role="menu">
+            <ul id="profileMenu" className={`profile-menu${isProfileOpen ? ' open' : ''}`} role="menu" onMouseLeave={closeProfileMenu}>
               {!isLoggedIn ? (
                 <>
                   <li role="menuitem">
-                    <button className="menu-link" type="button" onClick={() => openAuth('login')}>
+                    <button className="menu-link" type="button" onClick={() => handleAuthMenu('login')}>
                       Ingresar
                     </button>
                   </li>
                   <li role="menuitem">
-                    <button className="menu-link" type="button" onClick={() => openAuth('register')}>
+                    <button className="menu-link" type="button" onClick={() => handleAuthMenu('register')}>
                       Crear cuenta
                     </button>
                   </li>
@@ -270,16 +284,16 @@ function Header() {
               ) : (
                 <>
                   <li role="menuitem">
-                    <Link to="/mis_publicaciones.html">Mis publicaciones</Link>
+                    <Link to="/mis_publicaciones.html" onClick={closeProfileMenu}>Mis publicaciones</Link>
                   </li>
                   <li role="menuitem">
-                    <Link to="/cuenta.html">Cuenta</Link>
+                    <Link to="/cuenta.html" onClick={closeProfileMenu}>Cuenta</Link>
                   </li>
                   <li role="menuitem">
-                    <Link to="/vender.html">Vender</Link>
+                    <Link to="/vender.html" onClick={closeProfileMenu}>Vender</Link>
                   </li>
                   <li role="menuitem">
-                    <button className="menu-link" type="button" onClick={logout}>
+                    <button className="menu-link" type="button" onClick={handleLogout}>
                       Cerrar sesión
                     </button>
                   </li>

@@ -91,7 +91,7 @@ export default function SellPage() {
         </div>
         {message ? <div className="form-hint">{message}</div> : null}
         <div className="form-actions">
-          <button className="btn" type="button" onClick={publishProduct} disabled={isSubmitting}>
+          <button className="btn sell-submit-btn" type="button" onClick={publishProduct} disabled={isSubmitting}>
             {isSubmitting ? 'Publicando...' : 'Publicar'}
           </button>
         </div>

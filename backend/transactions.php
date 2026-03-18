@@ -24,6 +24,14 @@ function detect_brand($value){
 
 $user_id = (int)($_SESSION['user']['id'] ?? 0);
 $limit = isset($_GET['limit']) ? max(1, min(200, (int)$_GET['limit'])) : 100;
+$role = isset($_GET['role']) ? strtolower(trim((string)$_GET['role'])) : 'buyer';
+
+$where = 'o.buyer_id = :uid';
+if ($role === 'seller') {
+  $where = 'o.seller_id = :uid';
+} elseif ($role === 'all') {
+  $where = '(o.buyer_id = :uid OR o.seller_id = :uid)';
+}
 
 $sql = "
   SELECT
@@ -43,7 +51,7 @@ $sql = "
   FROM payments p
   JOIN orders o ON o.id = p.order_id
   LEFT JOIN payment_methods pm ON pm.id = p.payment_method_id
-  WHERE o.buyer_id = :uid OR o.seller_id = :uid
+  WHERE $where
   ORDER BY COALESCE(p.paid_at, p.created_at) DESC
   LIMIT $limit
 ";

@@ -52,52 +52,72 @@ export default function AuthModal() {
 
   return (
     <div className="modal" onClick={closeAuth}>
-      <div className="modal-content" onClick={(event) => event.stopPropagation()}>
+      <div className="modal-content auth-modal" onClick={(event) => event.stopPropagation()}>
         <button className="modal-close" type="button" onClick={closeAuth}>
           &times;
         </button>
-        <h2>{isLogin ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
-        <form className="form" onSubmit={handleSubmit}>
+
+        <div className="auth-modal__header">
+          <h2 className="auth-modal__title">{isLogin ? 'Iniciar sesion' : 'Crear cuenta'}</h2>
+          <p className="auth-modal__subtitle">
+            {isLogin
+              ? 'Accede a tu cuenta para seguir comprando.'
+              : 'Crea tu cuenta para publicar, comprar y dar seguimiento a tus pedidos.'}
+          </p>
+        </div>
+
+        <form className="form auth-modal__form" onSubmit={handleSubmit}>
           {!isLogin ? (
+            <div className="auth-modal__field">
+              <input
+                type="text"
+                placeholder="Tu nombre"
+                value={registerForm.full_name}
+                onChange={(event) =>
+                  setRegisterForm((current) => ({ ...current, full_name: event.target.value }))
+                }
+              />
+            </div>
+          ) : null}
+
+          <div className="auth-modal__field">
             <input
-              type="text"
-              placeholder="Tu nombre"
-              value={registerForm.full_name}
+              type="email"
+              placeholder="Correo"
+              value={isLogin ? loginForm.email : registerForm.email}
               onChange={(event) =>
-                setRegisterForm((current) => ({ ...current, full_name: event.target.value }))
+                isLogin
+                  ? setLoginForm((current) => ({ ...current, email: event.target.value }))
+                  : setRegisterForm((current) => ({ ...current, email: event.target.value }))
               }
             />
-          ) : null}
-          <input
-            type="email"
-            placeholder="Correo"
-            value={isLogin ? loginForm.email : registerForm.email}
-            onChange={(event) =>
-              isLogin
-                ? setLoginForm((current) => ({ ...current, email: event.target.value }))
-                : setRegisterForm((current) => ({ ...current, email: event.target.value }))
-            }
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={isLogin ? loginForm.password : registerForm.password}
-            onChange={(event) =>
-              isLogin
-                ? setLoginForm((current) => ({ ...current, password: event.target.value }))
-                : setRegisterForm((current) => ({ ...current, password: event.target.value }))
-            }
-          />
+          </div>
+
+          <div className="auth-modal__field">
+            <input
+              type="password"
+              placeholder="Contrasena"
+              value={isLogin ? loginForm.password : registerForm.password}
+              onChange={(event) =>
+                isLogin
+                  ? setLoginForm((current) => ({ ...current, password: event.target.value }))
+                  : setRegisterForm((current) => ({ ...current, password: event.target.value }))
+              }
+            />
+          </div>
+
           {message ? (
             <div className="modal-feedback is-error" role="alert">
               {message}
             </div>
           ) : null}
-          <button className="btn" type="submit" disabled={isSubmitting}>
+
+          <button className="btn auth-modal__submit" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Procesando...' : isLogin ? 'Entrar' : 'Crear cuenta'}
           </button>
         </form>
-        <div className="auth-switch">
+
+        <div className="auth-switch auth-modal__footer">
           <button
             className="text-link"
             type="button"
@@ -112,7 +132,7 @@ export default function AuthModal() {
               }
             }}
           >
-            {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
+            {isLogin ? 'No tienes cuenta? Registrate' : 'Ya tienes cuenta? Inicia sesion'}
           </button>
           <button className="text-link" type="button" onClick={closeAuth}>
             Cerrar

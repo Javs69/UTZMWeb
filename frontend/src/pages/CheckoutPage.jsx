@@ -9,9 +9,11 @@ export default function CheckoutPage() {
   const navigate = useNavigate()
   const { cartItems, clearCart } = useApp()
   const paypalButtonsRef = useRef(null)
+  const paypalButtonsInstanceRef = useRef(null)
   const [method, setMethod] = useState('paypal')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPaypalLoading, setIsPaypalLoading] = useState(false)
   const [paypalConfig, setPaypalConfig] = useState(null)
 
   const total = useMemo(
@@ -33,18 +35,28 @@ export default function CheckoutPage() {
   }, [cartItems.length, navigate])
 
   useEffect(() => {
-    if (method !== 'paypal' || !paypalConfig || !paypalButtonsRef.current || !total || !cartItems.length) {
+    if (method !== 'paypal') {
+      setIsPaypalLoading(false)
+      return
+    }
+
+    if (!paypalConfig || !paypalButtonsRef.current || !total || !cartItems.length) {
+      setIsPaypalLoading(true)
       return
     }
 
     let isActive = true
+    setIsPaypalLoading(true)
+    setMessage('')
     paypalButtonsRef.current.innerHTML = ''
 
-    loadPaypalSdk({
-      clientId: paypalConfig.client_id,
-      currency: paypalConfig.currency,
-    })
-      .then((paypal) => {
+    const mountButtons = async () => {
+      try {
+        const paypal = await loadPaypalSdk({
+          clientId: paypalConfig.client_id,
+          currency: paypalConfig.currency,
+        })
+
         if (!isActive || !paypalButtonsRef.current) {
           return
         }
@@ -100,19 +112,32 @@ export default function CheckoutPage() {
         })
 
         if (buttons.isEligible()) {
-          buttons.render(paypalButtonsRef.current)
+          paypalButtonsInstanceRef.current = buttons
+          await buttons.render(paypalButtonsRef.current)
+          if (isActive) {
+            setIsPaypalLoading(false)
+          }
         } else {
           setMessage('PayPal no esta disponible para este navegador o configuracion.')
+          setIsPaypalLoading(false)
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         if (isActive) {
           setMessage(error.message)
+          setIsPaypalLoading(false)
         }
-      })
+      }
+    }
+
+    mountButtons()
 
     return () => {
       isActive = false
+      const buttons = paypalButtonsInstanceRef.current
+      paypalButtonsInstanceRef.current = null
+      if (buttons?.close) {
+        buttons.close().catch(() => {})
+      }
       if (paypalButtonsRef.current) {
         paypalButtonsRef.current.innerHTML = ''
       }
@@ -138,37 +163,48 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="container" style={{ padding: '18px 0 34px', display: 'flex', justifyContent: 'center' }}>
-      <section className="card pay-card">
-        <h2 style={{ marginTop: 0 }}>Completar pago</h2>
-        <p className="form-hint">Elige un metodo para finalizar tu compra. PayPal corre en sandbox.</p>
+    <main className="container checkout-page">
+      <section className="card pay-card checkout-card">
+        <div className="checkout-card__header">
+          <h2 className="checkout-card__title">Completar pago</h2>
+          <p className="form-hint checkout-card__hint">Elige un metodo para finalizar tu compra.</p>
+        </div>
 
-        <div className="form-group">
+        <div className="form-group checkout-methods-group">
           <label className="form-label">Metodo de pago</label>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <label><input type="radio" checked={method === 'paypal'} onChange={() => setMethod('paypal')} /> PayPal</label>
-            <label><input type="radio" checked={method === 'cash'} onChange={() => setMethod('cash')} /> Efectivo</label>
+          <div className="checkout-methods">
+            <label className={`checkout-method-option${method === 'paypal' ? ' is-active' : ''}`}>
+              <input type="radio" checked={method === 'paypal'} onChange={() => setMethod('paypal')} />
+              <span>PayPal</span>
+            </label>
+            <label className={`checkout-method-option${method === 'cash' ? ' is-active' : ''}`}>
+              <input type="radio" checked={method === 'cash'} onChange={() => setMethod('cash')} />
+              <span>Efectivo</span>
+            </label>
           </div>
         </div>
 
         {method === 'paypal' ? (
-          <div className="form-group" style={{ marginTop: 12 }}>
-            <div className="form-hint" style={{ marginBottom: 10 }}>
-              Usa tu cuenta sandbox de PayPal para aprobar y capturar el pago.
+          <div className="form-group checkout-paypal-group">
+            <div className="form-hint checkout-paypal-copy">
+              Serás redirigido a PayPal para completar tu pago de forma segura.
             </div>
-            <div ref={paypalButtonsRef} />
+            <div className="checkout-paypal-shell">
+              {isPaypalLoading ? <div className="checkout-paypal-loading">Cargando PayPal...</div> : null}
+              <div ref={paypalButtonsRef} className="checkout-paypal-slot" />
+            </div>
           </div>
         ) : null}
 
-        <div className="cart-total" style={{ marginTop: 10 }}>
+        <div className="cart-total checkout-total">
           <span>Total</span>
           <strong>{formatCurrency(total)}</strong>
         </div>
 
-        {message ? <div className="form-hint">{message}</div> : null}
+        {message ? <div className="form-hint checkout-message">{message}</div> : null}
 
         {method === 'cash' ? (
-          <div className="form-actions" style={{ marginTop: 12 }}>
+          <div className="form-actions checkout-actions">
             <button className="btn" type="button" onClick={handleCashPay} disabled={isSubmitting}>
               {isSubmitting ? 'Procesando...' : 'Confirmar pago en efectivo'}
             </button>

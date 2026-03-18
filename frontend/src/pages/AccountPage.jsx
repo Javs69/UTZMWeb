@@ -22,7 +22,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     accountService.getPaymentMethods().then((data) => setPaymentMethods(data.methods || []))
-    accountService.getTransactions().then((data) => setTransactions(data.transactions || []))
+    accountService.getTransactions('buyer').then((data) => setTransactions(data.transactions || []))
   }, [])
 
   async function saveProfile() {
