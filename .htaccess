@@ -2,7 +2,7 @@ RewriteEngine On
 
 RewriteRule ^$ app/index.html [L]
 RewriteRule ^index\.html$ app/index.html [L]
-RewriteRule ^(producto|cuenta|mis_publicaciones|vender|pagar|pedidos|mensajes)\.html$ app/index.html [L]
+RewriteRule ^(producto|cuenta|mis_publicaciones|vender|pagar|pedidos|mensajes|metodos_pago|seguridad|facturacion|envios|devoluciones|reembolsos|sobre_nosotros|centro_de_ayuda|contacto|terminos_privacidad)\.html$ app/index.html [L]
 
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

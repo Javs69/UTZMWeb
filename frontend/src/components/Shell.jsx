@@ -331,9 +331,9 @@ function Footer() {
           <div key={section.title}>
             <h4>{section.title}</h4>
             {section.links.map((link) => (
-              <a key={link.href} href={link.href}>
+              <Link key={link.href} to={link.href}>
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         ))}

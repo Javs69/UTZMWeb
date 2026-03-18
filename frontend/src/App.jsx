@@ -6,6 +6,7 @@ import { AppProvider, useApp } from '@/context/AppContext'
 import AccountPage from '@/pages/AccountPage'
 import CheckoutPage from '@/pages/CheckoutPage'
 import HomePage from '@/pages/HomePage'
+import InfoPage from '@/pages/InfoPage'
 import MessagesPage from '@/pages/MessagesPage'
 import MyProductsPage from '@/pages/MyProductsPage'
 import OrdersPage from '@/pages/OrdersPage'
@@ -32,7 +33,7 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AppProvider>
         <QueryAuthWatcher />
         <Routes>
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="pagar.html" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
             <Route path="pedidos.html" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
             <Route path="mensajes.html" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+            <Route path=":slug.html" element={<InfoPage />} />
             <Route path="*" element={<Navigate replace to="/" />} />
           </Route>
         </Routes>
