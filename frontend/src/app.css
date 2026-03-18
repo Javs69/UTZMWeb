@@ -1,0 +1,83 @@
+.react-app-shell {
+  min-height: 100vh;
+}
+
+.menu-link,
+.text-link {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.profile-menu.open,
+.cart-menu.open {
+  display: block;
+}
+
+.auth-switch {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.cart-line,
+.cart-qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cart-qty-input {
+  max-width: 72px;
+}
+
+.theme-toggle {
+  background: transparent;
+  border: 0;
+}
+
+.messages-scroll {
+  min-height: 320px;
+  max-height: 480px;
+}
+
+.thread-item {
+  width: 100%;
+  text-align: left;
+}
+
+.thread-item.active {
+  border-color: var(--accent);
+}
+
+.account-nav__link {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+}
+
+.cat-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.cat-btn.is-active {
+  color: var(--brand-ink);
+  font-weight: 700;
+}
+
+.messages-panel {
+  min-height: 520px;
+}
+
+.modal-feedback {
+  display: block;
+}

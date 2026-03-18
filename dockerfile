@@ -6,6 +6,7 @@ WORKDIR /var/www/html
 
 # Habilitar mod_rewrite si usas URLs amigables
 RUN a2enmod rewrite
+RUN sed -ri 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # Copiar todos los archivos del proyecto al directorio web de Apache
 COPY . /var/www/html
