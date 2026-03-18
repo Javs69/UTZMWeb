@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from
 import { CATEGORIES } from '@/config/categories'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency } from '@/utils/format'
+import AssistantWidget from './AssistantWidget'
 import AuthModal from './AuthModal'
 
 const FOOTER_SECTIONS = [
@@ -349,6 +350,7 @@ export default function Shell() {
       <Header />
       <Outlet />
       <Footer />
+      <AssistantWidget />
       <AuthModal />
     </div>
   )
