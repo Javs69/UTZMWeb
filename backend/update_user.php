@@ -37,10 +37,10 @@ try {
     }
 
     $hash = password_hash($password, PASSWORD_BCRYPT);
-    $stmt = $pdo->prepare("UPDATE users SET full_name=?, email=?, password_hash=? WHERE id=? RETURNING id, full_name, email, avatar_url");
+    $stmt = $pdo->prepare("UPDATE users SET full_name=?, email=?, password_hash=? WHERE id=? RETURNING id, full_name, email, avatar_url, role");
     $stmt->execute([$full_name, $email, $hash, $user_id]);
   } else {
-    $stmt = $pdo->prepare("UPDATE users SET full_name=?, email=? WHERE id=? RETURNING id, full_name, email, avatar_url");
+    $stmt = $pdo->prepare("UPDATE users SET full_name=?, email=? WHERE id=? RETURNING id, full_name, email, avatar_url, role");
     $stmt->execute([$full_name, $email, $user_id]);
   }
   $user = $stmt->fetch(PDO::FETCH_ASSOC);

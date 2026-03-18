@@ -486,6 +486,254 @@
   gap: 18px;
 }
 
+.support-page {
+  padding: 24px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.support-page__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.support-page__head h1 {
+  margin: 0 0 6px;
+}
+
+.support-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.support-sidebar,
+.support-create-card,
+.support-thread-card,
+.support-manage-card,
+.support-admin-card {
+  padding: 20px;
+}
+
+.support-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 620px;
+}
+
+.support-sidebar__head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.support-sidebar__head h2,
+.support-create-card h2,
+.support-thread-card h2,
+.support-manage-card h2,
+.support-admin-card h2 {
+  margin: 0;
+}
+
+.support-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.support-ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 560px;
+  overflow: auto;
+}
+
+.support-ticket-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--divider);
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.support-ticket-item:hover {
+  border-color: var(--brand-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, .08);
+}
+
+.support-ticket-item.is-active {
+  border-color: var(--accent-strong);
+  background: var(--brand-weak);
+}
+
+.support-ticket-item__head,
+.support-ticket-item__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.support-ticket-item__head {
+  align-items: flex-start;
+}
+
+.support-ticket-item__meta,
+.support-ticket-item__sub {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.support-ticket-item__sub {
+  margin-top: 8px;
+}
+
+.support-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.support-manage-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.support-manage-grid,
+.support-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.support-admin-grid {
+  grid-template-columns: 1.4fr .8fr;
+}
+
+.support-thread-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.support-thread-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.support-pill,
+.support-priority {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.support-pill--open {
+  background: #e0f2fe;
+  color: #0c4a6e;
+}
+
+.support-pill--in_progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.support-pill--waiting_user {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.support-pill--resolved,
+.support-pill--closed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.support-priority {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.support-summary {
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--brand-weak);
+  margin-bottom: 16px;
+}
+
+.support-summary p {
+  margin: 8px 0 0;
+  line-height: 1.6;
+}
+
+.support-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 420px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.support-message {
+  max-width: 82%;
+  padding: 14px;
+  border: 1px solid var(--divider);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .04);
+}
+
+.support-message.is-mine {
+  margin-left: auto;
+  background: var(--brand-weak);
+}
+
+.support-message p {
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+.support-message__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  color: var(--muted);
+  font-size: .88rem;
+}
+
+.support-reply {
+  margin-top: 16px;
+}
+
+.support-empty {
+  padding: 22px 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
 .orders-sections {
   display: grid;
   gap: 18px;
@@ -641,6 +889,29 @@
 }
 
 @media (max-width: 700px) {
+  .support-page__head,
+  .support-manage-card__head,
+  .support-thread-card__head {
+    flex-direction: column;
+  }
+
+  .support-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .support-sidebar {
+    min-height: 0;
+  }
+
+  .support-manage-grid,
+  .support-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .support-message {
+    max-width: 100%;
+  }
+
   .assistant-widget {
     right: 14px;
     left: 14px;
@@ -737,6 +1008,54 @@
   border-color: rgba(51, 65, 85, .9);
   background: linear-gradient(180deg, rgba(15, 23, 42, .98), rgba(11, 18, 34, .98));
   box-shadow: 0 28px 60px rgba(0, 0, 0, .35);
+}
+
+:root[data-theme="dark"] .support-ticket-item {
+  background: #0f172a;
+  border-color: #1f2937;
+  color: #e5ecf7;
+}
+
+:root[data-theme="dark"] .support-ticket-item:hover {
+  border-color: #334155;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .24);
+}
+
+:root[data-theme="dark"] .support-ticket-item.is-active {
+  background: #111827;
+  border-color: #38bdf8;
+}
+
+:root[data-theme="dark"] .support-summary,
+:root[data-theme="dark"] .support-message.is-mine {
+  background: #111827;
+}
+
+:root[data-theme="dark"] .support-message {
+  background: #0f172a;
+  border-color: #1f2937;
+  color: #e5ecf7;
+}
+
+:root[data-theme="dark"] .support-pill--open {
+  background: rgba(14, 165, 233, .16);
+  color: #8bd3ff;
+}
+
+:root[data-theme="dark"] .support-pill--in_progress {
+  background: rgba(245, 158, 11, .16);
+  color: #fde68a;
+}
+
+:root[data-theme="dark"] .support-pill--waiting_user {
+  background: rgba(139, 92, 246, .18);
+  color: #ddd6fe;
+}
+
+:root[data-theme="dark"] .support-pill--resolved,
+:root[data-theme="dark"] .support-pill--closed {
+  background: rgba(34, 197, 94, .16);
+  color: #bbf7d0;
 }
 
 :root[data-theme="dark"] .assistant-trigger {

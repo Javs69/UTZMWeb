@@ -22,7 +22,7 @@ $hash = password_hash($password, PASSWORD_BCRYPT);
 $defaultAvatar = "/public/uploads/blank-profile.png";
 
 try {
-  $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, avatar_url) VALUES (?,?,?,?) RETURNING id, full_name, email, avatar_url");
+  $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, avatar_url, role) VALUES (?,?,?,?, 'customer') RETURNING id, full_name, email, avatar_url, role");
   $stmt->execute([$full_name, $email, $hash, $defaultAvatar]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -12,6 +12,7 @@ import MyProductsPage from '@/pages/MyProductsPage'
 import OrdersPage from '@/pages/OrdersPage'
 import ProductPage from '@/pages/ProductPage'
 import SellPage from '@/pages/SellPage'
+import SupportPage from '@/pages/SupportPage'
 
 function QueryAuthWatcher() {
   const location = useLocation()
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="pagar.html" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
             <Route path="pedidos.html" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
             <Route path="mensajes.html" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+            <Route path="soporte.html" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
             <Route path=":slug.html" element={<InfoPage />} />
             <Route path="*" element={<Navigate replace to="/" />} />
           </Route>

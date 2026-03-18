@@ -7,6 +7,7 @@ const QUICK_PROMPTS = [
   'Como publico un producto',
   'Quiero ver mis pedidos',
   'Necesito ayuda con una devolucion',
+  'Necesito soporte humano',
 ]
 
 const FAQ_ENTRIES = [
@@ -63,6 +64,17 @@ const FAQ_ENTRIES = [
         { label: 'Devoluciones', type: 'navigate', to: '/devoluciones.html' },
         { label: 'Reembolsos', type: 'navigate', to: '/reembolsos.html' },
       ],
+    }),
+  },
+  {
+    match: ['soporte', 'ayuda humana', 'asesor', 'ticket', 'problema tecnico'],
+    getResponse: ({ isLoggedIn }) => ({
+      text: isLoggedIn
+        ? 'Si necesitas seguimiento humano, abre un ticket en Soporte. Desde ahi podras explicar el problema y recibir respuesta del equipo.'
+        : 'Para abrir un ticket con una persona del equipo primero necesitas iniciar sesion.',
+      actions: isLoggedIn
+        ? [{ label: 'Abrir soporte', type: 'navigate', to: '/soporte.html' }]
+        : [{ label: 'Iniciar sesion', type: 'auth', mode: 'login' }],
     }),
   },
   {

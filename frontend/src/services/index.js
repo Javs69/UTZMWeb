@@ -152,3 +152,38 @@ export const messageService = {
     })
   },
 }
+
+export const supportService = {
+  getTickets: ({ status = 'all', assignment = 'all', q = '', limit = 60 } = {}) => {
+    const params = new URLSearchParams()
+    if (status && status !== 'all') params.set('status', status)
+    if (assignment && assignment !== 'all') params.set('assignment', assignment)
+    if (q) params.set('q', q)
+    if (limit) params.set('limit', String(limit))
+    const suffix = params.toString() ? `?${params}` : ''
+    return request(`/backend/support_tickets.php${suffix}`)
+  },
+  createTicket: (payload) =>
+    request('/backend/support_tickets.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  getTicket: (ticketId) =>
+    request(`/backend/support_messages.php?ticket_id=${encodeURIComponent(ticketId)}`),
+  sendMessage: (payload) =>
+    request('/backend/support_messages.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateTicket: (payload) =>
+    request('/backend/support_ticket_admin.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  getAgents: () => request('/backend/support_agents.php'),
+  updateStaffRole: (payload) =>
+    request('/backend/support_staff.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+}

@@ -45,6 +45,7 @@ function Header() {
     cartItems,
     favorites,
     isLoggedIn,
+    isSupport,
     openAuth,
     logout,
     session,
@@ -289,6 +290,9 @@ function Header() {
                   </li>
                   <li role="menuitem">
                     <Link to="/cuenta.html" onClick={closeProfileMenu}>Cuenta</Link>
+                  </li>
+                  <li role="menuitem">
+                    <Link to="/soporte.html" onClick={closeProfileMenu}>{isSupport ? 'Bandeja de soporte' : 'Soporte'}</Link>
                   </li>
                   <li role="menuitem">
                     <Link to="/vender.html" onClick={closeProfileMenu}>Vender</Link>
