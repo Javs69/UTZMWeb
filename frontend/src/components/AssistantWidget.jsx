@@ -262,18 +262,20 @@ export default function AssistantWidget() {
 
   return (
     <div className={`assistant-widget${isOpen ? ' is-open' : ''}`}>
-      <button
-        className="assistant-trigger"
-        type="button"
-        aria-expanded={isOpen}
-        aria-controls="assistant-panel"
-        onClick={() => setIsOpen((current) => !current)}
-      >
-        <span className="assistant-trigger__icon" aria-hidden="true">
-          AI
-        </span>
-        <span className="assistant-trigger__label">Asistente</span>
-      </button>
+      {!isOpen ? (
+        <button
+          className="assistant-trigger"
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls="assistant-panel"
+          onClick={() => setIsOpen(true)}
+        >
+          <span className="assistant-trigger__icon" aria-hidden="true">
+            UT
+          </span>
+          <span className="assistant-trigger__label">Asistente</span>
+        </button>
+      ) : null}
 
       {isOpen ? (
         <section id="assistant-panel" className="assistant-panel" aria-label="Asistente virtual">
