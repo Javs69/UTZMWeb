@@ -124,7 +124,7 @@ body{
 /* Qty input: ocultar flechas nativas y estilizar */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0 }
-input[type=number]{ -moz-appearance:textfield }
+input[type=number]{ appearance:textfield; -moz-appearance:textfield }
 .cart-qty-input{
   width:56px; height:32px; text-align:center;
   border:1px solid var(--divider); border-radius:8px; background:#fafafa;
