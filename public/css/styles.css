@@ -149,7 +149,7 @@ input[type=number]{ appearance:textfield; -moz-appearance:textfield }
 
 /* CategorÃ­as */
 .categories{background:var(--brand)}
-.categories > .container{display:flex; gap:18px; align-items:center; overflow:auto; margin:0; padding:0 0 6px; list-style:none}
+.categories > .container{display:flex; width:100%; max-width:none; gap:18px; align-items:center; justify-content:center; overflow:auto; margin:0 auto; padding:3px 24px; list-style:none}
 .categories a,.categories .cat-btn{color:#111; text-decoration:none; font-weight:600; padding:10px 12px; border-radius:10px; border:none; background:transparent; cursor:pointer}
 .categories .cat:hover a, .categories .cat-btn:hover{background:rgba(0,0,0,.06)}
 .cat{position:relative}
