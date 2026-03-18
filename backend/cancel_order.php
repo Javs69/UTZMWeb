@@ -70,7 +70,7 @@ $payStmt = $pdo->prepare("
 $payStmt->execute([$order_id]);
 $payment = $payStmt->fetch(PDO::FETCH_ASSOC);
 
-if ($payment && (($payment['method_type'] ?? '') === 'card') && ($payment['status'] ?? '') === 'captured') {
+if ($payment && in_array(($payment['method_type'] ?? ''), ['card', 'paypal'], true) && ($payment['status'] ?? '') === 'captured') {
   $refund = $pdo->prepare("
     INSERT INTO payments (order_id, payment_method_id, amount_cents, status, paid_at)
     VALUES (:order_id, :payment_method_id, :amount_cents, 'refunded', NOW())

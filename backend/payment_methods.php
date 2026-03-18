@@ -28,7 +28,15 @@ $methods = array_map(function($row){
   $cleanLabel = preg_replace('/^tarjeta\s*/i', '', $cleanLabel);
   $cleanLabel = trim(preg_replace('/\s{2,}/', ' ', $cleanLabel));
   if ($cleanLabel === '') {
-    $cleanLabel = $type === 'card' ? 'Tarjeta' : ($type === 'cash' ? 'Efectivo' : ucfirst($type));
+    if ($type === 'card') {
+      $cleanLabel = 'Tarjeta';
+    } elseif ($type === 'cash') {
+      $cleanLabel = 'Efectivo';
+    } elseif ($type === 'paypal') {
+      $cleanLabel = 'PayPal';
+    } else {
+      $cleanLabel = ucfirst($type);
+    }
   }
   $cvvLength = cvv_storage_length((int)$row['id']);
   return [

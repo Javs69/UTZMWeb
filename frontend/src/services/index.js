@@ -81,6 +81,10 @@ export const accountService = {
   getTransactions: () => request('/backend/transactions.php'),
 }
 
+export const paymentService = {
+  getPaypalConfig: () => request('/backend/paypal_config.php'),
+}
+
 export const orderService = {
   getOrders: (limit = 100) => request(`/backend/my_orders.php?limit=${limit}`),
   createOrder: (payload) =>

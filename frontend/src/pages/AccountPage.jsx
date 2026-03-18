@@ -157,7 +157,7 @@ export default function AccountPage() {
                     <div key={method.id} className="pm-item">
                       <div>
                         <div className="pm-brand">{method.label}</div>
-                        <div className="pm-mask">{method.last4 ? `**** **** **** ${method.last4}` : method.type}</div>
+                        <div className="pm-mask">{method.last4 ? `**** **** **** ${method.last4}` : method.label}</div>
                       </div>
                       <button type="button" onClick={() => removeMethod(method.id)}>
                         Eliminar

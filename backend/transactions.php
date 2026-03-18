@@ -12,6 +12,7 @@ if (!isset($_SESSION['user'])) {
 function detect_brand($value){
   $text = strtolower(trim((string)$value));
   $digits = preg_replace('/\D/', '', (string)$value);
+  if (strpos($text, 'paypal') !== false) return 'PayPal';
   if (preg_match('/^3[47]/', $digits)) return 'AMEX';
   if (preg_match('/^(5[1-5]|2[2-7])/', $digits)) return 'Mastercard';
   if (preg_match('/^4/', $digits)) return 'Visa';
@@ -71,7 +72,15 @@ foreach ($rows as $row) {
   $cleanLabel = preg_replace('/^tarjeta\s*/i', '', $cleanLabel);
   $cleanLabel = trim(preg_replace('/\s{2,}/', ' ', $cleanLabel));
   if ($cleanLabel === '') {
-    $cleanLabel = $rawType === 'card' ? 'Tarjeta' : ($rawType === 'cash' ? 'Efectivo' : ucfirst($rawType));
+    if ($rawType === 'card') {
+      $cleanLabel = 'Tarjeta';
+    } elseif ($rawType === 'cash') {
+      $cleanLabel = 'Efectivo';
+    } elseif ($rawType === 'paypal') {
+      $cleanLabel = 'PayPal';
+    } else {
+      $cleanLabel = ucfirst($rawType);
+    }
   }
   $statusRaw = strtolower($row['status'] ?? '');
   $statusLabelMap = [

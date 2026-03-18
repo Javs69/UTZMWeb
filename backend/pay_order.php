@@ -65,7 +65,13 @@ if ($payment_method_type === null && $payment_method_id === 0) {
   $payment_method_type = 'card';
 }
 if (!$payment_method_label && $payment_method_type) {
-  $payment_method_label = $payment_method_type === 'cash' ? 'Efectivo' : 'Tarjeta';
+  if ($payment_method_type === 'cash') {
+    $payment_method_label = 'Efectivo';
+  } elseif ($payment_method_type === 'paypal') {
+    $payment_method_label = 'PayPal';
+  } else {
+    $payment_method_label = 'Tarjeta';
+  }
 }
 $isCardMethod = ($payment_method_type ?: '') === 'card';
 $requiresCvv = $isCardMethod;
@@ -79,8 +85,12 @@ if ($payment_method_label) {
   $payment_method_label = preg_replace('/\bdemo\b/i', '', $payment_method_label);
   $payment_method_label = preg_replace('/^tarjeta\s*/i', '', $payment_method_label);
   $payment_method_label = trim(preg_replace('/\s{2,}/', ' ', $payment_method_label));
-  if ($payment_method_type === 'card' && $payment_method_label === '') {
-    $payment_method_label = 'Tarjeta';
+  if ($payment_method_label === '') {
+    if ($payment_method_type === 'card') {
+      $payment_method_label = 'Tarjeta';
+    } elseif ($payment_method_type === 'paypal') {
+      $payment_method_label = 'PayPal';
+    }
   }
 }
 
