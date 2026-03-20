@@ -6,13 +6,13 @@ header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
-  echo json_encode(['error' => 'Metodo no permitido']);
+  echo json_encode(['error' => 'Método no permitido']);
   exit;
 }
 
 if (!isset($_SESSION['user'])) {
   http_response_code(401);
-  echo json_encode(['error' => 'Debes iniciar sesion']);
+  echo json_encode(['error' => 'Debes iniciar sesión']);
   exit;
 }
 
@@ -78,7 +78,7 @@ try {
     $storedMethod = $methodStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$storedMethod) {
-      throw new RuntimeException('El metodo de pago no pertenece a tu cuenta', 403);
+      throw new RuntimeException('El método de pago no pertenece a tu cuenta', 403);
     }
 
     $payment_method_type = $payment_method_type ?: strtolower((string)$storedMethod['type']);
@@ -172,7 +172,7 @@ try {
   }
 
   if ($payment_method_id <= 0) {
-    throw new RuntimeException('No se pudo preparar el metodo de pago', 400);
+    throw new RuntimeException('No se pudo preparar el método de pago', 400);
   }
 
   $insertPay = $pdo->prepare("

@@ -167,7 +167,7 @@ export default function CheckoutPage() {
       <section className="card pay-card checkout-card">
         <div className="checkout-card__header">
           <h2 className="checkout-card__title">Completar pago</h2>
-          <p className="form-hint checkout-card__hint">Elige un metodo para finalizar tu compra.</p>
+          <p className="form-hint checkout-card__hint">Elige un método para finalizar tu compra.</p>
         </div>
 
         <div className="form-group checkout-methods-group">

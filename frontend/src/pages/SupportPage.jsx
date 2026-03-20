@@ -7,7 +7,7 @@ import { formatDate } from '@/utils/format'
 const CATEGORY_OPTIONS = [
   { value: 'pagos', label: 'Pagos' },
   { value: 'pedido', label: 'Pedidos' },
-  { value: 'envio', label: 'Envios y entregas' },
+  { value: 'envio', label: 'Envíos y entregas' },
   { value: 'cuenta', label: 'Cuenta y acceso' },
   { value: 'publicacion', label: 'Publicaciones' },
   { value: 'seguridad', label: 'Seguridad' },
@@ -29,12 +29,26 @@ const PRIORITY_LABELS = {
   urgent: 'Urgente',
 }
 
+const ROLE_LABELS = {
+  customer: 'Cliente',
+  support: 'Soporte',
+  admin: 'Administrador',
+}
+
 function statusLabel(value) {
   return STATUS_LABELS[value] || value
 }
 
 function priorityLabel(value) {
   return PRIORITY_LABELS[value] || value
+}
+
+function categoryLabel(value) {
+  return CATEGORY_OPTIONS.find((option) => option.value === value)?.label || value
+}
+
+function roleLabel(value) {
+  return ROLE_LABELS[value] || value
 }
 
 export default function SupportPage() {
@@ -316,7 +330,9 @@ export default function SupportPage() {
                     <span>{formatDate(ticket.last_message_at, true)}</span>
                   </div>
                   <div className="support-ticket-item__sub">
-                    {isSupport ? `${ticket.requester_name} • ${ticket.category}` : ticket.category}
+                    {isSupport
+                      ? `${ticket.requester_name} • ${categoryLabel(ticket.category)}`
+                      : categoryLabel(ticket.category)}
                   </div>
                 </button>
               ))
@@ -442,7 +458,7 @@ export default function SupportPage() {
                     <option value="">Sin asignar</option>
                     {agents.map((agent) => (
                       <option key={agent.id} value={agent.id}>
-                        {agent.full_name} • {agent.role}
+                        {agent.full_name} • {roleLabel(agent.role)}
                       </option>
                     ))}
                   </select>
@@ -478,9 +494,9 @@ export default function SupportPage() {
                     value={roleForm.role}
                     onChange={(event) => setRoleForm((current) => ({ ...current, role: event.target.value }))}
                   >
-                    <option value="support">Support</option>
-                    <option value="admin">Admin</option>
-                    <option value="customer">Customer</option>
+                    <option value="support">Soporte</option>
+                    <option value="admin">Administrador</option>
+                    <option value="customer">Cliente</option>
                   </select>
                 </div>
               </div>
@@ -501,7 +517,7 @@ export default function SupportPage() {
                   <div>
                     <h2>{selectedTicket.subject}</h2>
                     <p className="form-hint">
-                      {selectedTicket.category} • {statusLabel(selectedTicket.status)} • {priorityLabel(selectedTicket.priority)}
+                      {categoryLabel(selectedTicket.category)} • {statusLabel(selectedTicket.status)} • {priorityLabel(selectedTicket.priority)}
                     </p>
                     {selectedTicket.order_id ? (
                       <p className="form-hint">Pedido asociado: #{selectedTicket.order_id}</p>

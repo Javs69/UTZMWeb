@@ -38,7 +38,7 @@ body{
   background:var(--bg);
 }
 
-/* Utilidad genÃ©rica para ocultar elementos */
+/* Utilidad genérica para ocultar elementos */
 .hidden{display:none !important}
 
 .container{width:min(1200px, 92%); margin-inline:auto}
@@ -147,7 +147,7 @@ input[type=number]{ appearance:textfield; -moz-appearance:textfield }
 .hamburger{display:none; width:42px; height:42px; border:none; background:#f3f4f6; border-radius:10px; cursor:pointer}
 .hamburger span{display:block; height:2px; background:#111; margin:7px 9px}
 
-/* CategorÃ­as */
+/* Categorías */
 .categories{background:var(--brand)}
 .categories > .container{display:flex; width:100%; max-width:none; gap:18px; align-items:center; justify-content:center; overflow:auto; margin:0 auto; padding:3px 24px; list-style:none}
 .categories a,.categories .cat-btn{color:#111; text-decoration:none; font-weight:600; padding:10px 12px; border-radius:10px; border:none; background:transparent; cursor:pointer}
@@ -362,7 +362,7 @@ input[type=number]{ appearance:textfield; -moz-appearance:textfield }
 :root[data-theme="dark"] .remove-thumb{background:rgba(255,255,255,.12); color:#e5e7eb;}
 :root[data-theme="dark"] .remove-thumb:hover{background:rgba(255,255,255,.2);}
 
-/* -------- Formularios (pÃ¡g. Vender) -------- */
+/* -------- Formularios (pág. Vender) -------- */
 .form{display:block}
 .form-grid{display:grid; gap:12px}
 .form-row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
@@ -375,14 +375,14 @@ input[type=number]{ appearance:textfield; -moz-appearance:textfield }
 textarea.form-control{resize:none}
 .form-hint{color:#6b7280; font-size:.9rem}
 .form-actions{margin-top:12px; display:flex; gap:10px; align-items:center}
-/* Hacer que los botones en acciones tengan el mismo tamaÃ±o */
+/* Hacer que los botones en acciones tengan el mismo tamaño */
 .form-actions .btn{flex:1 1 0; text-align:center}
 
 @media (max-width:700px){
   .form-row-2{grid-template-columns:1fr}
 }
 
-/* -------- PÃ¡gina de producto -------- */
+/* -------- Página de producto -------- */
 .product{background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:18px}
 .pgrid{display:grid; grid-template-columns: 1.2fr 1fr; gap:20px}
 .gallery-main{
@@ -429,7 +429,7 @@ textarea.form-control{resize:none}
 :root[data-theme="dark"] .a-text{background:var(--accent-weak); color:var(--ink);}
 .ans-row .btn{white-space:nowrap}
 
-/* -------- Uploader mÃºltiple (pÃ¡g. Vender) -------- */
+/* -------- Uploader múltiple (pág. Vender) -------- */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .uploader{display:flex; align-items:center; justify-content:center; gap:10px; padding:16px; border:2px dashed var(--divider); border-radius:var(--radius); background:var(--brand-weak); color:var(--muted); cursor:pointer; user-select:none}
 .uploader:hover,.uploader.dragover{border-color:var(--brand-strong); background:#fff; color:var(--ink)}

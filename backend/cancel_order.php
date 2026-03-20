@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
-  echo json_encode(['error' => 'Metodo no permitido']);
+  echo json_encode(['error' => 'Método no permitido']);
   exit;
 }
 
@@ -21,7 +21,7 @@ $user_id = (int)($_SESSION['user']['id'] ?? 0);
 
 if ($order_id <= 0) {
   http_response_code(422);
-  echo json_encode(['error' => 'Pedido invalido']);
+  echo json_encode(['error' => 'Pedido inválido']);
   exit;
 }
 

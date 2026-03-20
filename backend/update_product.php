@@ -22,9 +22,9 @@ if (!is_numeric($category_raw) && is_string($category_raw)) {
   if ($norm === 'salud') $category_id = 0;
 }
 
-if ($id <= 0) { echo json_encode(["error" => "ID invalido"]); exit; }
+if ($id <= 0) { echo json_encode(["error" => "ID inválido"]); exit; }
 if ($name === '' || $desc === '' || $price <= 0 || $stock < 0) {
-  echo json_encode(["error" => "Nombre, descripcion, precio y stock son obligatorios"]);
+  echo json_encode(["error" => "Nombre, descripción, precio y stock son obligatorios"]);
   exit;
 }
 

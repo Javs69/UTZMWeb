@@ -3,22 +3,22 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 
 const QUICK_PROMPTS = [
-  'Como pago un pedido',
-  'Como publico un producto',
+  '¿Cómo pago un pedido?',
+  '¿Cómo publico un producto?',
   'Quiero ver mis pedidos',
-  'Necesito ayuda con una devolucion',
+  'Necesito ayuda con una devolución',
   'Necesito soporte humano',
 ]
 
 const FAQ_ENTRIES = [
   {
-    match: ['pago', 'pagar', 'paypal', 'efectivo', 'metodo'],
+    match: ['pago', 'pagar', 'paypal', 'efectivo', 'método'],
     getResponse: () => ({
       text:
-        'Puedes pagar desde la pantalla de checkout con PayPal o efectivo. Revisa bien el metodo antes de confirmar y verifica el estado del pedido despues del pago.',
+        'Puedes pagar desde la pantalla de checkout con PayPal o efectivo. Revisa bien el método antes de confirmar y verifica el estado del pedido después del pago.',
       actions: [
         { label: 'Ir a pagar', type: 'navigate', to: '/pagar.html' },
-        { label: 'Ver metodos', type: 'navigate', to: '/metodos_pago.html' },
+        { label: 'Ver métodos', type: 'navigate', to: '/metodos_pago.html' },
       ],
     }),
   },
@@ -26,11 +26,11 @@ const FAQ_ENTRIES = [
     match: ['publicar', 'producto', 'vender', 'venta', 'subir'],
     getResponse: ({ isLoggedIn }) => ({
       text: isLoggedIn
-        ? 'Para publicar un producto entra a la seccion Vender, completa nombre, categoria, descripcion, precio, stock e imagenes. Cuando termines, usa el boton Publicar.'
-        : 'Para publicar un producto primero necesitas iniciar sesion. Despues podras entrar a Vender y completar los datos de la publicacion.',
+        ? 'Para publicar un producto entra a la sección Vender, completa nombre, categoría, descripción, precio, stock e imágenes. Cuando termines, usa el botón Publicar.'
+        : 'Para publicar un producto primero necesitas iniciar sesión. Después podrás entrar a Vender y completar los datos de la publicación.',
       actions: isLoggedIn
         ? [{ label: 'Ir a vender', type: 'navigate', to: '/vender.html' }]
-        : [{ label: 'Iniciar sesion', type: 'auth', mode: 'login' }],
+        : [{ label: 'Iniciar sesión', type: 'auth', mode: 'login' }],
     }),
   },
   {
@@ -38,7 +38,7 @@ const FAQ_ENTRIES = [
     getResponse: ({ isLoggedIn }) => ({
       text: isLoggedIn
         ? 'En Mis pedidos puedes revisar tus compras y ventas, confirmar entregas o cancelar pedidos que sigan activos.'
-        : 'Para revisar tus pedidos necesitas iniciar sesion. Luego podras abrir la seccion Pedidos desde la barra superior.',
+        : 'Para revisar tus pedidos necesitas iniciar sesión. Luego podrás abrir la sección Pedidos desde la barra superior.',
       actions: isLoggedIn
         ? [{ label: 'Abrir pedidos', type: 'navigate', to: '/pedidos.html' }]
         : [{ label: 'Ingresar', type: 'auth', mode: 'login' }],
@@ -48,18 +48,18 @@ const FAQ_ENTRIES = [
     match: ['mensaje', 'mensajes', 'chat', 'hablar', 'vendedor', 'comprador'],
     getResponse: ({ isLoggedIn }) => ({
       text: isLoggedIn
-        ? 'La conversacion entre comprador y vendedor aparece en Mensajes despues de que exista una orden. Desde ahi puedes dar seguimiento al pedido.'
-        : 'La seccion de mensajes se habilita cuando inicias sesion y existe una orden relacionada contigo.',
+        ? 'La conversación entre comprador y vendedor aparece en Mensajes después de que exista una orden. Desde ahí puedes dar seguimiento al pedido.'
+        : 'La sección de mensajes se habilita cuando inicias sesión y existe una orden relacionada contigo.',
       actions: isLoggedIn
         ? [{ label: 'Ir a mensajes', type: 'navigate', to: '/mensajes.html' }]
         : [{ label: 'Crear cuenta', type: 'auth', mode: 'register' }],
     }),
   },
   {
-    match: ['devolucion', 'devolver', 'reembolso', 'problema', 'cancelacion'],
+    match: ['devolución', 'devolver', 'reembolso', 'problema', 'cancelación'],
     getResponse: () => ({
       text:
-        'Si hubo un problema con la entrega o el producto, documenta el caso y revisa las secciones de Devoluciones y Reembolsos. El pago debe mantenerse dentro de la plataforma para facilitar la revision.',
+        'Si hubo un problema con la entrega o el producto, documenta el caso y revisa las secciones de Devoluciones y Reembolsos. El pago debe mantenerse dentro de la plataforma para facilitar la revisión.',
       actions: [
         { label: 'Devoluciones', type: 'navigate', to: '/devoluciones.html' },
         { label: 'Reembolsos', type: 'navigate', to: '/reembolsos.html' },
@@ -67,26 +67,26 @@ const FAQ_ENTRIES = [
     }),
   },
   {
-    match: ['soporte', 'ayuda humana', 'asesor', 'ticket', 'problema tecnico'],
+    match: ['soporte', 'ayuda humana', 'asesor', 'ticket', 'problema técnico'],
     getResponse: ({ isLoggedIn }) => ({
       text: isLoggedIn
-        ? 'Si necesitas seguimiento humano, abre un ticket en Soporte. Desde ahi podras explicar el problema y recibir respuesta del equipo.'
-        : 'Para abrir un ticket con una persona del equipo primero necesitas iniciar sesion.',
+        ? 'Si necesitas seguimiento humano, abre un ticket en Soporte. Desde ahí podrás explicar el problema y recibir respuesta del equipo.'
+        : 'Para abrir un ticket con una persona del equipo primero necesitas iniciar sesión.',
       actions: isLoggedIn
         ? [{ label: 'Abrir soporte', type: 'navigate', to: '/soporte.html' }]
-        : [{ label: 'Iniciar sesion', type: 'auth', mode: 'login' }],
+        : [{ label: 'Iniciar sesión', type: 'auth', mode: 'login' }],
     }),
   },
   {
-    match: ['cuenta', 'perfil', 'sesion', 'login', 'registro'],
+    match: ['cuenta', 'perfil', 'sesión', 'login', 'registro'],
     getResponse: ({ isLoggedIn }) => ({
       text: isLoggedIn
-        ? 'Desde tu menu de perfil puedes entrar a Cuenta, ver tus publicaciones o cerrar sesion.'
-        : 'Puedes iniciar sesion o crear una cuenta desde el menu de perfil. Al hacerlo tendras acceso a pedidos, mensajes, carrito y publicaciones.',
+        ? 'Desde tu menú de perfil puedes entrar a Cuenta, ver tus publicaciones o cerrar sesión.'
+        : 'Puedes iniciar sesión o crear una cuenta desde el menú de perfil. Al hacerlo tendrás acceso a pedidos, mensajes, carrito y publicaciones.',
       actions: isLoggedIn
         ? [{ label: 'Ver cuenta', type: 'navigate', to: '/cuenta.html' }]
         : [
-            { label: 'Iniciar sesion', type: 'auth', mode: 'login' },
+            { label: 'Iniciar sesión', type: 'auth', mode: 'login' },
             { label: 'Crear cuenta', type: 'auth', mode: 'register' },
           ],
     }),
@@ -95,18 +95,18 @@ const FAQ_ENTRIES = [
     match: ['envio', 'entrega', 'recoger'],
     getResponse: () => ({
       text:
-        'Las entregas se coordinan entre comprador y vendedor. Te conviene acordar fecha, hora y un punto seguro antes de cerrar la operacion.',
-      actions: [{ label: 'Ver envios', type: 'navigate', to: '/envios.html' }],
+        'Las entregas se coordinan entre comprador y vendedor. Te conviene acordar fecha, hora y un punto seguro antes de cerrar la operación.',
+      actions: [{ label: 'Ver envíos', type: 'navigate', to: '/envios.html' }],
     }),
   },
   {
     match: ['seguridad', 'privacidad', 'datos', 'terminos'],
     getResponse: () => ({
       text:
-        'Para temas de seguridad y privacidad revisa nuestras paginas informativas. Mantente dentro de la plataforma y evita compartir informacion sensible por fuera.',
+        'Para temas de seguridad y privacidad revisa nuestras páginas informativas. Mantente dentro de la plataforma y evita compartir información sensible por fuera.',
       actions: [
         { label: 'Seguridad', type: 'navigate', to: '/seguridad.html' },
-        { label: 'Terminos', type: 'navigate', to: '/terminos_privacidad.html' },
+        { label: 'Términos', type: 'navigate', to: '/terminos_privacidad.html' },
       ],
     }),
   },
@@ -134,29 +134,29 @@ function createAssistantMessage(text, actions = []) {
 function createContextualGreeting(pathname, isLoggedIn) {
   if (pathname === '/pagar.html') {
     return createAssistantMessage(
-      'Estoy viendo que estas en checkout. Si tienes dudas sobre pago, PayPal o efectivo, preguntame y te guio.',
-      [{ label: 'Dudas de pago', type: 'prompt', value: 'Como pago un pedido' }],
+      'Estoy viendo que estás en checkout. Si tienes dudas sobre pago, PayPal o efectivo, pregúntame y te guío.',
+      [{ label: 'Dudas de pago', type: 'prompt', value: '¿Cómo pago un pedido?' }],
     )
   }
 
   if (pathname === '/vender.html') {
     return createAssistantMessage(
-      'Si vas a publicar, puedo ayudarte con categorias, stock, precio o el proceso de venta.',
-      [{ label: 'Como publico un producto', type: 'prompt', value: 'Como publico un producto' }],
+      'Si vas a publicar, puedo ayudarte con categorías, stock, precio o el proceso de venta.',
+      [{ label: '¿Cómo publico un producto?', type: 'prompt', value: '¿Cómo publico un producto?' }],
     )
   }
 
   if (pathname === '/pedidos.html') {
     return createAssistantMessage(
-      'Aqui puedo ayudarte a entender tus pedidos, entregas o cancelaciones.',
+      'Aquí puedo ayudarte a entender tus pedidos, entregas o cancelaciones.',
       [{ label: 'Quiero ver mis pedidos', type: 'prompt', value: 'Quiero ver mis pedidos' }],
     )
   }
 
   return createAssistantMessage(
     isLoggedIn
-      ? 'Hola, soy el asistente virtual de Utzmplace. Puedo ayudarte con pagos, pedidos, ventas, envios o devoluciones.'
-      : 'Hola, soy el asistente virtual de Utzmplace. Puedo ayudarte con pagos, registro, publicaciones, envios o devoluciones.',
+      ? 'Hola, soy el asistente virtual de Utzmplace. Puedo ayudarte con pagos, pedidos, ventas, envíos o devoluciones.'
+      : 'Hola, soy el asistente virtual de Utzmplace. Puedo ayudarte con pagos, registro, publicaciones, envíos o devoluciones.',
   )
 }
 
@@ -171,11 +171,11 @@ function findBestResponse(message, context) {
 
   return {
     text:
-      'Puedo ayudarte con temas comunes de la plataforma: pagos, pedidos, mensajes, publicar productos, cuenta, envios, devoluciones y seguridad. Escribe uno de esos temas y te guio.',
+      'Puedo ayudarte con temas comunes de la plataforma: pagos, pedidos, mensajes, publicar productos, cuenta, envíos, devoluciones y seguridad. Escribe uno de esos temas y te guío.',
     actions: [
-      { label: 'Pagos', type: 'prompt', value: 'Como pago un pedido' },
-      { label: 'Publicar', type: 'prompt', value: 'Como publico un producto' },
-      { label: 'Devoluciones', type: 'prompt', value: 'Necesito ayuda con una devolucion' },
+      { label: 'Pagos', type: 'prompt', value: '¿Cómo pago un pedido?' },
+      { label: 'Publicar', type: 'prompt', value: '¿Cómo publico un producto?' },
+      { label: 'Devoluciones', type: 'prompt', value: 'Necesito ayuda con una devolución' },
     ],
   }
 }
@@ -293,7 +293,7 @@ export default function AssistantWidget() {
         <section id="assistant-panel" className="assistant-panel" aria-label="Asistente virtual">
           <div className="assistant-panel__head">
             <div>
-              <p className="assistant-panel__eyebrow">Ayuda rapida</p>
+              <p className="assistant-panel__eyebrow">Ayuda rápida</p>
               <h3>Asistente Utzmplace</h3>
             </div>
             <button className="assistant-close" type="button" onClick={() => setIsOpen(false)} aria-label="Cerrar asistente">
@@ -334,7 +334,7 @@ export default function AssistantWidget() {
             ) : null}
           </div>
 
-          <div className="assistant-suggestions" aria-label="Sugerencias rapidas">
+          <div className="assistant-suggestions" aria-label="Sugerencias rápidas">
             {QUICK_PROMPTS.map((prompt) => (
               <button
                 key={prompt}

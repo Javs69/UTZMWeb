@@ -58,7 +58,7 @@ export default function AuthModal() {
         </button>
 
         <div className="auth-modal__header">
-          <h2 className="auth-modal__title">{isLogin ? 'Iniciar sesion' : 'Crear cuenta'}</h2>
+          <h2 className="auth-modal__title">{isLogin ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
           <p className="auth-modal__subtitle">
             {isLogin
               ? 'Accede a tu cuenta para seguir comprando.'
@@ -96,7 +96,7 @@ export default function AuthModal() {
           <div className="auth-modal__field">
             <input
               type="password"
-              placeholder="Contrasena"
+              placeholder="Contraseña"
               value={isLogin ? loginForm.password : registerForm.password}
               onChange={(event) =>
                 isLogin
@@ -132,7 +132,7 @@ export default function AuthModal() {
               }
             }}
           >
-            {isLogin ? 'No tienes cuenta? Registrate' : 'Ya tienes cuenta? Inicia sesion'}
+            {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
           </button>
           <button className="text-link" type="button" onClick={closeAuth}>
             Cerrar
