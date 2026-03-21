@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CATEGORIES } from '@/config/categories'
 import { productService } from '@/services'
+import { getProductImageSource } from '@/utils/productPlaceholder'
 
 export default function MyProductsPage() {
   const [products, setProducts] = useState([])
@@ -56,7 +57,7 @@ export default function MyProductsPage() {
           {products.map((product, index) => (
             <article key={product.id} className="card">
               <div className="card-media" style={{ aspectRatio: '3 / 2', overflow: 'hidden' }}>
-                <img src={product.image || `https://picsum.photos/seed/${product.id}/600/400`} alt={product.name} />
+                <img src={getProductImageSource(product.image, product.name, 'Imagen pendiente')} alt={product.name} />
               </div>
               <div className="card-body">
                 <div className="form-group">

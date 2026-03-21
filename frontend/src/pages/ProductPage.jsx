@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency } from '@/utils/format'
 import { productService } from '@/services'
+import { buildProductPlaceholder } from '@/utils/productPlaceholder'
 
 export default function ProductPage() {
   const [searchParams] = useSearchParams()
@@ -39,7 +40,7 @@ export default function ProductPage() {
         const data = await productService.getProduct(productId)
         if (!active) return
         setProduct(data)
-        setMainImage(data.images?.[0] || `https://picsum.photos/seed/${data.id}/800/600`)
+        setMainImage(data.images?.[0] || buildProductPlaceholder(data.name, 'Imagen pendiente'))
         await loadQuestions()
       } catch (error) {
         if (active) {

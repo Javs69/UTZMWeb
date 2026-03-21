@@ -10,6 +10,7 @@ export default function CheckoutPage() {
   const { cartItems, clearCart } = useApp()
   const paypalButtonsRef = useRef(null)
   const paypalButtonsInstanceRef = useRef(null)
+  const skipEmptyCartRedirectRef = useRef(false)
   const [method, setMethod] = useState('paypal')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -29,7 +30,7 @@ export default function CheckoutPage() {
   }, [])
 
   useEffect(() => {
-    if (!cartItems.length) {
+    if (!cartItems.length && !skipEmptyCartRedirectRef.current) {
       navigate('/')
     }
   }, [cartItems.length, navigate])
@@ -95,6 +96,7 @@ export default function CheckoutPage() {
                   paypal_order_id: data.orderID,
                 },
               })
+              skipEmptyCartRedirectRef.current = true
               clearCart()
               navigate('/pedidos.html')
             } catch (error) {
@@ -153,6 +155,7 @@ export default function CheckoutPage() {
         cartItems,
         paymentMeta: { type: 'cash', label: 'Efectivo', last4: null },
       })
+      skipEmptyCartRedirectRef.current = true
       clearCart()
       navigate('/pedidos.html')
     } catch (error) {

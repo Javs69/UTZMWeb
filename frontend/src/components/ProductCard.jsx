@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency } from '@/utils/format'
+import { getProductImageSource } from '@/utils/productPlaceholder'
 
 export default function ProductCard({ product }) {
   const { addToCart, isFavorite, toggleFavorite, isLoggedIn, openAuth } = useApp()
@@ -39,7 +40,7 @@ export default function ProductCard({ product }) {
       </div>
       <Link className="card-media" to={`/producto.html?id=${product.id}`}>
         <img
-          src={product.image || `https://picsum.photos/seed/${product.id}/600/400`}
+          src={getProductImageSource(product.image, product.name, 'Imagen pendiente')}
           alt={product.name}
         />
       </Link>

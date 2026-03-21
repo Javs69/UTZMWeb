@@ -1,22 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import ProductCard from '@/components/ProductCard'
+import ProductCarousel from '@/components/ProductCarousel'
+import { CATEGORIES, getCategoryLabel } from '@/config/categories'
 import { productService } from '@/services'
-
-function ProductSection({ title, items }) {
-  return (
-    <section className="strip">
-      <div className="strip-head">
-        <h2>{title}</h2>
-      </div>
-      <div className="grid">
-        {items.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    </section>
-  )
-}
 
 export default function HomePage() {
   const [searchParams] = useSearchParams()
@@ -57,12 +43,23 @@ export default function HomePage() {
     }
   }, [category, query])
 
-  const splitProducts = useMemo(() => {
-    const middle = Math.ceil(products.length / 2)
-    return {
-      offers: products.slice(0, middle),
-      recommended: products.slice(middle),
+  const sections = useMemo(() => {
+    if (query || category) {
+      const title = category ? getCategoryLabel(category) : 'Resultados'
+      return [{ title: query ? `Resultados: ${query}` : title, items: products }]
     }
+
+    const groupedSections = CATEGORIES.map((categoryItem) => ({
+      title: categoryItem.label,
+      items: products.filter((product) => Number(product.category_id) === Number(categoryItem.id)),
+    })).filter((section) => section.items.length)
+
+    const uncategorized = products.filter((product) => !product.category_id)
+    if (uncategorized.length) {
+      groupedSections.push({ title: 'Sin categoria', items: uncategorized })
+    }
+
+    return groupedSections
   }, [products])
 
   return (
@@ -84,14 +81,11 @@ export default function HomePage() {
       ) : null}
 
       {!loading && !error && (query || category) ? (
-        <ProductSection title="Resultados" items={products} />
+        sections.map((section) => <ProductCarousel key={section.title} title={section.title} items={section.items} />)
       ) : null}
 
       {!loading && !error && !query && !category ? (
-        <>
-          <ProductSection title="Ofertas" items={splitProducts.offers} />
-          <ProductSection title="Recomendados" items={splitProducts.recommended} />
-        </>
+        sections.map((section) => <ProductCarousel key={section.title} title={section.title} items={section.items} />)
       ) : null}
 
       {!loading && !error && !products.length ? (

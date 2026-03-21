@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { authService } from '@/services'
 import {
   getStorageUserKey,
@@ -28,10 +28,15 @@ export function AppProvider({ children }) {
     localStorage.setItem(THEME_STORAGE_KEY, theme)
   }, [theme])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (session.user?.id) {
+      migrateGuestCollection(CART_STORAGE_KEY, storageUserKey)
+      migrateGuestCollection(FAVORITES_STORAGE_KEY, storageUserKey)
+    }
+
     setCartItems(readCollection(CART_STORAGE_KEY, storageUserKey))
     setFavorites(readCollection(FAVORITES_STORAGE_KEY, storageUserKey))
-  }, [storageUserKey])
+  }, [session.user?.id, storageUserKey])
 
   useEffect(() => {
     writeCollection(CART_STORAGE_KEY, storageUserKey, cartItems)
@@ -40,18 +45,6 @@ export function AppProvider({ children }) {
   useEffect(() => {
     writeCollection(FAVORITES_STORAGE_KEY, storageUserKey, favorites)
   }, [favorites, storageUserKey])
-
-  useEffect(() => {
-    if (!session.user?.id) {
-      return
-    }
-
-    const userKey = String(session.user.id)
-    migrateGuestCollection(CART_STORAGE_KEY, userKey)
-    migrateGuestCollection(FAVORITES_STORAGE_KEY, userKey)
-    setCartItems(readCollection(CART_STORAGE_KEY, userKey))
-    setFavorites(readCollection(FAVORITES_STORAGE_KEY, userKey))
-  }, [session.user?.id])
 
   async function refreshSession() {
     try {
