@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CATEGORIES } from '@/config/categories'
 import { useApp } from '@/context/AppContext'
@@ -63,6 +63,21 @@ function Header() {
     () => cartItems.reduce((sum, item) => sum + Number(item.price_cents) * Number(item.qty), 0),
     [cartItems],
   )
+
+  useEffect(() => {
+    setIsProfileOpen(false)
+  }, [isLoggedIn])
+
+  useEffect(() => {
+    function handlePointerDown(event) {
+      if (!event.target.closest('.profile')) {
+        setIsProfileOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [])
 
   function submitSearch(event) {
     event.preventDefault()

@@ -529,39 +529,41 @@ export default function SupportPage() {
                   </div>
                 </div>
 
-                <div className="support-summary">
-                  <strong>Descripción inicial</strong>
-                  <p>{selectedTicket.description}</p>
-                </div>
+                <div className="support-thread-scroll">
+                  <div className="support-summary">
+                    <strong>Descripción inicial</strong>
+                    <p>{selectedTicket.description}</p>
+                  </div>
 
-                <div className="support-thread">
-                  {selectedMessages.map((entry) => (
-                    <article
-                      key={entry.id}
-                      className={`support-message${entry.sender_id === currentUserId ? ' is-mine' : ''}`}
-                    >
-                      <div className="support-message__meta">
-                        <strong>{entry.sender_name}</strong>
-                        <span>{entry.sender_role === 'customer' ? 'Usuario' : 'Soporte'}</span>
-                        <span>{formatDate(entry.created_at, true)}</span>
-                      </div>
-                      <p>{entry.body}</p>
-                    </article>
-                  ))}
-                </div>
+                  <div className="support-thread">
+                    {selectedMessages.map((entry) => (
+                      <article
+                        key={entry.id}
+                        className={`support-message${entry.sender_id === currentUserId ? ' is-mine' : ''}`}
+                      >
+                        <div className="support-message__meta">
+                          <strong>{entry.sender_name}</strong>
+                          <span>{entry.sender_role === 'customer' ? 'Usuario' : 'Soporte'}</span>
+                          <span>{formatDate(entry.created_at, true)}</span>
+                        </div>
+                        <p>{entry.body}</p>
+                      </article>
+                    ))}
+                  </div>
 
-                <div className="support-reply">
-                  <textarea
-                    className="form-control"
-                    rows="4"
-                    placeholder="Escribe tu respuesta..."
-                    value={reply}
-                    onChange={(event) => setReply(event.target.value)}
-                  />
-                  <div className="form-actions">
-                    <button className="btn" type="button" onClick={sendReply}>
-                      Enviar respuesta
-                    </button>
+                  <div className="support-reply">
+                    <textarea
+                      className="form-control"
+                      rows="4"
+                      placeholder="Escribe tu respuesta..."
+                      value={reply}
+                      onChange={(event) => setReply(event.target.value)}
+                    />
+                    <div className="form-actions">
+                      <button className="btn" type="button" onClick={sendReply}>
+                        Enviar respuesta
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>

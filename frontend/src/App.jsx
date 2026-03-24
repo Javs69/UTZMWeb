@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Shell from '@/components/Shell'
 import RequireAuth from '@/components/RequireAuth'
@@ -17,11 +17,18 @@ import SupportPage from '@/pages/SupportPage'
 function QueryAuthWatcher() {
   const location = useLocation()
   const { openAuth } = useApp()
+  const handledLoginSearchRef = useRef('')
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
-    if (params.get('login') === '1') {
+    if (params.get('login') === '1' && handledLoginSearchRef.current !== location.search) {
+      handledLoginSearchRef.current = location.search
       openAuth('login')
+      return
+    }
+
+    if (params.get('login') !== '1') {
+      handledLoginSearchRef.current = ''
     }
   }, [location.search, openAuth])
 

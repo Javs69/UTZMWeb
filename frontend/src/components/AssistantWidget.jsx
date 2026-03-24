@@ -10,6 +10,8 @@ const QUICK_PROMPTS = [
   'Necesito soporte humano',
 ]
 
+const BACK_ACTION = { label: 'Regresar', type: 'back' }
+
 const FAQ_ENTRIES = [
   {
     match: ['pago', 'pagar', 'paypal', 'efectivo', 'método'],
@@ -131,6 +133,10 @@ function createAssistantMessage(text, actions = []) {
   }
 }
 
+function createMenuMessage() {
+  return createAssistantMessage('Selecciona una opción del menú de asistencia para continuar.')
+}
+
 function createContextualGreeting(pathname, isLoggedIn) {
   if (pathname === '/pagar.html') {
     return createAssistantMessage(
@@ -189,6 +195,7 @@ export default function AssistantWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [draft, setDraft] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(true)
   const [messages, setMessages] = useState(() => [createContextualGreeting(location.pathname, isLoggedIn)])
 
   useEffect(() => {
@@ -221,9 +228,16 @@ export default function AssistantWidget() {
 
       return [nextGreeting, ...current.slice(1)]
     })
+    setShowSuggestions(true)
   }, [isLoggedIn, location.pathname])
 
   function runAction(action) {
+    if (action.type === 'back') {
+      setShowSuggestions(true)
+      setMessages((current) => [...current, createMenuMessage()])
+      return
+    }
+
     if (action.type === 'navigate') {
       navigate(action.to)
       setIsOpen(false)
@@ -237,15 +251,17 @@ export default function AssistantWidget() {
     }
 
     if (action.type === 'prompt') {
-      submitMessage(action.value)
+      submitMessage(action.value, { fromMenu: true })
     }
   }
 
-  function submitMessage(rawMessage) {
+  function submitMessage(rawMessage, options = {}) {
     const text = rawMessage.trim()
     if (!text || isTyping) {
       return
     }
+
+    const { fromMenu = false } = options
 
     const userMessage = {
       id: crypto.randomUUID(),
@@ -257,12 +273,16 @@ export default function AssistantWidget() {
     const response = findBestResponse(text, { isLoggedIn, pathname: location.pathname })
 
     setMessages((current) => [...current, userMessage])
+    if (fromMenu) {
+      setShowSuggestions(false)
+    }
     setDraft('')
     setIsOpen(true)
     setIsTyping(true)
 
     window.setTimeout(() => {
-      setMessages((current) => [...current, createAssistantMessage(response.text, response.actions)])
+      const responseActions = fromMenu ? [...response.actions, BACK_ACTION] : response.actions
+      setMessages((current) => [...current, createAssistantMessage(response.text, responseActions)])
       setIsTyping(false)
     }, 420)
   }
@@ -271,6 +291,8 @@ export default function AssistantWidget() {
     event.preventDefault()
     submitMessage(draft)
   }
+
+  const lastAssistantMessageId = [...messages].reverse().find((message) => message.role === 'assistant')?.id
 
   return (
     <div className={`assistant-widget${isOpen ? ' is-open' : ''}`}>
@@ -301,29 +323,30 @@ export default function AssistantWidget() {
             </button>
           </div>
 
-          <div ref={listRef} className="assistant-thread">
-            {messages.map((message) => (
-              <article
-                key={message.id}
-                className={`assistant-bubble assistant-bubble--${message.role}`}
-              >
-                <p>{message.text}</p>
-                {message.actions?.length ? (
-                  <div className="assistant-actions">
-                    {message.actions.map((action) => (
-                      <button
-                        key={`${message.id}-${action.label}`}
-                        className="assistant-chip"
-                        type="button"
-                        onClick={() => runAction(action)}
-                      >
-                        {action.label}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </article>
-            ))}
+          <div ref={listRef} className="assistant-scroll">
+            <div className="assistant-thread">
+              {messages.map((message) => (
+                <article
+                  key={message.id}
+                  className={`assistant-bubble assistant-bubble--${message.role}`}
+                >
+                  <p>{message.text}</p>
+                  {message.actions?.length && message.id === lastAssistantMessageId ? (
+                    <div className="assistant-actions">
+                      {message.actions.map((action) => (
+                        <button
+                          key={`${message.id}-${action.label}`}
+                          className="assistant-chip"
+                          type="button"
+                          onClick={() => runAction(action)}
+                        >
+                          {action.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </article>
+              ))}
 
             {isTyping ? (
               <div className="assistant-bubble assistant-bubble--assistant assistant-bubble--typing">
@@ -334,17 +357,20 @@ export default function AssistantWidget() {
             ) : null}
           </div>
 
+          {showSuggestions ? (
           <div className="assistant-suggestions" aria-label="Sugerencias rápidas">
             {QUICK_PROMPTS.map((prompt) => (
               <button
                 key={prompt}
                 className="assistant-suggestion"
                 type="button"
-                onClick={() => submitMessage(prompt)}
+                onClick={() => submitMessage(prompt, { fromMenu: true })}
               >
                 {prompt}
               </button>
             ))}
+          </div>
+          ) : null}
           </div>
 
           <form className="assistant-form" onSubmit={handleSubmit}>

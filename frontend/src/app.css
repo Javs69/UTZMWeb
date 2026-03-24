@@ -302,7 +302,7 @@
 
 .assistant-panel {
   width: min(380px, calc(100vw - 24px));
-  max-height: min(480px, calc(100vh - 164px));
+  max-height: min(620px, calc(100vh - 120px));
   border-radius: 24px;
   border: 1px solid rgba(15, 118, 110, .12);
   background: linear-gradient(180deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .98));
@@ -349,9 +349,12 @@
   line-height: 1;
 }
 
-.assistant-thread {
-  max-height: min(240px, calc(100vh - 320px));
+.assistant-scroll {
+  max-height: min(380px, calc(100vh - 260px));
   overflow-y: auto;
+}
+
+.assistant-thread {
   padding: 16px 16px 8px;
   display: flex;
   flex-direction: column;
@@ -680,7 +683,6 @@
   padding: 16px;
   border-radius: 18px;
   background: var(--brand-weak);
-  margin-bottom: 16px;
 }
 
 .support-summary p {
@@ -688,13 +690,19 @@
   line-height: 1.6;
 }
 
+.support-thread-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 520px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
 .support-thread {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 420px;
-  overflow: auto;
-  padding-right: 2px;
 }
 
 .support-message {
@@ -725,7 +733,7 @@
 }
 
 .support-reply {
-  margin-top: 16px;
+  padding-bottom: 2px;
 }
 
 .support-empty {
@@ -921,7 +929,7 @@
 
   .assistant-panel {
     width: 100%;
-    max-height: min(420px, calc(100vh - 152px));
+    max-height: min(520px, calc(100vh - 120px));
   }
 
   .assistant-trigger {
