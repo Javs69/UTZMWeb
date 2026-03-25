@@ -11,6 +11,7 @@ import MessagesPage from '@/pages/MessagesPage'
 import MyProductsPage from '@/pages/MyProductsPage'
 import OrdersPage from '@/pages/OrdersPage'
 import ProductPage from '@/pages/ProductPage'
+import PublicProfilePage from '@/pages/PublicProfilePage'
 import SellPage from '@/pages/SellPage'
 import SupportPage from '@/pages/SupportPage'
 
@@ -49,6 +50,7 @@ export default function App() {
             <Route index element={<HomePage />} />
             <Route path="index.html" element={<Navigate replace to="/" />} />
             <Route path="producto.html" element={<ProductPage />} />
+            <Route path="perfil.html" element={<PublicProfilePage />} />
             <Route path="cuenta.html" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
             <Route path="mis_publicaciones.html" element={<ProtectedRoute><MyProductsPage /></ProtectedRoute>} />
             <Route path="vender.html" element={<ProtectedRoute><SellPage /></ProtectedRoute>} />

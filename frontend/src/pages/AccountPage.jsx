@@ -6,7 +6,7 @@ import { formatCurrency, formatDate } from '@/utils/format'
 export default function AccountPage() {
   const { session, refreshSession } = useApp()
   const [activePanel, setActivePanel] = useState('panel-cuenta')
-  const [profile, setProfile] = useState({ full_name: '', email: '' })
+  const [profile, setProfile] = useState({ full_name: '', email: '', store_name: '', seller_bio: '' })
   const [passwordForm, setPasswordForm] = useState({ current: '', next: '' })
   const [avatarFile, setAvatarFile] = useState(null)
   const [paymentMethods, setPaymentMethods] = useState([])
@@ -17,8 +17,10 @@ export default function AccountPage() {
     setProfile({
       full_name: session.user?.full_name || '',
       email: session.user?.email || '',
+      store_name: session.user?.store_name || '',
+      seller_bio: session.user?.seller_bio || '',
     })
-  }, [session.user?.email, session.user?.full_name])
+  }, [session.user?.email, session.user?.full_name, session.user?.seller_bio, session.user?.store_name])
 
   useEffect(() => {
     accountService.getPaymentMethods().then((data) => setPaymentMethods(data.methods || []))
@@ -46,7 +48,7 @@ export default function AccountPage() {
         password: passwordForm.next,
       })
       setPasswordForm({ current: '', next: '' })
-      setMessage('Contraseña actualizada correctamente.')
+      setMessage('Contrasena actualizada correctamente.')
     } catch (error) {
       setMessage(error.message)
     }
@@ -65,7 +67,7 @@ export default function AccountPage() {
   return (
     <main className="container" style={{ padding: '18px 0 34px' }}>
       <div className="account-shell">
-        <aside className="account-nav" aria-label="Menú lateral de cuenta">
+        <aside className="account-nav" aria-label="Menu lateral de cuenta">
           <div className="account-nav__header">
             <div className="account-nav__avatar">
               <img src={session.user?.avatar_url || '/public/uploads/blank-profile.png'} alt="Avatar" />
@@ -82,7 +84,7 @@ export default function AccountPage() {
                 Cuenta
               </button>
               <button className={`account-nav__link ${activePanel === 'panel-seguridad' ? 'is-active' : ''}`} type="button" onClick={() => setActivePanel('panel-seguridad')}>
-                Contraseña y seguridad
+                Contrasena y seguridad
               </button>
             </div>
           </div>
@@ -90,7 +92,7 @@ export default function AccountPage() {
             <p className="account-nav__title">Pagos y recompensas</p>
             <div className="account-nav__list">
               <button className={`account-nav__link ${activePanel === 'panel-pagos' ? 'is-active' : ''}`} type="button" onClick={() => setActivePanel('panel-pagos')}>
-                Configuración de pagos
+                Configuracion de pagos
               </button>
               <button className={`account-nav__link ${activePanel === 'panel-transacciones' ? 'is-active' : ''}`} type="button" onClick={() => setActivePanel('panel-transacciones')}>
                 Transacciones
@@ -111,9 +113,17 @@ export default function AccountPage() {
                   <input className="form-control" value={profile.full_name} onChange={(event) => setProfile((current) => ({ ...current, full_name: event.target.value }))} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Correo electrónico</label>
+                  <label className="form-label">Correo electronico</label>
                   <input className="form-control" value={profile.email} onChange={(event) => setProfile((current) => ({ ...current, email: event.target.value }))} />
                 </div>
+                <div className="form-group">
+                  <label className="form-label">Nombre de tienda</label>
+                  <input className="form-control" value={profile.store_name} onChange={(event) => setProfile((current) => ({ ...current, store_name: event.target.value }))} />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Descripcion del vendedor</label>
+                <textarea className="form-control" rows="4" value={profile.seller_bio} onChange={(event) => setProfile((current) => ({ ...current, seller_bio: event.target.value }))} />
               </div>
               <div className="form-group">
                 <label className="form-label">Foto de perfil</label>
@@ -129,20 +139,20 @@ export default function AccountPage() {
 
           {activePanel === 'panel-seguridad' ? (
             <div className="card account-card" style={{ padding: 18 }}>
-              <h2>Contraseña y seguridad</h2>
+              <h2>Contrasena y seguridad</h2>
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Contraseña actual</label>
+                  <label className="form-label">Contrasena actual</label>
                   <input className="form-control" type="password" value={passwordForm.current} onChange={(event) => setPasswordForm((current) => ({ ...current, current: event.target.value }))} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Nueva contraseña</label>
+                  <label className="form-label">Nueva contrasena</label>
                   <input className="form-control" type="password" value={passwordForm.next} onChange={(event) => setPasswordForm((current) => ({ ...current, next: event.target.value }))} />
                 </div>
               </div>
               <div className="form-actions">
                 <button className="btn" type="button" onClick={updatePassword}>
-                  Actualizar contraseña
+                  Actualizar contrasena
                 </button>
               </div>
             </div>
@@ -150,7 +160,7 @@ export default function AccountPage() {
 
           {activePanel === 'panel-pagos' ? (
             <div className="card account-card" style={{ padding: 18 }}>
-              <h2>Configuración de pagos</h2>
+              <h2>Configuracion de pagos</h2>
               {paymentMethods.length ? (
                 <div className="pm-list">
                   {paymentMethods.map((method) => (
@@ -166,7 +176,7 @@ export default function AccountPage() {
                   ))}
                 </div>
               ) : (
-                <div className="form-hint">Aún no tienes métodos guardados.</div>
+                <div className="form-hint">Aun no tienes metodos guardados.</div>
               )}
             </div>
           ) : null}
@@ -180,7 +190,7 @@ export default function AccountPage() {
                     <thead>
                       <tr>
                         <th>Tipo</th>
-                        <th>Método</th>
+                        <th>Metodo</th>
                         <th>Estado</th>
                         <th>Monto</th>
                         <th>Fecha</th>

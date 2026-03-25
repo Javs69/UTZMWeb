@@ -1,13 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { orderService } from '@/services'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency, formatDate } from '@/utils/format'
+
+function renderStars(rating) {
+  const rounded = Math.max(0, Math.min(5, Number(rating) || 0))
+  return '\u2605'.repeat(rounded) + '\u2606'.repeat(5 - rounded)
+}
 
 export default function OrdersPage() {
   const { session } = useApp()
   const [orders, setOrders] = useState([])
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [reviews, setReviews] = useState([])
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
   const [message, setMessage] = useState('')
+  const [reviewsLoading, setReviewsLoading] = useState(false)
 
   async function loadOrders() {
     try {
@@ -21,6 +30,38 @@ export default function OrdersPage() {
   useEffect(() => {
     loadOrders()
   }, [])
+
+  useEffect(() => {
+    if (!selectedOrder || selectedOrder.status !== 'delivered') {
+      setReviews([])
+      return
+    }
+
+    let active = true
+    setReviewsLoading(true)
+
+    orderService.getOrderReviews(selectedOrder.id)
+      .then((data) => {
+        if (active) {
+          setReviews(data.reviews || [])
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setMessage(error.message)
+          setReviews([])
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setReviewsLoading(false)
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [selectedOrder])
 
   const groupedOrders = useMemo(() => {
     const userId = Number(session.user?.id)
@@ -48,6 +89,25 @@ export default function OrdersPage() {
     }
   }
 
+  async function submitReview() {
+    if (!selectedOrder) return
+
+    try {
+      await orderService.saveOrderReview({
+        order_id: selectedOrder.id,
+        rating: Number(reviewForm.rating),
+        comment: reviewForm.comment,
+      })
+      setReviewForm({ rating: 5, comment: '' })
+      const data = await orderService.getOrderReviews(selectedOrder.id)
+      setReviews(data.reviews || [])
+      await loadOrders()
+      setMessage('Resena guardada correctamente.')
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
   function OrderGroup({ title, items, role }) {
     return (
       <section className="orders-group card">
@@ -61,6 +121,9 @@ export default function OrdersPage() {
           {items.map((order) => {
             const canConfirm = role === 'seller' && order.status !== 'delivered' && order.status !== 'cancelled'
             const canCancel = order.status !== 'delivered' && order.status !== 'cancelled'
+            const counterpartId = role === 'buyer' ? order.seller_id : order.buyer_id
+            const counterpartName = role === 'buyer' ? order.seller_name : order.buyer_name
+
             return (
               <div key={order.id} className="card order-card" onClick={() => setSelectedOrder(order)}>
                 <div className="card-body">
@@ -71,7 +134,13 @@ export default function OrdersPage() {
                       </h3>
                       <div className="order-sub">
                         {role === 'buyer' ? 'Vendedor' : 'Comprador'}:{' '}
-                        {role === 'buyer' ? order.seller_name : order.buyer_name}
+                        <Link
+                          className="link"
+                          to={`/perfil.html?id=${counterpartId}`}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {counterpartName}
+                        </Link>
                       </div>
                     </div>
                     <div className="order-head-right">
@@ -96,6 +165,11 @@ export default function OrdersPage() {
                         Cancelar
                       </button>
                     ) : null}
+                    {order.status === 'delivered' ? (
+                      <button className="btn" type="button" onClick={(event) => { event.stopPropagation(); setSelectedOrder(order) }}>
+                        Ver resenas
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -105,6 +179,19 @@ export default function OrdersPage() {
       </section>
     )
   }
+
+  const myReview = reviews.find((review) => review.is_mine)
+  const receivedReview = reviews.find((review) => !review.is_mine)
+  const counterpartName = selectedOrder
+    ? Number(selectedOrder.buyer_id) === Number(session.user?.id)
+      ? selectedOrder.seller_name
+      : selectedOrder.buyer_name
+    : ''
+  const counterpartId = selectedOrder
+    ? Number(selectedOrder.buyer_id) === Number(session.user?.id)
+      ? selectedOrder.seller_id
+      : selectedOrder.buyer_id
+    : 0
 
   return (
     <main className="container" style={{ padding: '18px 0 34px' }}>
@@ -124,7 +211,7 @@ export default function OrdersPage() {
 
       {selectedOrder ? (
         <div className="modal" onClick={() => setSelectedOrder(null)}>
-          <div className="modal-content" style={{ maxWidth: 520 }} onClick={(event) => event.stopPropagation()}>
+          <div className="modal-content order-detail-modal" style={{ maxWidth: 620 }} onClick={(event) => event.stopPropagation()}>
             <button className="modal-close" type="button" onClick={() => setSelectedOrder(null)}>
               &times;
             </button>
@@ -133,7 +220,76 @@ export default function OrdersPage() {
             <div className="form-group"><div className="form-label">Total</div><div>{formatCurrency(selectedOrder.total_cents)}</div></div>
             <div className="form-group"><div className="form-label">Creado</div><div>{formatDate(selectedOrder.created_at, true)}</div></div>
             <div className="form-group"><div className="form-label">Pagado</div><div>{selectedOrder.payment_paid_at ? formatDate(selectedOrder.payment_paid_at, true) : 'No pagado'}</div></div>
-            <div className="form-group"><div className="form-label">Método de pago</div><div>{selectedOrder.payment_method_label || selectedOrder.payment_method_type}</div></div>
+            <div className="form-group"><div className="form-label">Metodo de pago</div><div>{selectedOrder.payment_method_label || selectedOrder.payment_method_type}</div></div>
+            {counterpartId ? (
+              <div className="form-group">
+                <div className="form-label">Perfil</div>
+                <div>
+                  <Link className="link" to={`/perfil.html?id=${counterpartId}`}>
+                    Ver perfil de {counterpartName}
+                  </Link>
+                </div>
+              </div>
+            ) : null}
+
+            {selectedOrder.status === 'delivered' ? (
+              <div className="order-review-block">
+                <h3>Calificaciones y resenas</h3>
+                {reviewsLoading ? <div className="form-hint">Cargando resenas...</div> : null}
+
+                {myReview ? (
+                  <div className="order-review-card">
+                    <strong>
+                      Tu resena para{' '}
+                      {counterpartId ? (
+                        <Link className="link" to={`/perfil.html?id=${counterpartId}`}>
+                          {counterpartName}
+                        </Link>
+                      ) : counterpartName}
+                    </strong>
+                    <div className="order-review-card__rating">{renderStars(myReview.rating)} ({myReview.rating}/5)</div>
+                    <p>{myReview.comment || 'Sin comentario.'}</p>
+                  </div>
+                ) : (
+                  <div className="order-review-form">
+                    <div className="form-group">
+                      <label className="form-label">Tu calificacion para {counterpartName}</label>
+                      <select className="form-control" value={reviewForm.rating} onChange={(event) => setReviewForm((current) => ({ ...current, rating: Number(event.target.value) }))}>
+                        <option value="5">5 - Excelente</option>
+                        <option value="4">4 - Muy bueno</option>
+                        <option value="3">3 - Bueno</option>
+                        <option value="2">2 - Regular</option>
+                        <option value="1">1 - Malo</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Comentario</label>
+                      <textarea className="form-control" rows="4" value={reviewForm.comment} onChange={(event) => setReviewForm((current) => ({ ...current, comment: event.target.value }))} />
+                    </div>
+                    <div className="form-actions">
+                      <button className="btn" type="button" onClick={submitReview}>
+                        Guardar resena
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {receivedReview ? (
+                  <div className="order-review-card">
+                    <strong>
+                      Resena recibida de{' '}
+                      <Link className="link" to={`/perfil.html?id=${receivedReview.reviewer_id}`}>
+                        {receivedReview.reviewer_name}
+                      </Link>
+                    </strong>
+                    <div className="order-review-card__rating">{renderStars(receivedReview.rating)} ({receivedReview.rating}/5)</div>
+                    <p>{receivedReview.comment || 'Sin comentario.'}</p>
+                  </div>
+                ) : !reviewsLoading ? (
+                  <div className="form-hint">La otra parte todavia no ha dejado su resena.</div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}

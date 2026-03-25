@@ -489,6 +489,228 @@
   gap: 18px;
 }
 
+.catalog-toolbar {
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.catalog-toolbar__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.catalog-toolbar__head h2 {
+  margin: 0;
+}
+
+.catalog-toolbar__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.catalog-toolbar__toggle {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.catalog-toolbar__toggle.is-active {
+  border-color: var(--brand-strong);
+  background: var(--brand-weak);
+}
+
+.seller-profile-card {
+  padding: 16px;
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.seller-profile-card__title {
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.seller-profile-card__name {
+  margin-top: 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.seller-profile-card__rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.seller-profile-card__bio {
+  margin: 10px 0 0;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.order-detail-modal {
+  gap: 12px;
+}
+
+.order-review-block {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-review-block h3 {
+  margin: 0;
+}
+
+.order-review-card,
+.order-review-form {
+  padding: 14px;
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.order-review-card p {
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+.order-review-card__rating {
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.public-profile-page {
+  padding: 24px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.public-profile-hero {
+  padding: 24px;
+}
+
+.public-profile-hero__main {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.public-profile-hero__avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 24px;
+  object-fit: cover;
+  border: 1px solid var(--divider);
+  background: var(--surface);
+}
+
+.public-profile-hero__content h1 {
+  margin: 6px 0 4px;
+}
+
+.public-profile-hero__eyebrow {
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.public-profile-hero__name {
+  margin: 0;
+  color: var(--muted);
+}
+
+.public-profile-hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.public-profile-hero__stats span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  font-weight: 600;
+}
+
+.public-profile-hero__bio {
+  margin: 14px 0 0;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.public-profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.public-profile-reviews {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.public-profile-review {
+  padding: 18px;
+}
+
+.public-profile-review__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.public-profile-review__author {
+  font-weight: 700;
+}
+
+.public-profile-review__meta {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .92rem;
+}
+
+.public-profile-review p {
+  margin: 12px 0 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .public-profile-hero__main {
+    grid-template-columns: 1fr;
+  }
+
+  .public-profile-hero__avatar {
+    width: 96px;
+    height: 96px;
+  }
+}
+
 .support-page {
   padding: 24px 0 40px;
   display: flex;
@@ -918,6 +1140,10 @@
 
   .support-message {
     max-width: 100%;
+  }
+
+  .catalog-toolbar__grid {
+    grid-template-columns: 1fr;
   }
 
   .assistant-widget {

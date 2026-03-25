@@ -37,10 +37,12 @@ export const authService = {
 }
 
 export const productService = {
-  getProducts: ({ query = '', category = '' } = {}) => {
+  getProducts: ({ query = '', category = '', sort = 'recent', availability = 'in_stock' } = {}) => {
     const params = new URLSearchParams()
     if (query) params.set('q', query)
     if (category) params.set('category', category)
+    if (sort) params.set('sort', sort)
+    if (availability) params.set('availability', availability)
     const suffix = params.toString() ? `?${params}` : ''
     return request(`/backend/get_products.php${suffix}`)
   },
@@ -79,6 +81,7 @@ export const productService = {
 }
 
 export const accountService = {
+  getPublicProfile: (userId) => request(`/backend/get_public_profile.php?user_id=${encodeURIComponent(userId)}`),
   updateProfile: (payload) =>
     request('/backend/update_user.php', {
       method: 'POST',
@@ -132,6 +135,13 @@ export const orderService = {
     request('/backend/cancel_order.php', {
       method: 'POST',
       body: JSON.stringify({ order_id: Number(orderId) }),
+    }),
+  getOrderReviews: (orderId) =>
+    request(`/backend/order_reviews.php?order_id=${encodeURIComponent(orderId)}`),
+  saveOrderReview: (payload) =>
+    request('/backend/order_reviews.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     }),
   checkoutCart: async ({ cartItems, paymentMeta }) => {
     const grouped = groupCartBySeller(cartItems)

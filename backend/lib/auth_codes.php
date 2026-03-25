@@ -78,7 +78,7 @@ function send_auth_code_email(string $email, string $purpose, string $code): voi
 
 function fetch_public_user(PDO $pdo, int $userId): ?array
 {
-  $stmt = $pdo->prepare('SELECT id, full_name, email, avatar_url, role FROM users WHERE id = ? LIMIT 1');
+  $stmt = $pdo->prepare('SELECT id, full_name, email, avatar_url, role, store_name, seller_bio FROM users WHERE id = ? LIMIT 1');
   $stmt->execute([$userId]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

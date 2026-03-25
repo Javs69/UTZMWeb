@@ -90,6 +90,8 @@ CREATE TABLE public.users (
     password_hash text NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     avatar_url text,
+    store_name text,
+    seller_bio text,
     email_verified boolean DEFAULT false NOT NULL
 );
 
@@ -113,8 +115,43 @@ ALTER TABLE ONLY public.email_codes
 CREATE INDEX idx_email_codes_lookup
     ON public.email_codes USING btree (email, purpose, used_at, expires_at);
 
+CREATE TABLE public.order_reviews (
+    id bigint NOT NULL,
+    order_id bigint NOT NULL,
+    reviewer_id bigint NOT NULL,
+    reviewee_id bigint NOT NULL,
+    rating smallint NOT NULL,
+    comment text,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT order_reviews_rating_check CHECK ((rating >= 1 AND rating <= 5))
+);
+
+ALTER TABLE ONLY public.order_reviews
+    ADD CONSTRAINT order_reviews_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.order_reviews
+    ADD CONSTRAINT order_reviews_unique_reviewer UNIQUE (order_id, reviewer_id);
+
+ALTER TABLE ONLY public.order_reviews
+    ADD CONSTRAINT order_reviews_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.order_reviews
+    ADD CONSTRAINT order_reviews_reviewer_id_fkey FOREIGN KEY (reviewer_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.order_reviews
+    ADD CONSTRAINT order_reviews_reviewee_id_fkey FOREIGN KEY (reviewee_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+CREATE INDEX idx_order_reviews_reviewee
+    ON public.order_reviews USING btree (reviewee_id, created_at DESC);
+
+CREATE INDEX idx_order_reviews_order
+    ON public.order_reviews USING btree (order_id);
+
 -- Si tu base ya existe, ejecuta tambien esto:
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email_verified boolean;
 -- UPDATE public.users SET email_verified = true WHERE email_verified IS NULL;
 -- ALTER TABLE public.users ALTER COLUMN email_verified SET DEFAULT false;
 -- ALTER TABLE public.users ALTER COLUMN email_verified SET NOT NULL;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS store_name text;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS seller_bio text;

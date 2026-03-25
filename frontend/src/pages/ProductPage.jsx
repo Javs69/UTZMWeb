@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency } from '@/utils/format'
 import { productService } from '@/services'
 import { buildProductPlaceholder } from '@/utils/productPlaceholder'
+
+function renderStars(value) {
+  const rounded = Math.max(0, Math.min(5, Math.round(Number(value) || 0)))
+  return '\u2605'.repeat(rounded) + '\u2606'.repeat(5 - rounded)
+}
 
 export default function ProductPage() {
   const [searchParams] = useSearchParams()
@@ -162,9 +167,35 @@ export default function ProductPage() {
                 <div className="pprice">{formatCurrency(product.price_cents)}</div>
                 <div className="pstock">{Number(product.stock) > 0 ? 'En stock' : 'Sin stock'}</div>
                 <div className="pseller">
-                  Vendido por <strong>{product.seller_name || product.seller_email || 'Vendedor'}</strong>
+                  Vendido por{' '}
+                  <strong>
+                    <Link className="link" to={`/perfil.html?id=${product.seller_id}`}>
+                      {product.store_name || product.seller_name || product.seller_email || 'Vendedor'}
+                    </Link>
+                  </strong>
                 </div>
                 <div className="pdesc">{product.description}</div>
+
+                <div className="seller-profile-card">
+                  <div className="seller-profile-card__title">Perfil del vendedor</div>
+                  <div className="seller-profile-card__name">{product.store_name || product.seller_name || 'Tienda sin nombre'}</div>
+                  <div className="seller-profile-card__rating">
+                    <strong>{renderStars(product.seller_rating_avg)}</strong>
+                    <span>
+                      {Number(product.seller_rating_avg || 0).toFixed(1)} / 5
+                      {product.seller_review_count ? ` - ${product.seller_review_count} resenas` : ' - Sin resenas todavia'}
+                    </span>
+                  </div>
+                  <p className="seller-profile-card__bio">
+                    {product.seller_bio || 'Este vendedor aun no agrego una descripcion.'}
+                  </p>
+                  <div className="form-actions" style={{ marginTop: 12 }}>
+                    <Link className="btn" to={`/perfil.html?id=${product.seller_id}`}>
+                      Ver perfil publico
+                    </Link>
+                  </div>
+                </div>
+
                 <div className="pactions">
                   <button className="btn btn-add" type="button" onClick={handleAddToCart}>
                     Agregar al carrito
@@ -213,11 +244,11 @@ export default function ProductPage() {
                 ))}
               </div>
             ) : (
-              <div className="form-hint">Aún no hay preguntas.</div>
+              <div className="form-hint">Aun no hay preguntas.</div>
             )}
 
             {!isLoggedIn ? (
-              <div className="form-hint">Inicia sesión para hacer preguntas.</div>
+              <div className="form-hint">Inicia sesion para hacer preguntas.</div>
             ) : !isSeller ? (
               <div className="q-ask">
                 <textarea
