@@ -16,7 +16,7 @@ const AppContext = createContext(null)
 export function AppProvider({ children }) {
   const [session, setSession] = useState({ logged_in: false, user: null })
   const [sessionReady, setSessionReady] = useState(false)
-  const [authModal, setAuthModal] = useState({ open: false, mode: 'login' })
+  const [authModal, setAuthModal] = useState({ open: false, mode: 'login', payload: null })
   const [cartItems, setCartItems] = useState([])
   const [favorites, setFavorites] = useState([])
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) || 'light')
@@ -85,12 +85,12 @@ export function AppProvider({ children }) {
     setFavorites(readCollection(FAVORITES_STORAGE_KEY, 'guest'))
   }
 
-  function openAuth(mode = 'login') {
-    setAuthModal({ open: true, mode })
+  function openAuth(mode = 'login', payload = null) {
+    setAuthModal({ open: true, mode, payload })
   }
 
   function closeAuth() {
-    setAuthModal((current) => ({ ...current, open: false }))
+    setAuthModal((current) => ({ ...current, open: false, payload: null }))
   }
 
   function addToCart(product) {

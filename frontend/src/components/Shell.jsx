@@ -100,6 +100,10 @@ function Header() {
     setIsProfileOpen(false)
   }
 
+  function closeFavoritesMenu() {
+    setIsFavoritesOpen(false)
+  }
+
   function handleAuthMenu(mode) {
     closeProfileMenu()
     openAuth(mode)
@@ -174,10 +178,16 @@ function Header() {
             <span className="theme-toggle__knob" aria-hidden="true" />
           </button>
 
-          <div className="icon-btn favorites-toggle" onClick={() => setIsFavoritesOpen((current) => !current)} role="button" tabIndex={0} aria-label="Favoritos">
+          <div
+            className="icon-btn favorites-toggle"
+            onClick={() => setIsFavoritesOpen((current) => !current)}
+            role="button"
+            tabIndex={0}
+            aria-label="Favoritos"
+          >
             ♥
             {favorites.length ? <span className="badge">{favorites.length}</span> : null}
-            <div className={`cart-menu${isFavoritesOpen ? ' open' : ''}`}>
+            <div className={`cart-menu${isFavoritesOpen ? ' open' : ''}`} onMouseLeave={closeFavoritesMenu}>
               {favorites.length ? (
                 <div className="cart-list">
                   {favorites.map((item) => (

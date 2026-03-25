@@ -946,6 +946,17 @@ textarea.form-control{resize:none}
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
+}
+.card--uniform .card-title{
+  min-height: calc(1.3em * 2);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.card--uniform .price{
+  margin-top: auto;
 }
 .card--uniform .card-actions{
   margin-top: auto;

@@ -89,5 +89,32 @@ CREATE TABLE public.users (
     email character varying(255) NOT NULL,
     password_hash text NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    avatar_url text
+    avatar_url text,
+    email_verified boolean DEFAULT false NOT NULL
 );
+
+CREATE TABLE public.email_codes (
+    id bigint NOT NULL,
+    user_id bigint,
+    email character varying(255) NOT NULL,
+    purpose character varying(40) NOT NULL,
+    code_hash character varying(64) NOT NULL,
+    expires_at timestamp without time zone NOT NULL,
+    used_at timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.email_codes
+    ADD CONSTRAINT email_codes_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.email_codes
+    ADD CONSTRAINT email_codes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+CREATE INDEX idx_email_codes_lookup
+    ON public.email_codes USING btree (email, purpose, used_at, expires_at);
+
+-- Si tu base ya existe, ejecuta tambien esto:
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email_verified boolean;
+-- UPDATE public.users SET email_verified = true WHERE email_verified IS NULL;
+-- ALTER TABLE public.users ALTER COLUMN email_verified SET DEFAULT false;
+-- ALTER TABLE public.users ALTER COLUMN email_verified SET NOT NULL;

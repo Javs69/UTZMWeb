@@ -13,6 +13,26 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  verifyEmailCode: (payload) =>
+    request('/backend/verify_email_code.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  resendEmailCode: (payload) =>
+    request('/backend/resend_email_code.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  requestPasswordReset: (payload) =>
+    request('/backend/request_password_reset.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  resetPassword: (payload) =>
+    request('/backend/reset_password.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
   logout: () => request('/backend/logout.php'),
 }
 
