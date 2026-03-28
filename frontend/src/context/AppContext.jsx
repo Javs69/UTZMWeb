@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import { authService } from '@/services'
+import { authService, notificationService } from '@/services'
 import {
   getStorageUserKey,
   migrateGuestCollection,
@@ -19,6 +19,8 @@ export function AppProvider({ children }) {
   const [authModal, setAuthModal] = useState({ open: false, mode: 'login', payload: null })
   const [cartItems, setCartItems] = useState([])
   const [favorites, setFavorites] = useState([])
+  const [notifications, setNotifications] = useState([])
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) || 'light')
 
   const storageUserKey = getStorageUserKey(session.user)
@@ -60,13 +62,49 @@ export function AppProvider({ children }) {
     }
   }
 
+  async function refreshNotifications(limit = 12) {
+    if (!session.logged_in) {
+      setNotifications([])
+      setUnreadNotifications(0)
+      return { notifications: [], unread_count: 0 }
+    }
+
+    try {
+      const data = await notificationService.getNotifications(limit)
+      setNotifications(Array.isArray(data.notifications) ? data.notifications : [])
+      setUnreadNotifications(Number(data.unread_count) || 0)
+      return data
+    } catch {
+      return { notifications: [], unread_count: 0 }
+    }
+  }
+
   useEffect(() => {
     refreshSession()
   }, [])
 
+  useEffect(() => {
+    if (!session.logged_in) {
+      setNotifications([])
+      setUnreadNotifications(0)
+      return undefined
+    }
+
+    refreshNotifications()
+    const timer = window.setInterval(() => {
+      refreshNotifications()
+    }, 20000)
+
+    return () => window.clearInterval(timer)
+  }, [session.logged_in, session.user?.id])
+
   async function login(payload) {
-    await authService.login(payload)
-    return refreshSession()
+    const data = await authService.login(payload)
+    if (data.two_factor_required) {
+      return data
+    }
+    await refreshSession()
+    return data
   }
 
   async function register(payload) {
@@ -83,6 +121,8 @@ export function AppProvider({ children }) {
     setSession({ logged_in: false, user: null })
     setCartItems(readCollection(CART_STORAGE_KEY, 'guest'))
     setFavorites(readCollection(FAVORITES_STORAGE_KEY, 'guest'))
+    setNotifications([])
+    setUnreadNotifications(0)
   }
 
   function openAuth(mode = 'login', payload = null) {
@@ -146,6 +186,27 @@ export function AppProvider({ children }) {
     return favorites.some((item) => Number(item.product_id) === Number(productId))
   }
 
+  async function markNotificationsRead(ids) {
+    const normalizedIds = Array.isArray(ids) ? ids.map((id) => Number(id)).filter((id) => id > 0) : []
+    if (!normalizedIds.length) {
+      return
+    }
+
+    await notificationService.markRead(normalizedIds)
+    setNotifications((current) =>
+      current.map((item) =>
+        normalizedIds.includes(Number(item.id)) ? { ...item, is_read: true } : item,
+      ),
+    )
+    setUnreadNotifications((current) => Math.max(0, current - normalizedIds.length))
+  }
+
+  async function markAllNotificationsRead() {
+    await notificationService.markAllRead()
+    setNotifications((current) => current.map((item) => ({ ...item, is_read: true })))
+    setUnreadNotifications(0)
+  }
+
   const value = useMemo(
     () => ({
       session,
@@ -157,12 +218,15 @@ export function AppProvider({ children }) {
       authModal,
       cartItems,
       favorites,
+      notifications,
+      unreadNotifications,
       theme,
       setTheme,
       login,
       register,
       logout,
       refreshSession,
+      refreshNotifications,
       openAuth,
       closeAuth,
       addToCart,
@@ -172,8 +236,10 @@ export function AppProvider({ children }) {
       replaceCart,
       toggleFavorite,
       isFavorite,
+      markNotificationsRead,
+      markAllNotificationsRead,
     }),
-    [authModal, cartItems, favorites, session, sessionReady, theme],
+    [authModal, cartItems, favorites, notifications, session, sessionReady, theme, unreadNotifications],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

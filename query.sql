@@ -115,6 +115,31 @@ ALTER TABLE ONLY public.email_codes
 CREATE INDEX idx_email_codes_lookup
     ON public.email_codes USING btree (email, purpose, used_at, expires_at);
 
+CREATE TABLE public.notifications (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    type character varying(40) NOT NULL,
+    title text NOT NULL,
+    body text DEFAULT ''::text NOT NULL,
+    href text,
+    meta jsonb DEFAULT '{}'::jsonb NOT NULL,
+    is_read boolean DEFAULT false NOT NULL,
+    read_at timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+CREATE INDEX idx_notifications_user_created
+    ON public.notifications USING btree (user_id, created_at DESC);
+
+CREATE INDEX idx_notifications_user_unread
+    ON public.notifications USING btree (user_id, is_read, created_at DESC);
+
 CREATE TABLE public.order_reviews (
     id bigint NOT NULL,
     order_id bigint NOT NULL,

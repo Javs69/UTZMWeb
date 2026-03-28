@@ -3,6 +3,7 @@ require_once __DIR__ . '/mailer.php';
 
 const EMAIL_CODE_VERIFY = 'verify_email';
 const EMAIL_CODE_RESET = 'reset_password';
+const EMAIL_CODE_LOGIN = 'login_2fa';
 
 function normalize_auth_email(string $email): string
 {
@@ -69,11 +70,19 @@ function send_auth_code_email(string $email, string $purpose, string $code): voi
   } elseif ($purpose === EMAIL_CODE_RESET) {
     $subject = 'Codigo para restablecer tu contrasena';
     $body = "Hola,\n\nTu codigo para restablecer la contrasena de Utzmplace es: {$code}\n\nEl codigo vence en 15 minutos.\n\nSi no solicitaste este cambio, ignora este mensaje.";
+  } elseif ($purpose === EMAIL_CODE_LOGIN) {
+    $subject = 'Codigo de acceso para soporte';
+    $body = "Hola,\n\nTu codigo de segundo factor para entrar a Utzmplace es: {$code}\n\nEl codigo vence en 10 minutos.\n\nSi no intentaste iniciar sesion, ignora este mensaje.";
   } else {
     throw new InvalidArgumentException('Tipo de codigo no soportado.');
   }
 
   send_mail_message($email, $subject, $body);
+}
+
+function user_requires_login_two_factor(array $user): bool
+{
+  return in_array($user['role'] ?? 'customer', ['support', 'admin'], true);
 }
 
 function fetch_public_user(PDO $pdo, int $userId): ?array

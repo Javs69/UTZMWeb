@@ -1,7 +1,10 @@
+const path = require('path')
+const { execFileSync } = require('child_process')
 const { test, expect, request: playwrightRequest } = require('playwright/test')
 
 const BASE_URL = 'http://127.0.0.1:8080'
 const PASSWORD = 'Prueba12345'
+const PROJECT_ROOT = path.resolve(__dirname, '..')
 
 function uniqueId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -12,6 +15,25 @@ function formatMxCurrency(amount) {
     style: 'currency',
     currency: 'MXN',
   }).format(amount)
+}
+
+function runPhp(script) {
+  return execFileSync('php', ['-r', script], {
+    cwd: PROJECT_ROOT,
+    encoding: 'utf8',
+  }).trim()
+}
+
+function markUserEmailVerified(email) {
+  const dbPath = JSON.stringify(path.join(PROJECT_ROOT, 'db.php'))
+  const emailLiteral = JSON.stringify(String(email).trim().toLowerCase())
+  const updatedRows = Number(
+    runPhp(
+      `require ${dbPath}; $stmt = $pdo->prepare('UPDATE users SET email_verified = true WHERE email = ?'); $stmt->execute([${emailLiteral}]); echo (string) $stmt->rowCount();`,
+    ),
+  )
+
+  expect(updatedRows).toBeGreaterThan(0)
 }
 
 async function createSellerProduct({ sellerName, productName, price }) {
@@ -29,6 +51,16 @@ async function createSellerProduct({ sellerName, productName, price }) {
 
   const registerBody = await registerResponse.json()
   expect(registerBody.error).toBeFalsy()
+  markUserEmailVerified(email)
+
+  const loginResponse = await api.post('/backend/login.php', {
+    data: { email, password: PASSWORD },
+  })
+  expect(loginResponse.ok()).toBeTruthy()
+
+  const loginBody = await loginResponse.json()
+  expect(loginBody.error).toBeFalsy()
+  expect(loginBody.success).toBeTruthy()
 
   const createResponse = await api.post('/backend/create_product.php', {
     data: {
@@ -64,6 +96,14 @@ async function registerBuyer(page, fullName = 'Comprador E2E') {
   const authModal = page.locator('.auth-modal')
   await authModal.locator('input[type="text"]').fill(fullName)
   await authModal.locator('input[type="email"]').fill(email)
+  await authModal.locator('input[type="password"]').fill(PASSWORD)
+  await authModal.locator('.auth-modal__submit').click()
+  await expect(page.getByRole('heading', { name: /verificar correo/i })).toBeVisible()
+
+  // El registro ahora exige codigo por correo. Para mantener el foco del E2E
+  // en compra y checkout, el test marca la cuenta como verificada en la DB.
+  markUserEmailVerified(email)
+  await page.getByRole('button', { name: /volver a iniciar sesion/i }).click()
   await authModal.locator('input[type="password"]').fill(PASSWORD)
   await authModal.locator('.auth-modal__submit').click()
 

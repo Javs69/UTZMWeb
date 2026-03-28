@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/notifications.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -56,6 +57,9 @@ if ($status === 'delivered') {
   exit;
 }
 
+$counterpartId = $isBuyer ? (int) $order['seller_id'] : (int) $order['buyer_id'];
+$actorLabel = $isBuyer ? 'El comprador' : 'El vendedor';
+
 $pdo->beginTransaction();
 
 // Si hay un pago con tarjeta, registrar transacción de reembolso
@@ -85,6 +89,17 @@ if ($payment && in_array(($payment['method_type'] ?? ''), ['card', 'paypal'], tr
 }
 
 $pdo->prepare("UPDATE orders SET status = 'cancelled' WHERE id = ?")->execute([$order_id]);
+
+notifications_insert(
+  $pdo,
+  $counterpartId,
+  'order_cancelled',
+  "Pedido #{$order_id} cancelado",
+  "{$actorLabel} cancelo este pedido.",
+  '/pedidos.html',
+  ['order_id' => $order_id]
+);
+
 $pdo->commit();
 
 echo json_encode(['message' => 'Pedido cancelado', 'status' => 'cancelled']);

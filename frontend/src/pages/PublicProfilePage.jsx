@@ -105,7 +105,7 @@ export default function PublicProfilePage() {
             <div className="strip-head">
               <h2>Reseñas recibidas</h2>
               <span className="muted">
-                {reviews.length} {reviews.length === 1 ? 'reseña visible' : 'reseñas visibles'}
+                {reviews.length} {reviews.length === 1 ? 'reseñ/*  */a visible' : 'reseñas visibles'}
               </span>
             </div>
 

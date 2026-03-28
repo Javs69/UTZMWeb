@@ -18,6 +18,11 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  verifyLoginCode: (payload) =>
+    request('/backend/verify_login_2fa.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
   resendEmailCode: (payload) =>
     request('/backend/resend_email_code.php', {
       method: 'POST',
@@ -215,5 +220,20 @@ export const supportService = {
     request('/backend/support_staff.php', {
       method: 'POST',
       body: JSON.stringify(payload),
+    }),
+}
+
+export const notificationService = {
+  getNotifications: (limit = 12) =>
+    request(`/backend/notifications.php?limit=${encodeURIComponent(limit)}`),
+  markRead: (ids) =>
+    request('/backend/notifications.php', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'mark_read', ids }),
+    }),
+  markAllRead: () =>
+    request('/backend/notifications.php', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'mark_all_read' }),
     }),
 }

@@ -6,6 +6,7 @@ import { authService } from '@/services'
 const INITIAL_LOGIN = { email: '', password: '' }
 const INITIAL_REGISTER = { full_name: '', email: '', password: '' }
 const INITIAL_VERIFY = { email: '', code: '' }
+const INITIAL_LOGIN_2FA = { email: '', code: '' }
 const INITIAL_FORGOT = { email: '' }
 const INITIAL_RESET = { email: '', code: '', password: '' }
 
@@ -16,6 +17,7 @@ export default function AuthModal() {
   const [loginForm, setLoginForm] = useState(INITIAL_LOGIN)
   const [registerForm, setRegisterForm] = useState(INITIAL_REGISTER)
   const [verifyForm, setVerifyForm] = useState(INITIAL_VERIFY)
+  const [login2faForm, setLogin2faForm] = useState(INITIAL_LOGIN_2FA)
   const [forgotForm, setForgotForm] = useState(INITIAL_FORGOT)
   const [resetForm, setResetForm] = useState(INITIAL_RESET)
   const [message, setMessage] = useState('')
@@ -41,6 +43,10 @@ export default function AuthModal() {
       setVerifyForm({ email, code: '' })
     }
 
+    if (authModal.mode === 'login2fa') {
+      setLogin2faForm({ email, code: '' })
+    }
+
     if (authModal.mode === 'forgot') {
       setForgotForm({ email })
     }
@@ -57,6 +63,7 @@ export default function AuthModal() {
   const isLogin = authModal.mode === 'login'
   const isRegister = authModal.mode === 'register'
   const isVerify = authModal.mode === 'verify'
+  const isLogin2fa = authModal.mode === 'login2fa'
   const isForgot = authModal.mode === 'forgot'
   const isReset = authModal.mode === 'reset'
 
@@ -82,7 +89,13 @@ export default function AuthModal() {
 
     try {
       if (isLogin) {
-        await login(loginForm)
+        const data = await login(loginForm)
+        if (data.two_factor_required) {
+          openAuth('login2fa', { email: data.email || loginForm.email.trim() })
+          setFeedback('success', data.message || 'Enviamos un codigo de acceso a tu correo.')
+          return
+        }
+
         closeAuth()
         navigate(getNextPath(), { replace: true })
         return
@@ -103,6 +116,14 @@ export default function AuthModal() {
         return
       }
 
+      if (isLogin2fa) {
+        await authService.verifyLoginCode(login2faForm)
+        await refreshSession()
+        closeAuth()
+        navigate(getNextPath(), { replace: true })
+        return
+      }
+
       if (isForgot) {
         const data = await authService.requestPasswordReset(forgotForm)
         openAuth('reset', { email: forgotForm.email.trim() })
@@ -114,7 +135,7 @@ export default function AuthModal() {
         const data = await authService.resetPassword(resetForm)
         setLoginForm({ email: resetForm.email.trim(), password: '' })
         openAuth('login', { email: resetForm.email.trim() })
-        setFeedback('success', data.message || 'Contraseña actualizada. Ahora puedes iniciar sesión.')
+        setFeedback('success', data.message || 'Contrasena actualizada. Ahora puedes iniciar sesion.')
       }
     } catch (error) {
       if (isLogin && error.data?.verification_required) {
@@ -131,10 +152,11 @@ export default function AuthModal() {
     setIsSubmitting(true)
 
     try {
-      const data = await authService.resendEmailCode({
-        email: verifyForm.email,
-        purpose: 'verify_email',
-      })
+      const payload = isLogin2fa
+        ? { email: login2faForm.email, purpose: 'login_2fa' }
+        : { email: verifyForm.email, purpose: 'verify_email' }
+
+      const data = await authService.resendEmailCode(payload)
       setFeedback('success', data.message || 'Enviamos un nuevo codigo.')
     } catch (error) {
       setFeedback('error', error.message)
@@ -146,16 +168,18 @@ export default function AuthModal() {
   function renderTitle() {
     if (isRegister) return 'Crear cuenta'
     if (isVerify) return 'Verificar correo'
-    if (isForgot) return 'Recuperar contraseña'
-    if (isReset) return 'Nueva contraseña'
-    return 'Iniciar sesión'
+    if (isLogin2fa) return 'Segundo factor'
+    if (isForgot) return 'Recuperar contrasena'
+    if (isReset) return 'Nueva contrasena'
+    return 'Iniciar sesion'
   }
 
   function renderSubtitle() {
     if (isRegister) return 'Crea tu cuenta y te enviaremos un codigo al correo.'
     if (isVerify) return 'Ingresa el codigo que enviamos a tu correo para activar la cuenta.'
-    if (isForgot) return 'Te enviaremos un codigo para restablecer la contraseña.'
-    if (isReset) return 'Ingresa el codigo recibido y define una nueva contraseña.'
+    if (isLogin2fa) return 'Tu cuenta de soporte requiere un codigo adicional enviado al correo.'
+    if (isForgot) return 'Te enviaremos un codigo para restablecer la contrasena.'
+    if (isReset) return 'Ingresa el codigo recibido y define una nueva contrasena.'
     return 'Accede a tu cuenta para seguir comprando.'
   }
 
@@ -200,7 +224,7 @@ export default function AuthModal() {
               <div className="auth-modal__field">
                 <input
                   type="password"
-                  placeholder="Contraseña"
+                  placeholder="Contrasena"
                   value={loginForm.password}
                   onChange={(event) =>
                     setLoginForm((current) => ({ ...current, password: event.target.value }))
@@ -225,7 +249,7 @@ export default function AuthModal() {
               <div className="auth-modal__field">
                 <input
                   type="password"
-                  placeholder="Contraseña"
+                  placeholder="Contrasena"
                   value={registerForm.password}
                   onChange={(event) =>
                     setRegisterForm((current) => ({ ...current, password: event.target.value }))
@@ -249,6 +273,26 @@ export default function AuthModal() {
                   value={verifyForm.code}
                   onChange={(event) =>
                     setVerifyForm((current) => ({ ...current, code: event.target.value.replace(/\D/g, '').slice(0, 6) }))
+                  }
+                />
+              </div>
+            </>
+          ) : null}
+
+          {isLogin2fa ? (
+            <>
+              <div className="auth-modal__field">
+                <input type="email" value={login2faForm.email} readOnly />
+              </div>
+              <div className="auth-modal__field">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Codigo de 6 digitos"
+                  maxLength="6"
+                  value={login2faForm.code}
+                  onChange={(event) =>
+                    setLogin2faForm((current) => ({ ...current, code: event.target.value.replace(/\D/g, '').slice(0, 6) }))
                   }
                 />
               </div>
@@ -286,7 +330,7 @@ export default function AuthModal() {
               <div className="auth-modal__field">
                 <input
                   type="password"
-                  placeholder="Nueva contraseña"
+                  placeholder="Nueva contrasena"
                   value={resetForm.password}
                   onChange={(event) =>
                     setResetForm((current) => ({ ...current, password: event.target.value }))
@@ -309,11 +353,13 @@ export default function AuthModal() {
                 ? 'Registrarse'
                 : isVerify
                   ? 'Verificar cuenta'
-                  : isForgot
-                    ? 'Enviar codigo'
-                    : isReset
-                      ? 'Cambiar contraseña'
-                      : 'Entrar'}
+                  : isLogin2fa
+                    ? 'Validar acceso'
+                    : isForgot
+                      ? 'Enviar codigo'
+                      : isReset
+                        ? 'Cambiar contrasena'
+                        : 'Entrar'}
           </button>
         </form>
 
@@ -339,7 +385,7 @@ export default function AuthModal() {
                   openAuth('forgot', { email: loginForm.email.trim() })
                 }}
               >
-                Olvidé mi contraseña
+                Olvide mi contrasena
               </button>
             </>
           ) : null}
@@ -353,11 +399,11 @@ export default function AuthModal() {
                 openAuth('login', { email: registerForm.email.trim() })
               }}
             >
-              Ya tienes cuenta? Inicia sesión
+              Ya tienes cuenta? Inicia sesion
             </button>
           ) : null}
 
-          {isVerify ? (
+          {isVerify || isLogin2fa ? (
             <>
               <button className="text-link" type="button" onClick={handleResendCode} disabled={isSubmitting}>
                 Reenviar codigo
@@ -367,10 +413,10 @@ export default function AuthModal() {
                 type="button"
                 onClick={() => {
                   clearFeedback()
-                  openAuth('login', { email: verifyForm.email })
+                  openAuth('login', { email: isLogin2fa ? login2faForm.email : verifyForm.email })
                 }}
               >
-                Volver a iniciar sesión
+                Volver a iniciar sesion
               </button>
             </>
           ) : null}

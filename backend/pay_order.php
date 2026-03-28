@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/cvv_storage.php';
+require_once __DIR__ . '/lib/notifications.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -34,7 +35,7 @@ if ($order_id <= 0 || $amount_cents <= 0) {
   exit;
 }
 
-$orderStmt = $pdo->prepare("SELECT id, buyer_id, status, total_cents FROM orders WHERE id = ?");
+$orderStmt = $pdo->prepare("SELECT id, buyer_id, seller_id, status, total_cents FROM orders WHERE id = ?");
 $orderStmt->execute([$order_id]);
 $order = $orderStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -186,6 +187,16 @@ try {
   ]);
 
   $pdo->prepare("UPDATE orders SET status = 'paid' WHERE id = ?")->execute([$order_id]);
+
+  notifications_insert(
+    $pdo,
+    (int) $order['seller_id'],
+    'order_paid',
+    "Pedido #{$order_id} pagado",
+    'El comprador completo el pago. Ya puedes coordinar la entrega.',
+    '/pedidos.html',
+    ['order_id' => $order_id]
+  );
   $pdo->commit();
 
   echo json_encode([

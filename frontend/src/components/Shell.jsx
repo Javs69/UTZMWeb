@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CATEGORIES } from '@/config/categories'
 import { useApp } from '@/context/AppContext'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, formatDate } from '@/utils/format'
 import AssistantWidget from './AssistantWidget'
 import AuthModal from './AuthModal'
 
@@ -10,15 +10,15 @@ const FOOTER_SECTIONS = [
   {
     title: 'Pagos',
     links: [
-      { href: '/metodos_pago.html', label: 'Métodos de pago' },
+      { href: '/metodos_pago.html', label: 'Metodos de pago' },
       { href: '/seguridad.html', label: 'Seguridad' },
-      { href: '/facturacion.html', label: 'Facturación' },
+      { href: '/facturacion.html', label: 'Facturacion' },
     ],
   },
   {
     title: 'Compras',
     links: [
-      { href: '/envios.html', label: 'Envíos' },
+      { href: '/envios.html', label: 'Envios' },
       { href: '/devoluciones.html', label: 'Devoluciones' },
       { href: '/reembolsos.html', label: 'Reembolsos' },
     ],
@@ -32,7 +32,7 @@ const FOOTER_SECTIONS = [
     links: [
       { href: '/centro_de_ayuda.html', label: 'Centro de ayuda' },
       { href: '/contacto.html', label: 'Contacto' },
-      { href: '/terminos_privacidad.html', label: 'Términos y privacidad' },
+      { href: '/terminos_privacidad.html', label: 'Terminos y privacidad' },
     ],
   },
 ]
@@ -46,6 +46,10 @@ function Header() {
     favorites,
     isLoggedIn,
     isSupport,
+    notifications,
+    unreadNotifications,
+    markNotificationsRead,
+    markAllNotificationsRead,
     openAuth,
     logout,
     session,
@@ -57,6 +61,7 @@ function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false)
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [searchText, setSearchText] = useState(searchParams.get('q') || '')
 
   const cartTotal = useMemo(
@@ -66,12 +71,22 @@ function Header() {
 
   useEffect(() => {
     setIsProfileOpen(false)
+    setIsNotificationsOpen(false)
   }, [isLoggedIn])
 
   useEffect(() => {
     function handlePointerDown(event) {
       if (!event.target.closest('.profile')) {
         setIsProfileOpen(false)
+      }
+      if (!event.target.closest('.notifications-anchor')) {
+        setIsNotificationsOpen(false)
+      }
+      if (!event.target.closest('.favorites-anchor')) {
+        setIsFavoritesOpen(false)
+      }
+      if (!event.target.closest('.cart-anchor')) {
+        setIsCartOpen(false)
       }
     }
 
@@ -104,6 +119,10 @@ function Header() {
     setIsFavoritesOpen(false)
   }
 
+  function closeNotificationsMenu() {
+    setIsNotificationsOpen(false)
+  }
+
   function handleAuthMenu(mode) {
     closeProfileMenu()
     openAuth(mode)
@@ -112,6 +131,22 @@ function Header() {
   function handleLogout() {
     closeProfileMenu()
     logout()
+  }
+
+  async function handleNotificationClick(notification) {
+    if (!notification?.id) {
+      return
+    }
+
+    if (!notification.is_read) {
+      try {
+        await markNotificationsRead([notification.id])
+      } catch {
+        // ignore notification read errors on navigation click
+      }
+    }
+
+    setIsNotificationsOpen(false)
   }
 
   return (
@@ -142,7 +177,7 @@ function Header() {
           <input
             id="searchInput"
             type="search"
-            placeholder="Buscar productos, marcas y más"
+            placeholder="Buscar productos, marcas y mas"
             aria-label="Buscar"
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
@@ -178,8 +213,63 @@ function Header() {
             <span className="theme-toggle__knob" aria-hidden="true" />
           </button>
 
+          {isLoggedIn ? (
+            <div className="notifications-anchor">
+              <button
+                className="icon-btn notifications-btn"
+                type="button"
+                aria-label="Notificaciones"
+                aria-expanded={isNotificationsOpen}
+                onClick={() => setIsNotificationsOpen((current) => !current)}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 1 0-14 0v5l-2 2v1h18v-1l-2-2z" />
+                </svg>
+                {unreadNotifications > 0 ? <span className="badge">{unreadNotifications}</span> : null}
+              </button>
+              <div className={`cart-menu notification-menu${isNotificationsOpen ? ' open' : ''}`} onMouseLeave={closeNotificationsMenu}>
+                <div className="notification-menu__head">
+                  <strong>Notificaciones</strong>
+                  {unreadNotifications > 0 ? (
+                    <button
+                      className="text-link notification-menu__action"
+                      type="button"
+                      onClick={() => {
+                        markAllNotificationsRead().catch(() => {})
+                      }}
+                    >
+                      Marcar todas
+                    </button>
+                  ) : null}
+                </div>
+
+                {notifications.length ? (
+                  <div className="notification-list">
+                    {notifications.map((notification) => {
+                      const target = notification.href || '/pedidos.html'
+                      return (
+                        <Link
+                          key={notification.id}
+                          className={`notification-item${notification.is_read ? '' : ' is-unread'}`}
+                          to={target}
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          <div className="notification-item__title">{notification.title}</div>
+                          <div className="notification-item__body">{notification.body}</div>
+                          <div className="notification-item__meta">{formatDate(notification.created_at, true)}</div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="cart-empty">No tienes notificaciones nuevas.</div>
+                )}
+              </div>
+            </div>
+          ) : null}
+
           <div
-            className="icon-btn favorites-toggle"
+            className="icon-btn favorites-toggle favorites-anchor"
             onClick={() => setIsFavoritesOpen((current) => !current)}
             role="button"
             tabIndex={0}
@@ -207,7 +297,7 @@ function Header() {
 
           <div
             id="cartBtn"
-            className="icon-btn"
+            className="icon-btn cart-anchor"
             role="button"
             aria-label="Carrito"
             aria-haspopup="menu"
@@ -273,7 +363,7 @@ function Header() {
             </div>
           </div>
 
-          <div className="profile" aria-label="Menú de perfil">
+          <div className="profile" aria-label="Menu de perfil">
             <button
               id="profileBtn"
               className="profile-btn"
@@ -288,7 +378,7 @@ function Header() {
                 alt="Avatar"
               />
               <span id="profileLabel">
-                {isLoggedIn ? session.user?.full_name || session.user?.email : 'Iniciar sesión'}
+                {isLoggedIn ? session.user?.full_name || session.user?.email : 'Iniciar sesion'}
               </span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 10l5 5 5-5z" />
@@ -324,7 +414,7 @@ function Header() {
                   </li>
                   <li role="menuitem">
                     <button className="menu-link" type="button" onClick={handleLogout}>
-                      Cerrar sesión
+                      Cerrar sesion
                     </button>
                   </li>
                 </>
@@ -334,7 +424,7 @@ function Header() {
         </nav>
       </div>
 
-      <nav id="catNav" className="categories" aria-label="Categorías">
+      <nav id="catNav" className="categories" aria-label="Categorias">
         <ul className="container">
           {CATEGORIES.map((category) => (
             <li key={category.id} className="cat">

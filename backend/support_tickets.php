@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/support_common.php';
+require_once __DIR__ . '/lib/notifications.php';
 
 $user = support_require_user($pdo);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -161,6 +162,16 @@ if ($method === 'POST') {
       'INSERT INTO support_ticket_messages (ticket_id, sender_id, body, is_internal) VALUES (?, ?, ?, false)'
     );
     $messageStmt->execute([$ticketId, (int)$user['id'], $description]);
+
+    notifications_insert_for_staff(
+      $pdo,
+      'support_ticket_created',
+      "Nuevo ticket #{$ticketId}",
+      $subject,
+      '/soporte.html',
+      ['ticket_id' => $ticketId],
+      [(int) $user['id']]
+    );
 
     $pdo->commit();
     support_json(['success' => true, 'ticket_id' => $ticketId], 201);

@@ -496,13 +496,32 @@
 
 .catalog-toolbar__head {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 14px;
 }
 
 .catalog-toolbar__head h2 {
   margin: 0;
+}
+
+.catalog-toolbar__reset {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.catalog-toolbar__reset:hover {
+  border-color: var(--brand-strong);
+  background: var(--brand-weak);
 }
 
 .catalog-toolbar__grid {
@@ -1144,6 +1163,10 @@
 
   .catalog-toolbar__grid {
     grid-template-columns: 1fr;
+  }
+
+  .catalog-toolbar__head {
+    flex-direction: column;
   }
 
   .assistant-widget {

@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/support_common.php';
+require_once __DIR__ . '/lib/notifications.php';
 
 $user = support_require_user($pdo);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -105,6 +106,50 @@ if ($method === 'POST') {
       'UPDATE support_tickets SET status = ?, updated_at = NOW(), last_message_at = NOW() WHERE id = ?'
     );
     $ticketStmt->execute([$nextStatus, $ticketId]);
+
+    if ($isInternal) {
+      if (!empty($ticket['assigned_to']) && (int) $ticket['assigned_to'] !== (int) $user['id']) {
+        notifications_insert(
+          $pdo,
+          (int) $ticket['assigned_to'],
+          'support_internal_note',
+          "Nota interna en ticket #{$ticketId}",
+          $body,
+          '/soporte.html',
+          ['ticket_id' => $ticketId]
+        );
+      }
+    } elseif (support_is_staff($user)) {
+      notifications_insert(
+        $pdo,
+        (int) $ticket['user_id'],
+        'support_reply',
+        "Nueva respuesta en ticket #{$ticketId}",
+        $body,
+        '/soporte.html',
+        ['ticket_id' => $ticketId]
+      );
+    } elseif (!empty($ticket['assigned_to'])) {
+      notifications_insert(
+        $pdo,
+        (int) $ticket['assigned_to'],
+        'support_user_reply',
+        "El usuario respondio el ticket #{$ticketId}",
+        $body,
+        '/soporte.html',
+        ['ticket_id' => $ticketId]
+      );
+    } else {
+      notifications_insert_for_staff(
+        $pdo,
+        'support_user_reply',
+        "El usuario respondio el ticket #{$ticketId}",
+        $body,
+        '/soporte.html',
+        ['ticket_id' => $ticketId],
+        [(int) $user['id']]
+      );
+    }
 
     $pdo->commit();
 

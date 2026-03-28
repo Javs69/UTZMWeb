@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/support_common.php';
+require_once __DIR__ . '/lib/notifications.php';
 
 $user = support_require_user($pdo);
 support_require_staff($user);
@@ -19,6 +20,9 @@ $ticket = support_fetch_ticket($pdo, $ticketId);
 if (!$ticket) {
   support_json(['error' => 'Ticket no encontrado'], 404);
 }
+
+$previousStatus = $ticket['status'];
+$previousAssignee = isset($ticket['assigned_to']) ? (int) $ticket['assigned_to'] : null;
 
 $sets = [];
 $params = [':id' => $ticketId];
@@ -72,4 +76,32 @@ $stmt = $pdo->prepare(
 $stmt->execute($params);
 
 $updatedTicket = support_fetch_ticket($pdo, $ticketId);
+
+if ($updatedTicket) {
+  if (($updatedTicket['status'] ?? '') !== $previousStatus) {
+    notifications_insert(
+      $pdo,
+      (int) $updatedTicket['user_id'],
+      'support_status',
+      "Cambio de estado en ticket #{$ticketId}",
+      'Tu ticket ahora esta en estado ' . ($updatedTicket['status'] ?? 'actualizado') . '.',
+      '/soporte.html',
+      ['ticket_id' => $ticketId]
+    );
+  }
+
+  $nextAssignee = isset($updatedTicket['assigned_to']) ? (int) $updatedTicket['assigned_to'] : null;
+  if ($nextAssignee && $nextAssignee !== $previousAssignee && $nextAssignee !== (int) $user['id']) {
+    notifications_insert(
+      $pdo,
+      $nextAssignee,
+      'support_assignment',
+      "Te asignaron el ticket #{$ticketId}",
+      $updatedTicket['subject'] ?? 'Revisa la bandeja de soporte.',
+      '/soporte.html',
+      ['ticket_id' => $ticketId]
+    );
+  }
+}
+
 support_json(['success' => true, 'ticket' => $updatedTicket]);

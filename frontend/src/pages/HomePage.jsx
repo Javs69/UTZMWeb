@@ -60,6 +60,10 @@ export default function HomePage() {
     setSearchParams(params)
   }
 
+  function resetCatalogFilters() {
+    setSearchParams(new URLSearchParams())
+  }
+
   const visibleProducts = useMemo(() => {
     if (!favoritesOnly) {
       return products
@@ -98,12 +102,19 @@ export default function HomePage() {
     <main className="container" style={{ padding: '18px 0 34px' }}>
       <section className="catalog-toolbar card">
         <div className="catalog-toolbar__head">
-          <h2>Explorar productos</h2>
-          <p className="form-hint">
-            {category
-              ? `Categoria activa: ${getCategoryLabel(category)}. Ajusta orden, disponibilidad o favoritos.`
-              : 'Ajusta orden, disponibilidad o favoritos. Las categorias se controlan desde la barra superior.'}
-          </p>
+          <div>
+            <h2>Explorar productos</h2>
+            <p className="form-hint">
+              {category
+                ? `Categoria activa: ${getCategoryLabel(category)}. Ajusta orden, disponibilidad o favoritos.`
+                : 'Ajusta orden, disponibilidad o favoritos. Las categorias se controlan desde la barra superior.'}
+            </p>
+          </div>
+          {hasActiveCatalogFilters ? (
+            <button className="catalog-toolbar__reset" type="button" onClick={resetCatalogFilters}>
+              Reiniciar filtros
+            </button>
+          ) : null}
         </div>
         <div className="catalog-toolbar__grid">
           <div className="form-group">
