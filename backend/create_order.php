@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/notifications.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -96,6 +97,16 @@ try {
       throw new Exception('No se pudo actualizar el stock, intenta de nuevo');
     }
   }
+
+  notifications_insert(
+    $pdo,
+    $seller_id,
+    'order_created',
+    "Nuevo pedido #{$order_id}",
+    'Tienes una nueva compra registrada y pendiente de pago.',
+    '/pedidos.html',
+    ['order_id' => $order_id]
+  );
 
   $pdo->commit();
   echo json_encode([

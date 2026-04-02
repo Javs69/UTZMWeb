@@ -1,5 +1,6 @@
 ﻿<?php
 require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/notifications.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -214,6 +215,17 @@ if ($method === 'POST') {
     ':attachment_size' => $attachmentSize,
   ]);
   $row = $stmt->fetch(PDO::FETCH_ASSOC);
+  $recipientId = (int) $order['buyer_id'] === $user_id ? (int) $order['seller_id'] : (int) $order['buyer_id'];
+
+  notifications_insert(
+    $pdo,
+    $recipientId,
+    'order_message',
+    "Nuevo mensaje en pedido #{$order_id}",
+    $body !== '' ? $body : 'Recibiste una nueva imagen o archivo en el chat del pedido.',
+    '/mensajes.html',
+    ['order_id' => $order_id]
+  );
 
   echo json_encode([
     'message' => [

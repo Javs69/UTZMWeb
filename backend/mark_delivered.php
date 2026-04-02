@@ -1,11 +1,12 @@
 <?php
 require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/notifications.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
-  echo json_encode(['error' => 'Metodo no permitido']);
+  echo json_encode(['error' => 'Método no permitido']);
   exit;
 }
 
@@ -21,7 +22,7 @@ $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
 
 if ($order_id <= 0) {
   http_response_code(422);
-  echo json_encode(['error' => 'Pedido invalido']);
+  echo json_encode(['error' => 'Pedido inválido']);
   exit;
 }
 
@@ -151,6 +152,16 @@ try {
 } catch (Exception $e) {
   // si falla el log de mensaje, continuamos con el cambio de estado
 }
+
+notifications_insert(
+  $pdo,
+  (int) $order['buyer_id'],
+  'order_delivered',
+  "Pedido #{$order_id} marcado como entregado",
+  'El vendedor marco tu pedido como entregado. Revisa el detalle y deja tu resena si corresponde.',
+  '/pedidos.html',
+  ['order_id' => $order_id]
+);
 
 $pdo->commit();
 

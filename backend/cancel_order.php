@@ -1,11 +1,12 @@
 <?php
 require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/notifications.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
-  echo json_encode(['error' => 'Metodo no permitido']);
+  echo json_encode(['error' => 'Método no permitido']);
   exit;
 }
 
@@ -21,7 +22,7 @@ $user_id = (int)($_SESSION['user']['id'] ?? 0);
 
 if ($order_id <= 0) {
   http_response_code(422);
-  echo json_encode(['error' => 'Pedido invalido']);
+  echo json_encode(['error' => 'Pedido inválido']);
   exit;
 }
 
@@ -56,6 +57,9 @@ if ($status === 'delivered') {
   exit;
 }
 
+$counterpartId = $isBuyer ? (int) $order['seller_id'] : (int) $order['buyer_id'];
+$actorLabel = $isBuyer ? 'El comprador' : 'El vendedor';
+
 $pdo->beginTransaction();
 
 // Si hay un pago con tarjeta, registrar transacción de reembolso
@@ -70,7 +74,7 @@ $payStmt = $pdo->prepare("
 $payStmt->execute([$order_id]);
 $payment = $payStmt->fetch(PDO::FETCH_ASSOC);
 
-if ($payment && (($payment['method_type'] ?? '') === 'card') && ($payment['status'] ?? '') === 'captured') {
+if ($payment && in_array(($payment['method_type'] ?? ''), ['card', 'paypal'], true) && ($payment['status'] ?? '') === 'captured') {
   $refund = $pdo->prepare("
     INSERT INTO payments (order_id, payment_method_id, amount_cents, status, paid_at)
     VALUES (:order_id, :payment_method_id, :amount_cents, 'refunded', NOW())
@@ -85,6 +89,17 @@ if ($payment && (($payment['method_type'] ?? '') === 'card') && ($payment['statu
 }
 
 $pdo->prepare("UPDATE orders SET status = 'cancelled' WHERE id = ?")->execute([$order_id]);
+
+notifications_insert(
+  $pdo,
+  $counterpartId,
+  'order_cancelled',
+  "Pedido #{$order_id} cancelado",
+  "{$actorLabel} cancelo este pedido.",
+  '/pedidos.html',
+  ['order_id' => $order_id]
+);
+
 $pdo->commit();
 
 echo json_encode(['message' => 'Pedido cancelado', 'status' => 'cancelled']);

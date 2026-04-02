@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
-  echo json_encode(['error' => 'Metodo no permitido']);
+  echo json_encode(['error' => 'Método no permitido']);
   exit;
 }
 
@@ -21,7 +21,7 @@ $user_id = (int)($_SESSION['user']['id'] ?? 0);
 
 if ($id <= 0) {
   http_response_code(422);
-  echo json_encode(['error' => 'ID invalido']);
+  echo json_encode(['error' => 'ID inválido']);
   exit;
 }
 
@@ -34,7 +34,7 @@ if (!$method) {
   exit;
 }
 
-// Evitar violar FK si hay pagos que referencian este metodo
+// Evitar violar FK si hay pagos que referencian este método
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM payments WHERE payment_method_id = ?");
 $countStmt->execute([$id]);
 $used = (int)$countStmt->fetchColumn();

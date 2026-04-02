@@ -27,7 +27,7 @@ if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $path)) {
 $url = '/public/uploads/' . $filename;
 
 try {
-  $stmt = $pdo->prepare("UPDATE users SET avatar_url=? WHERE id=? RETURNING id, full_name, email, avatar_url");
+  $stmt = $pdo->prepare("UPDATE users SET avatar_url=? WHERE id=? RETURNING id, full_name, email, avatar_url, role");
   $stmt->execute([$url, (int)$_SESSION['user']['id']]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
   $_SESSION['user'] = $user;
@@ -35,4 +35,3 @@ try {
 } catch (Exception $e) {
   echo json_encode(["error" => $e->getMessage()]);
 }
-
