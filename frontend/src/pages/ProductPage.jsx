@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
+import { getConditionLabel } from '@/config/productMeta'
 import { formatCurrency } from '@/utils/format'
 import { productService } from '@/services'
 import { buildProductPlaceholder } from '@/utils/productPlaceholder'
@@ -29,6 +30,8 @@ export default function ProductPage() {
     () => Number(session.user?.id) === Number(product?.seller_id),
     [product?.seller_id, session.user?.id],
   )
+  const isOutOfStock = Number(product?.stock || 0) <= 0
+  const isPaused = product?.status === 'paused'
 
   async function loadQuestions() {
     if (!productId) return
@@ -206,8 +209,15 @@ export default function ProductPage() {
 
               <div className="pinfo">
                 <h1 className="ptitle">{product.name}</h1>
+                <div className="product-card__meta" style={{ marginBottom: 10 }}>
+                  {product.is_featured ? <span className="product-chip is-featured">Destacado</span> : null}
+                  {product.condition_code ? <span className="product-chip">{getConditionLabel(product.condition_code)}</span> : null}
+                  {product.pickup_location ? <span className="product-chip">{product.pickup_location}</span> : null}
+                </div>
                 <div className="pprice">{formatCurrency(product.price_cents)}</div>
-                <div className="pstock">{Number(product.stock) > 0 ? 'En stock' : 'Sin stock'}</div>
+                <div className="pstock">
+                  {isPaused ? 'Publicacion pausada' : isOutOfStock ? 'Sin stock' : 'En stock'}
+                </div>
                 <div className="pseller">
                   Vendido por{' '}
                   <strong>
@@ -253,11 +263,11 @@ export default function ProductPage() {
                 </div>
 
                 <div className="pactions">
-                  <button className="btn btn-add" type="button" onClick={handleAddToCart}>
-                    Agregar al carrito
+                  <button className="btn btn-add" type="button" onClick={handleAddToCart} disabled={isOutOfStock || isPaused}>
+                    {isOutOfStock || isPaused ? 'No disponible' : 'Agregar al carrito'}
                   </button>
-                  <button className="btn" style={{ background: '#10b981' }} type="button" onClick={handleBuyNow}>
-                    Comprar ahora
+                  <button className="btn" style={{ background: '#10b981' }} type="button" onClick={handleBuyNow} disabled={isOutOfStock || isPaused}>
+                    {isOutOfStock || isPaused ? 'Sin compra directa' : 'Comprar ahora'}
                   </button>
                 </div>
               </div>

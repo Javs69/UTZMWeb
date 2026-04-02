@@ -1,7 +1,10 @@
 <?php
 require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/product_catalog.php';
 session_start();
 header('Content-Type: application/json; charset=utf-8');
+
+ensure_marketplace_product_schema($pdo);
 
 // Requiere sesión
 if (!isset($_SESSION['user']['id'])) {
@@ -15,6 +18,9 @@ $desc  = trim($data['description'] ?? '');
 $price = (float)($data['price'] ?? 0);
 $stock = (int)($data['stock'] ?? 0);
 $categoryRaw = $data['category'] ?? '';
+$conditionCode = normalize_product_condition((string)($data['condition'] ?? 'good'));
+$pickupLocation = normalize_product_location($data['location'] ?? null);
+$isFeatured = filter_var($data['featured'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 function normalize_text($t) {
   $t = strtolower($t);
@@ -62,9 +68,31 @@ $seller_id = (int) $_SESSION['user']['id'];
 
 try {
   $stmt = $pdo->prepare(
-    "INSERT INTO products (name, description, price_cents, stock, seller_id, category_id) VALUES (?,?,?,?,?,?) RETURNING id"
+    "INSERT INTO products (
+      name,
+      description,
+      price_cents,
+      stock,
+      seller_id,
+      category_id,
+      condition_code,
+      pickup_location,
+      is_featured,
+      status
+    ) VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id"
   );
-  $stmt->execute([$name, $desc, $price_cents, $stock, $seller_id, $category_id > 0 ? $category_id : null]);
+  $stmt->execute([
+    $name,
+    $desc,
+    $price_cents,
+    $stock,
+    $seller_id,
+    $category_id > 0 ? $category_id : null,
+    $conditionCode,
+    $pickupLocation,
+    $isFeatured,
+    'active',
+  ]);
   $product_id = (int)$stmt->fetchColumn();
 
   echo json_encode(["success" => true, "product_id" => $product_id]);

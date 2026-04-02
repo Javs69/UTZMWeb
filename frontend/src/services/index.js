@@ -42,12 +42,31 @@ export const authService = {
 }
 
 export const productService = {
-  getProducts: ({ query = '', category = '', sort = 'recent', availability = 'in_stock' } = {}) => {
+  getProducts: ({
+    query = '',
+    category = '',
+    sort = 'recent',
+    availability = 'in_stock',
+    minPrice = '',
+    maxPrice = '',
+    condition = '',
+    featured = false,
+    ids = [],
+    page = 1,
+    pageSize = 12,
+  } = {}) => {
     const params = new URLSearchParams()
     if (query) params.set('q', query)
     if (category) params.set('category', category)
     if (sort) params.set('sort', sort)
     if (availability) params.set('availability', availability)
+    if (minPrice !== '' && minPrice !== null) params.set('min_price', String(minPrice))
+    if (maxPrice !== '' && maxPrice !== null) params.set('max_price', String(maxPrice))
+    if (condition) params.set('condition', condition)
+    if (featured) params.set('featured', '1')
+    if (Array.isArray(ids) && ids.length) params.set('ids', ids.join(','))
+    if (page > 1) params.set('page', String(page))
+    if (pageSize) params.set('page_size', String(pageSize))
     const suffix = params.toString() ? `?${params}` : ''
     return request(`/backend/get_products.php${suffix}`)
   },
@@ -83,10 +102,32 @@ export const productService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  runProductAction: (payload) =>
+    request('/backend/product_actions.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 }
 
 export const accountService = {
-  getPublicProfile: (userId) => request(`/backend/get_public_profile.php?user_id=${encodeURIComponent(userId)}`),
+  getPublicProfile: (
+    userId,
+    {
+      reviewsPage = 1,
+      reviewsPageSize = 6,
+      productsPage = 1,
+      productsPageSize = 8,
+    } = {},
+  ) => {
+    const params = new URLSearchParams({
+      user_id: String(userId),
+      reviews_page: String(reviewsPage),
+      reviews_page_size: String(reviewsPageSize),
+      products_page: String(productsPage),
+      products_page_size: String(productsPageSize),
+    })
+    return request(`/backend/get_public_profile.php?${params}`)
+  },
   updateProfile: (payload) =>
     request('/backend/update_user.php', {
       method: 'POST',

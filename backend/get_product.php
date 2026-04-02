@@ -1,6 +1,10 @@
 <?php
 require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/product_catalog.php';
+session_start();
 header('Content-Type: application/json; charset=utf-8');
+
+ensure_marketplace_product_schema($pdo);
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) {
@@ -18,6 +22,10 @@ $stmt = $pdo->prepare("
     p.stock,
     p.seller_id,
     p.category_id,
+    p.status,
+    p.condition_code,
+    p.pickup_location,
+    p.is_featured,
     u.full_name AS seller_name,
     u.email AS seller_email,
     u.seller_verified,
@@ -46,6 +54,16 @@ if (!$product) {
   exit;
 }
 
+$viewerId = (int) ($_SESSION['user']['id'] ?? 0);
+$sellerId = (int) ($product['seller_id'] ?? 0);
+$status = normalize_product_status((string) ($product['status'] ?? 'active'));
+
+if ($status === 'deleted' || ($status !== 'active' && $viewerId !== $sellerId)) {
+  http_response_code(404);
+  echo json_encode(['error' => 'Producto no disponible']);
+  exit;
+}
+
 $imgs = $pdo->prepare('SELECT url FROM product_images WHERE product_id = ? ORDER BY sort_order NULLS LAST, id ASC');
 $imgs->execute([$id]);
 $images = array_values(array_filter(array_map(fn($row) => $row['url'] ?? null, $imgs->fetchAll(PDO::FETCH_ASSOC))));
@@ -55,6 +73,10 @@ $product['price_cents'] = (int) $product['price_cents'];
 $product['stock'] = (int) $product['stock'];
 $product['seller_id'] = (int) $product['seller_id'];
 $product['category_id'] = isset($product['category_id']) ? (int) $product['category_id'] : null;
+$product['status'] = $status;
+$product['condition_code'] = normalize_product_condition((string) ($product['condition_code'] ?? 'good'));
+$product['pickup_location'] = $product['pickup_location'] ?: null;
+$product['is_featured'] = filter_var($product['is_featured'] ?? false, FILTER_VALIDATE_BOOLEAN);
 $product['seller_verified'] = filter_var($product['seller_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
 $product['seller_rating_avg'] = (float) $product['seller_rating_avg'];
 $product['seller_review_count'] = (int) $product['seller_review_count'];

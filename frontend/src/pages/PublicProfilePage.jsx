@@ -1,26 +1,40 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import ProductCarousel from '@/components/ProductCarousel'
+import PaginationControls from '@/components/PaginationControls'
+import ProductCard from '@/components/ProductCard'
 import SupportTicketModal from '@/components/SupportTicketModal'
 import { useApp } from '@/context/AppContext'
 import { accountService } from '@/services'
 import { formatDate } from '@/utils/format'
+
+const EMPTY_PAGINATION = {
+  page: 1,
+  page_size: 0,
+  total: 0,
+  total_pages: 0,
+  has_prev: false,
+  has_next: false,
+}
 
 function formatRating(value) {
   return `${Number(value || 0).toFixed(1)} / 5`
 }
 
 export default function PublicProfilePage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { isLoggedIn, openAuth } = useApp()
   const [profile, setProfile] = useState(null)
   const [reviews, setReviews] = useState([])
   const [products, setProducts] = useState([])
+  const [reviewsPagination, setReviewsPagination] = useState(EMPTY_PAGINATION)
+  const [productsPagination, setProductsPagination] = useState(EMPTY_PAGINATION)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [reportOpen, setReportOpen] = useState(false)
 
   const userId = Number(searchParams.get('id') || 0)
+  const reviewsPage = Math.max(1, Number(searchParams.get('reviews_page') || 1))
+  const productsPage = Math.max(1, Number(searchParams.get('products_page') || 1))
 
   useEffect(() => {
     let active = true
@@ -30,17 +44,26 @@ export default function PublicProfilePage() {
       setError('')
 
       try {
-        const data = await accountService.getPublicProfile(userId)
+        const data = await accountService.getPublicProfile(userId, {
+          reviewsPage,
+          reviewsPageSize: 6,
+          productsPage,
+          productsPageSize: 8,
+        })
         if (!active) return
         setProfile(data.profile || null)
         setReviews(Array.isArray(data.reviews) ? data.reviews : [])
         setProducts(Array.isArray(data.products) ? data.products : [])
+        setReviewsPagination(data.reviews_pagination || EMPTY_PAGINATION)
+        setProductsPagination(data.products_pagination || EMPTY_PAGINATION)
       } catch (requestError) {
         if (!active) return
         setError(requestError.message)
         setProfile(null)
         setReviews([])
         setProducts([])
+        setReviewsPagination(EMPTY_PAGINATION)
+        setProductsPagination(EMPTY_PAGINATION)
       } finally {
         if (active) {
           setLoading(false)
@@ -58,7 +81,7 @@ export default function PublicProfilePage() {
     return () => {
       active = false
     }
-  }, [userId])
+  }, [productsPage, reviewsPage, userId])
 
   const profileTitle = useMemo(() => {
     if (!profile) return 'Perfil publico'
@@ -71,6 +94,16 @@ export default function PublicProfilePage() {
       return
     }
     setReportOpen(true)
+  }
+
+  function updatePageParam(key, value) {
+    const nextParams = new URLSearchParams(searchParams)
+    if (!value || value <= 1) {
+      nextParams.delete(key)
+    } else {
+      nextParams.set(key, String(value))
+    }
+    setSearchParams(nextParams)
   }
 
   return (
@@ -106,9 +139,9 @@ export default function PublicProfilePage() {
                 </div>
                 <p className="public-profile-hero__name">{profile.full_name || 'Usuario sin nombre'}</p>
                 <div className="public-profile-hero__stats">
-                  <span>{formatRating(profile.avg_rating)} de calificación</span>
-                  <span>{profile.review_count} reseñas</span>
-                  <span>{profile.product_count} productos</span>
+                  <span>{formatRating(profile.avg_rating)} de calificacion</span>
+                  <span>{profile.review_count} resenas</span>
+                  <span>{profile.product_count} productos activos</span>
                   <span>{profile.sales_count} ventas completadas</span>
                 </div>
                 <p className="public-profile-hero__bio">
@@ -125,44 +158,73 @@ export default function PublicProfilePage() {
 
           <section className="public-profile-section">
             <div className="strip-head">
-              <h2>Reseñas recibidas</h2>
+              <h2>Resenas recibidas</h2>
               <span className="muted">
-                {reviews.length} {reviews.length === 1 ? 'reseñ/*  */a visible' : 'reseñas visibles'}
+                {reviewsPagination.total} {reviewsPagination.total === 1 ? 'resena' : 'resenas'}
               </span>
             </div>
 
             {!reviews.length ? (
               <div className="card" style={{ padding: 18 }}>
-                Todavia no hay reseñas para este perfil.
+                Todavia no hay resenas para este perfil.
               </div>
             ) : (
-              <div className="public-profile-reviews">
-                {reviews.map((review) => (
-                  <article key={review.id} className="public-profile-review card">
-                    <div className="public-profile-review__head">
-                      <div>
-                        <div className="public-profile-review__author">
-                          <Link className="link" to={`/perfil.html?id=${review.reviewer_id}`}>
-                            {review.reviewer_name || 'Usuario'}
-                          </Link>
+              <>
+                <div className="public-profile-reviews">
+                  {reviews.map((review) => (
+                    <article key={review.id} className="public-profile-review card">
+                      <div className="public-profile-review__head">
+                        <div>
+                          <div className="public-profile-review__author">
+                            <Link className="link" to={`/perfil.html?id=${review.reviewer_id}`}>
+                              {review.reviewer_name || 'Usuario'}
+                            </Link>
+                          </div>
+                          <div className="public-profile-review__meta">{formatDate(review.created_at, true)}</div>
                         </div>
-                        <div className="public-profile-review__meta">{formatDate(review.created_at, true)}</div>
+                        <strong>{formatRating(review.rating)}</strong>
                       </div>
-                      <strong>{formatRating(review.rating)}</strong>
-                    </div>
-                    <p>{review.comment || 'Sin comentario.'}</p>
-                  </article>
-                ))}
-              </div>
+                      <p>{review.comment || 'Sin comentario.'}</p>
+                    </article>
+                  ))}
+                </div>
+
+                <PaginationControls
+                  pagination={reviewsPagination}
+                  onPageChange={(nextPage) => updatePageParam('reviews_page', nextPage)}
+                  label="Paginacion de resenas del perfil"
+                />
+              </>
             )}
           </section>
 
           <section className="public-profile-section">
-            <ProductCarousel
-              title="Productos publicados"
-              items={products}
-              emptyText="Este usuario no tiene productos publicados por ahora."
-            />
+            <div className="strip-head">
+              <h2>Productos publicados</h2>
+              <span className="muted">
+                {productsPagination.total} {productsPagination.total === 1 ? 'producto' : 'productos'}
+              </span>
+            </div>
+
+            {!products.length ? (
+              <div className="card" style={{ padding: 18 }}>
+                Este usuario no tiene productos publicados por ahora.
+              </div>
+            ) : (
+              <>
+                <div className="catalog-results-grid public-profile-products-grid">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                <PaginationControls
+                  pagination={productsPagination}
+                  onPageChange={(nextPage) => updatePageParam('products_page', nextPage)}
+                  label="Paginacion de productos del perfil"
+                />
+              </>
+            )}
           </section>
         </>
       ) : null}
