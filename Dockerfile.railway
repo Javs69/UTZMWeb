@@ -11,12 +11,9 @@ RUN sed -ri 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 # Copiar todos los archivos del proyecto al directorio web de Apache
 COPY . /var/www/html
 
-
-
-# (OPCIONAL) Si usas PostgreSQL, descomenta esto:
- RUN apt-get update && apt-get install -y libpq-dev \
-     && docker-php-ext-install pdo pdo_pgsql
+# PostgreSQL
+RUN apt-get update && apt-get install -y libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql
 
 # Exponer el puerto 80 dentro del contenedor
 EXPOSE 80
-
