@@ -3,6 +3,9 @@ BEGIN;
 ALTER TABLE public.users
   ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'customer';
 
+ALTER TABLE public.users
+  ADD COLUMN IF NOT EXISTS seller_verified boolean NOT NULL DEFAULT false;
+
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -21,6 +24,9 @@ CREATE TABLE IF NOT EXISTS public.support_tickets (
   user_id bigint NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   assigned_to bigint REFERENCES public.users(id) ON DELETE SET NULL,
   order_id bigint REFERENCES public.orders(id) ON DELETE SET NULL,
+  context_type text,
+  context_id bigint,
+  context_meta jsonb NOT NULL DEFAULT '{}'::jsonb,
   category text NOT NULL,
   subject text NOT NULL,
   description text NOT NULL,
@@ -34,6 +40,28 @@ CREATE TABLE IF NOT EXISTS public.support_tickets (
   CONSTRAINT support_tickets_priority_check
     CHECK (priority IN ('low', 'normal', 'high', 'urgent'))
 );
+
+ALTER TABLE public.support_tickets
+  ADD COLUMN IF NOT EXISTS context_type text;
+
+ALTER TABLE public.support_tickets
+  ADD COLUMN IF NOT EXISTS context_id bigint;
+
+ALTER TABLE public.support_tickets
+  ADD COLUMN IF NOT EXISTS context_meta jsonb NOT NULL DEFAULT '{}'::jsonb;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'support_tickets_context_type_check'
+  ) THEN
+    ALTER TABLE public.support_tickets
+      ADD CONSTRAINT support_tickets_context_type_check
+      CHECK (context_type IS NULL OR context_type IN ('product', 'seller', 'order'));
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.support_ticket_messages (
   id bigserial PRIMARY KEY,
@@ -55,6 +83,9 @@ CREATE INDEX IF NOT EXISTS support_tickets_status_idx
 
 CREATE INDEX IF NOT EXISTS support_tickets_last_message_at_idx
   ON public.support_tickets (last_message_at DESC);
+
+CREATE INDEX IF NOT EXISTS support_tickets_context_idx
+  ON public.support_tickets (context_type, context_id);
 
 CREATE INDEX IF NOT EXISTS support_ticket_messages_ticket_id_idx
   ON public.support_ticket_messages (ticket_id, created_at);

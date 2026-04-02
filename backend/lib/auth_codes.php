@@ -87,7 +87,7 @@ function user_requires_login_two_factor(array $user): bool
 
 function fetch_public_user(PDO $pdo, int $userId): ?array
 {
-  $stmt = $pdo->prepare('SELECT id, full_name, email, avatar_url, role, store_name, seller_bio FROM users WHERE id = ? LIMIT 1');
+  $stmt = $pdo->prepare('SELECT id, full_name, email, avatar_url, role, seller_verified, store_name, seller_bio FROM users WHERE id = ? LIMIT 1');
   $stmt->execute([$userId]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

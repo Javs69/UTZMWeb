@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import ProductCarousel from '@/components/ProductCarousel'
+import SupportTicketModal from '@/components/SupportTicketModal'
+import { useApp } from '@/context/AppContext'
 import { accountService } from '@/services'
 import { formatDate } from '@/utils/format'
 
@@ -10,11 +12,13 @@ function formatRating(value) {
 
 export default function PublicProfilePage() {
   const [searchParams] = useSearchParams()
+  const { isLoggedIn, openAuth } = useApp()
   const [profile, setProfile] = useState(null)
   const [reviews, setReviews] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [reportOpen, setReportOpen] = useState(false)
 
   const userId = Number(searchParams.get('id') || 0)
 
@@ -61,6 +65,14 @@ export default function PublicProfilePage() {
     return profile.store_name || profile.full_name || 'Perfil publico'
   }, [profile])
 
+  function openReportModal() {
+    if (!isLoggedIn) {
+      openAuth('login')
+      return
+    }
+    setReportOpen(true)
+  }
+
   return (
     <main className="container public-profile-page">
       {loading ? (
@@ -86,7 +98,12 @@ export default function PublicProfilePage() {
               />
               <div className="public-profile-hero__content">
                 <div className="public-profile-hero__eyebrow">Perfil publico</div>
-                <h1>{profileTitle}</h1>
+                <div className="public-profile-hero__title-row">
+                  <h1>{profileTitle}</h1>
+                  {profile.seller_verified ? (
+                    <span className="seller-verified-pill is-verified">Vendedor verificado</span>
+                  ) : null}
+                </div>
                 <p className="public-profile-hero__name">{profile.full_name || 'Usuario sin nombre'}</p>
                 <div className="public-profile-hero__stats">
                   <span>{formatRating(profile.avg_rating)} de calificación</span>
@@ -97,6 +114,11 @@ export default function PublicProfilePage() {
                 <p className="public-profile-hero__bio">
                   {profile.seller_bio || 'Este usuario todavia no agrego una descripcion publica.'}
                 </p>
+                <div className="form-actions public-profile-hero__actions">
+                  <button className="btn btn-ghost" type="button" onClick={openReportModal}>
+                    Reportar vendedor
+                  </button>
+                </div>
               </div>
             </div>
           </section>
@@ -144,6 +166,21 @@ export default function PublicProfilePage() {
           </section>
         </>
       ) : null}
+
+      <SupportTicketModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="Reportar vendedor"
+        intro="Explica por que este vendedor debe ser revisado por el equipo de soporte."
+        categoryOptions={[{ value: 'report_seller', label: 'Reporte de vendedor' }]}
+        defaultCategory="report_seller"
+        defaultSubject={`Reporte del vendedor: ${profileTitle}`}
+        defaultDescription="Quiero reportar a este vendedor porque: "
+        contextType="seller"
+        contextId={profile?.id || null}
+        contextMeta={profile ? { seller_name: profileTitle } : null}
+        submitLabel="Enviar reporte"
+      />
     </main>
   )
 }

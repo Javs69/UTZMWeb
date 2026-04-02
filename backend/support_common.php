@@ -29,6 +29,7 @@ function support_normalize_user(array $user, string $defaultAvatar): array
     'email' => $user['email'] ?? '',
     'avatar_url' => $user['avatar_url'] ?: $defaultAvatar,
     'role' => $user['role'] ?? 'customer',
+    'seller_verified' => filter_var($user['seller_verified'] ?? false, FILTER_VALIDATE_BOOLEAN),
   ];
 }
 
@@ -39,7 +40,7 @@ function support_require_user(PDO $pdo): array
   }
 
   $defaultAvatar = '/public/uploads/blank-profile.png';
-  $stmt = $pdo->prepare('SELECT id, full_name, email, avatar_url, role FROM users WHERE id = ? LIMIT 1');
+  $stmt = $pdo->prepare('SELECT id, full_name, email, avatar_url, role, seller_verified FROM users WHERE id = ? LIMIT 1');
   $stmt->execute([(int)$_SESSION['user']['id']]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -85,6 +86,9 @@ function support_fetch_ticket(PDO $pdo, int $ticketId): ?array
       t.user_id,
       t.assigned_to,
       t.order_id,
+      t.context_type,
+      t.context_id,
+      t.context_meta,
       t.category,
       t.subject,
       t.description,
@@ -116,6 +120,11 @@ function support_fetch_ticket(PDO $pdo, int $ticketId): ?array
     'user_id' => (int)$ticket['user_id'],
     'assigned_to' => isset($ticket['assigned_to']) ? (int)$ticket['assigned_to'] : null,
     'order_id' => isset($ticket['order_id']) ? (int)$ticket['order_id'] : null,
+    'context_type' => $ticket['context_type'] ?: null,
+    'context_id' => isset($ticket['context_id']) ? (int)$ticket['context_id'] : null,
+    'context_meta' => is_string($ticket['context_meta'] ?? null)
+      ? (json_decode($ticket['context_meta'], true) ?: [])
+      : (is_array($ticket['context_meta'] ?? null) ? $ticket['context_meta'] : []),
     'category' => $ticket['category'],
     'subject' => $ticket['subject'],
     'description' => $ticket['description'],

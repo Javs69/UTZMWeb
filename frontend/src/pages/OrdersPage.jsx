@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { orderService } from '@/services'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency, formatDate } from '@/utils/format'
+import SupportTicketModal from '@/components/SupportTicketModal'
 
 function renderStars(rating) {
   const rounded = Math.max(0, Math.min(5, Number(rating) || 0))
@@ -17,6 +18,7 @@ export default function OrdersPage() {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
   const [message, setMessage] = useState('')
   const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [supportModal, setSupportModal] = useState(null)
 
   async function loadOrders() {
     try {
@@ -108,6 +110,54 @@ export default function OrdersPage() {
     }
   }
 
+  function openOrderSupportFlow(type, order) {
+    const isBuyer = Number(order?.buyer_id) === Number(session.user?.id)
+    const counterpartName = isBuyer ? order?.seller_name : order?.buyer_name
+
+    if (type === 'refund') {
+      setSupportModal({
+        title: `Solicitar reembolso del pedido #${order.id}`,
+        intro: 'Comparte lo ocurrido y la evidencia que soporte debe revisar para evaluar el reembolso.',
+        categoryOptions: [{ value: 'refund', label: 'Solicitud de reembolso' }],
+        defaultCategory: 'refund',
+        defaultSubject: `Solicitud de reembolso del pedido #${order.id}`,
+        defaultDescription: `Solicito revisar el reembolso de este pedido porque: `,
+        orderId: Number(order.id),
+        contextType: 'order',
+        contextId: Number(order.id),
+        contextMeta: {
+          order_status: order.status,
+          seller_id: Number(order.seller_id),
+          seller_name: order.seller_name,
+          buyer_id: Number(order.buyer_id),
+          buyer_name: order.buyer_name,
+        },
+        submitLabel: 'Solicitar reembolso',
+      })
+      return
+    }
+
+    setSupportModal({
+      title: `Abrir disputa del pedido #${order.id}`,
+      intro: 'Usa este flujo cuando necesites intervencion del equipo por un problema con la otra parte o con la entrega.',
+      categoryOptions: [{ value: 'dispute', label: 'Disputa postventa' }],
+      defaultCategory: 'dispute',
+      defaultSubject: `Disputa del pedido #${order.id} con ${counterpartName || 'la otra parte'}`,
+      defaultDescription: `Abro una disputa sobre este pedido porque: `,
+      orderId: Number(order.id),
+      contextType: 'order',
+      contextId: Number(order.id),
+      contextMeta: {
+        order_status: order.status,
+        seller_id: Number(order.seller_id),
+        seller_name: order.seller_name,
+        buyer_id: Number(order.buyer_id),
+        buyer_name: order.buyer_name,
+      },
+      submitLabel: 'Abrir disputa',
+    })
+  }
+
   function OrderGroup({ title, items, role }) {
     return (
       <section className="orders-group card">
@@ -192,6 +242,9 @@ export default function OrdersPage() {
       ? selectedOrder.seller_id
       : selectedOrder.buyer_id
     : 0
+  const selectedOrderIsBuyer = selectedOrder
+    ? Number(selectedOrder.buyer_id) === Number(session.user?.id)
+    : false
 
   return (
     <main className="container" style={{ padding: '18px 0 34px' }}>
@@ -229,6 +282,18 @@ export default function OrdersPage() {
                     Ver perfil de {counterpartName}
                   </Link>
                 </div>
+              </div>
+            ) : null}
+            {selectedOrder.status !== 'cancelled' ? (
+              <div className="form-actions order-detail-actions">
+                <button className="btn btn-ghost" type="button" onClick={() => openOrderSupportFlow('dispute', selectedOrder)}>
+                  Abrir disputa
+                </button>
+                {selectedOrderIsBuyer ? (
+                  <button className="btn btn-ghost" type="button" onClick={() => openOrderSupportFlow('refund', selectedOrder)}>
+                    Solicitar reembolso
+                  </button>
+                ) : null}
               </div>
             ) : null}
 
@@ -293,6 +358,22 @@ export default function OrdersPage() {
           </div>
         </div>
       ) : null}
+
+      <SupportTicketModal
+        open={Boolean(supportModal)}
+        onClose={() => setSupportModal(null)}
+        title={supportModal?.title || ''}
+        intro={supportModal?.intro || ''}
+        categoryOptions={supportModal?.categoryOptions || []}
+        defaultCategory={supportModal?.defaultCategory || ''}
+        defaultSubject={supportModal?.defaultSubject || ''}
+        defaultDescription={supportModal?.defaultDescription || ''}
+        orderId={supportModal?.orderId || null}
+        contextType={supportModal?.contextType || ''}
+        contextId={supportModal?.contextId || null}
+        contextMeta={supportModal?.contextMeta || null}
+        submitLabel={supportModal?.submitLabel || 'Crear ticket'}
+      />
     </main>
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { orderService, supportService } from '@/services'
 import { useApp } from '@/context/AppContext'
 import { formatDate } from '@/utils/format'
@@ -7,10 +7,14 @@ import { formatDate } from '@/utils/format'
 const CATEGORY_OPTIONS = [
   { value: 'pagos', label: 'Pagos' },
   { value: 'pedido', label: 'Pedidos' },
-  { value: 'envio', label: 'Envíos y entregas' },
+  { value: 'envio', label: 'Envios y entregas' },
   { value: 'cuenta', label: 'Cuenta y acceso' },
   { value: 'publicacion', label: 'Publicaciones' },
   { value: 'seguridad', label: 'Seguridad' },
+  { value: 'report_product', label: 'Reporte de producto' },
+  { value: 'report_seller', label: 'Reporte de vendedor' },
+  { value: 'dispute', label: 'Disputa postventa' },
+  { value: 'refund', label: 'Solicitud de reembolso' },
   { value: 'otro', label: 'Otro' },
 ]
 
@@ -51,8 +55,41 @@ function roleLabel(value) {
   return ROLE_LABELS[value] || value
 }
 
+function buildContextLink(ticket) {
+  if (!ticket?.context_type || !ticket?.context_id) {
+    return null
+  }
+
+  if (ticket.context_type === 'product') {
+    return {
+      href: `/producto.html?id=${ticket.context_id}`,
+      label: ticket.context_meta?.product_name || `Producto #${ticket.context_id}`,
+      eyebrow: 'Producto relacionado',
+    }
+  }
+
+  if (ticket.context_type === 'seller') {
+    return {
+      href: `/perfil.html?id=${ticket.context_id}`,
+      label: ticket.context_meta?.seller_name || `Vendedor #${ticket.context_id}`,
+      eyebrow: 'Vendedor relacionado',
+    }
+  }
+
+  if (ticket.context_type === 'order') {
+    return {
+      href: '/pedidos.html',
+      label: `Pedido #${ticket.context_id}`,
+      eyebrow: 'Pedido relacionado',
+    }
+  }
+
+  return null
+}
+
 export default function SupportPage() {
   const { session, isSupport, isAdmin } = useApp()
+  const [searchParams] = useSearchParams()
   const [tickets, setTickets] = useState([])
   const [selectedTicketId, setSelectedTicketId] = useState(null)
   const [detail, setDetail] = useState(null)
@@ -79,11 +116,16 @@ export default function SupportPage() {
     email: '',
     role: 'support',
   })
+  const [sellerVerificationForm, setSellerVerificationForm] = useState({
+    email: '',
+    seller_verified: true,
+  })
   const [message, setMessage] = useState('')
   const [loadingTickets, setLoadingTickets] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
 
   const currentUserId = Number(session.user?.id)
+  const requestedTicketId = Number(searchParams.get('ticket') || 0)
 
   useEffect(() => {
     document.title = isSupport ? 'Bandeja de soporte | Utzmplace' : 'Soporte | Utzmplace'
@@ -96,6 +138,9 @@ export default function SupportPage() {
       const nextTickets = Array.isArray(data.tickets) ? data.tickets : []
       setTickets(nextTickets)
       setSelectedTicketId((current) => {
+        if (requestedTicketId && nextTickets.some((ticket) => ticket.id === requestedTicketId)) {
+          return requestedTicketId
+        }
         if (current && nextTickets.some((ticket) => ticket.id === current)) {
           return current
         }
@@ -110,7 +155,7 @@ export default function SupportPage() {
 
   useEffect(() => {
     loadTickets()
-  }, [filters.assignment, filters.q, filters.status, isSupport])
+  }, [filters.assignment, filters.q, filters.status, isSupport, requestedTicketId])
 
   useEffect(() => {
     if (isSupport) {
@@ -240,15 +285,27 @@ export default function SupportPage() {
     }
   }
 
+  async function updateSellerVerification() {
+    try {
+      await supportService.updateSellerVerification(sellerVerificationForm)
+      setSellerVerificationForm({ email: '', seller_verified: true })
+      setMessage('Verificacion de vendedor actualizada.')
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
   const selectedTicket = detail?.ticket || null
   const selectedMessages = detail?.messages || []
 
   const orderOptions = useMemo(() => {
     return orders.map((order) => ({
       id: order.id,
-      label: `Pedido #${order.id} • ${order.status}`,
+      label: `Pedido #${order.id} - ${order.status}`,
     }))
   }, [orders])
+
+  const contextLink = buildContextLink(selectedTicket)
 
   return (
     <main className="container support-page">
@@ -257,13 +314,13 @@ export default function SupportPage() {
           <h1>{isSupport ? 'Bandeja de soporte' : 'Soporte'}</h1>
           <p className="form-hint">
             {isSupport
-              ? 'Gestiona tickets, responde usuarios y organiza la asignación del equipo.'
+              ? 'Gestiona tickets, responde usuarios y organiza la asignacion del equipo.'
               : 'Abre un ticket para recibir ayuda humana y dar seguimiento a tu caso.'}
           </p>
         </div>
         {!isSupport ? (
           <Link className="btn" to="/centro_de_ayuda.html">
-            Ver ayuda rápida
+            Ver ayuda rapida
           </Link>
         ) : null}
       </div>
@@ -297,7 +354,7 @@ export default function SupportPage() {
                   onChange={(event) => setFilters((current) => ({ ...current, assignment: event.target.value }))}
                 >
                   <option value="all">Toda la bandeja</option>
-                  <option value="mine">Asignados a mí</option>
+                  <option value="mine">Asignados a mi</option>
                   <option value="unassigned">Sin asignar</option>
                 </select>
                 <input
@@ -331,14 +388,14 @@ export default function SupportPage() {
                   </div>
                   <div className="support-ticket-item__sub">
                     {isSupport
-                      ? `${ticket.requester_name} • ${categoryLabel(ticket.category)}`
+                      ? `${ticket.requester_name} - ${categoryLabel(ticket.category)}`
                       : categoryLabel(ticket.category)}
                   </div>
                 </button>
               ))
             ) : (
               <div className="support-empty">
-                {isSupport ? 'No hay tickets para estos filtros.' : 'Aún no has creado tickets.'}
+                {isSupport ? 'No hay tickets para estos filtros.' : 'Aun no has creado tickets.'}
               </div>
             )}
           </div>
@@ -350,7 +407,7 @@ export default function SupportPage() {
               <h2>Abrir ticket</h2>
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Categoría</label>
+                  <label className="form-label">Categoria</label>
                   <select
                     className="form-control"
                     value={createForm.category}
@@ -410,7 +467,7 @@ export default function SupportPage() {
                 <div>
                   <h2>Gestionar ticket #{selectedTicket.id}</h2>
                   <p className="form-hint">
-                    Solicitante: {selectedTicket.requester_name} • {selectedTicket.requester_email}
+                    Solicitante: {selectedTicket.requester_name} - {selectedTicket.requester_email}
                   </p>
                 </div>
                 {selectedTicket.assigned_to !== currentUserId ? (
@@ -458,7 +515,7 @@ export default function SupportPage() {
                     <option value="">Sin asignar</option>
                     {agents.map((agent) => (
                       <option key={agent.id} value={agent.id}>
-                        {agent.full_name} • {roleLabel(agent.role)}
+                        {agent.full_name} - {roleLabel(agent.role)}
                       </option>
                     ))}
                   </select>
@@ -473,54 +530,104 @@ export default function SupportPage() {
           ) : null}
 
           {isAdmin ? (
-            <div className="card support-admin-card">
-              <h2>Registrar usuarios de soporte</h2>
-              <p className="form-hint">
-                Promueve cuentas existentes por correo. El primer administrador debe quedar asignado directamente en base de datos.
-              </p>
-              <div className="support-admin-grid">
-                <div className="form-group">
-                  <label className="form-label">Correo del usuario</label>
-                  <input
-                    className="form-control"
-                    value={roleForm.email}
-                    onChange={(event) => setRoleForm((current) => ({ ...current, email: event.target.value }))}
-                  />
+            <>
+              <div className="card support-admin-card">
+                <h2>Registrar usuarios de soporte</h2>
+                <p className="form-hint">
+                  Promueve cuentas existentes por correo. El primer administrador debe quedar asignado directamente en base de datos.
+                </p>
+                <div className="support-admin-grid">
+                  <div className="form-group">
+                    <label className="form-label">Correo del usuario</label>
+                    <input
+                      className="form-control"
+                      value={roleForm.email}
+                      onChange={(event) => setRoleForm((current) => ({ ...current, email: event.target.value }))}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Nuevo rol</label>
+                    <select
+                      className="form-control"
+                      value={roleForm.role}
+                      onChange={(event) => setRoleForm((current) => ({ ...current, role: event.target.value }))}
+                    >
+                      <option value="support">Soporte</option>
+                      <option value="admin">Administrador</option>
+                      <option value="customer">Cliente</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Nuevo rol</label>
-                  <select
-                    className="form-control"
-                    value={roleForm.role}
-                    onChange={(event) => setRoleForm((current) => ({ ...current, role: event.target.value }))}
-                  >
-                    <option value="support">Soporte</option>
-                    <option value="admin">Administrador</option>
-                    <option value="customer">Cliente</option>
-                  </select>
+                <div className="form-actions">
+                  <button className="btn" type="button" onClick={updateSupportRole}>
+                    Actualizar rol
+                  </button>
                 </div>
               </div>
-              <div className="form-actions">
-                <button className="btn" type="button" onClick={updateSupportRole}>
-                  Actualizar rol
-                </button>
+
+              <div className="card support-admin-card">
+                <h2>Verificacion de vendedores</h2>
+                <p className="form-hint">
+                  Activa o retira la insignia de vendedor verificado por correo.
+                </p>
+                <div className="support-admin-grid">
+                  <div className="form-group">
+                    <label className="form-label">Correo del vendedor</label>
+                    <input
+                      className="form-control"
+                      value={sellerVerificationForm.email}
+                      onChange={(event) =>
+                        setSellerVerificationForm((current) => ({ ...current, email: event.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Estado</label>
+                    <select
+                      className="form-control"
+                      value={sellerVerificationForm.seller_verified ? 'true' : 'false'}
+                      onChange={(event) =>
+                        setSellerVerificationForm((current) => ({
+                          ...current,
+                          seller_verified: event.target.value === 'true',
+                        }))
+                      }
+                    >
+                      <option value="true">Verificado</option>
+                      <option value="false">No verificado</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-actions">
+                  <button className="btn" type="button" onClick={updateSellerVerification}>
+                    Guardar verificacion
+                  </button>
+                </div>
               </div>
-            </div>
+            </>
           ) : null}
 
           <div className="card support-thread-card">
             {loadingDetail ? (
-              <div className="support-empty">Cargando conversación...</div>
+              <div className="support-empty">Cargando conversacion...</div>
             ) : selectedTicket ? (
               <>
                 <div className="support-thread-card__head">
                   <div>
                     <h2>{selectedTicket.subject}</h2>
                     <p className="form-hint">
-                      {categoryLabel(selectedTicket.category)} • {statusLabel(selectedTicket.status)} • {priorityLabel(selectedTicket.priority)}
+                      {categoryLabel(selectedTicket.category)} - {statusLabel(selectedTicket.status)} - {priorityLabel(selectedTicket.priority)}
                     </p>
                     {selectedTicket.order_id ? (
                       <p className="form-hint">Pedido asociado: #{selectedTicket.order_id}</p>
+                    ) : null}
+                    {contextLink ? (
+                      <div className="support-context-card">
+                        <span className="support-context-card__eyebrow">{contextLink.eyebrow}</span>
+                        <Link className="link" to={contextLink.href}>
+                          {contextLink.label}
+                        </Link>
+                      </div>
                     ) : null}
                   </div>
                   <div className="support-thread-card__badges">
@@ -531,7 +638,7 @@ export default function SupportPage() {
 
                 <div className="support-thread-scroll">
                   <div className="support-summary">
-                    <strong>Descripción inicial</strong>
+                    <strong>Descripcion inicial</strong>
                     <p>{selectedTicket.description}</p>
                   </div>
 

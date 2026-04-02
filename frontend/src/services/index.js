@@ -221,6 +221,11 @@ export const supportService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  updateSellerVerification: (payload) =>
+    request('/backend/support_staff.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 }
 
 export const notificationService = {

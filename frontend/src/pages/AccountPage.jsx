@@ -116,11 +116,17 @@ export default function AccountPage() {
                   <label className="form-label">Correo electronico</label>
                   <input className="form-control" value={profile.email} onChange={(event) => setProfile((current) => ({ ...current, email: event.target.value }))} />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Nombre de tienda</label>
-                  <input className="form-control" value={profile.store_name} onChange={(event) => setProfile((current) => ({ ...current, store_name: event.target.value }))} />
+              <div className="form-group">
+                <label className="form-label">Nombre de tienda</label>
+                <input className="form-control" value={profile.store_name} onChange={(event) => setProfile((current) => ({ ...current, store_name: event.target.value }))} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Estado de vendedor</label>
+                <div className={`seller-verified-pill${session.user?.seller_verified ? ' is-verified' : ''}`}>
+                  {session.user?.seller_verified ? 'Vendedor verificado' : 'Vendedor sin verificacion manual'}
                 </div>
               </div>
+            </div>
               <div className="form-group">
                 <label className="form-label">Descripcion del vendedor</label>
                 <textarea className="form-control" rows="4" value={profile.seller_bio} onChange={(event) => setProfile((current) => ({ ...current, seller_bio: event.target.value }))} />

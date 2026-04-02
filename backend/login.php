@@ -9,7 +9,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $email = strtolower(trim($data['email'] ?? ''));
 $password = $data['password'] ?? '';
 
-$stmt = $pdo->prepare('SELECT id, full_name, email, password_hash, avatar_url, role, email_verified, store_name, seller_bio FROM users WHERE email = ? LIMIT 1');
+$stmt = $pdo->prepare('SELECT id, full_name, email, password_hash, avatar_url, role, email_verified, seller_verified, store_name, seller_bio FROM users WHERE email = ? LIMIT 1');
 $stmt->execute([$email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

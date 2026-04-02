@@ -92,7 +92,8 @@ CREATE TABLE public.users (
     avatar_url text,
     store_name text,
     seller_bio text,
-    email_verified boolean DEFAULT false NOT NULL
+    email_verified boolean DEFAULT false NOT NULL,
+    seller_verified boolean DEFAULT false NOT NULL
 );
 
 CREATE TABLE public.email_codes (
@@ -180,3 +181,4 @@ CREATE INDEX idx_order_reviews_order
 -- ALTER TABLE public.users ALTER COLUMN email_verified SET NOT NULL;
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS store_name text;
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS seller_bio text;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS seller_verified boolean NOT NULL DEFAULT false;

@@ -16,6 +16,7 @@ $profileStmt = $pdo->prepare("
     u.email,
     u.avatar_url,
     u.role,
+    u.seller_verified,
     u.store_name,
     u.seller_bio,
     COALESCE(review_stats.avg_rating, 0) AS avg_rating,
@@ -101,6 +102,7 @@ $profile['avg_rating'] = (float) $profile['avg_rating'];
 $profile['review_count'] = (int) $profile['review_count'];
 $profile['product_count'] = (int) $profile['product_count'];
 $profile['sales_count'] = (int) $profile['sales_count'];
+$profile['seller_verified'] = filter_var($profile['seller_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
 $profile['avatar_url'] = $profile['avatar_url'] ?: '/public/uploads/blank-profile.png';
 
 echo json_encode([

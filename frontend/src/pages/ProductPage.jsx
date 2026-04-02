@@ -4,6 +4,7 @@ import { useApp } from '@/context/AppContext'
 import { formatCurrency } from '@/utils/format'
 import { productService } from '@/services'
 import { buildProductPlaceholder } from '@/utils/productPlaceholder'
+import SupportTicketModal from '@/components/SupportTicketModal'
 
 function renderStars(value) {
   const rounded = Math.max(0, Math.min(5, Math.round(Number(value) || 0)))
@@ -21,6 +22,7 @@ export default function ProductPage() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [mainImage, setMainImage] = useState('')
+  const [supportModal, setSupportModal] = useState(null)
 
   const productId = Number(searchParams.get('id') || 0)
   const isSeller = useMemo(
@@ -128,6 +130,46 @@ export default function ProductPage() {
     }
   }
 
+  function openSupportTicket(kind) {
+    if (!isLoggedIn) {
+      openAuth('login')
+      return
+    }
+
+    if (kind === 'product') {
+      setSupportModal({
+        title: 'Reportar producto',
+        intro: 'Describe por que este producto debe ser revisado por moderacion.',
+        categoryOptions: [{ value: 'report_product', label: 'Reporte de producto' }],
+        defaultCategory: 'report_product',
+        defaultSubject: `Reporte del producto: ${product.name}`,
+        defaultDescription: `Quiero reportar este producto porque: `,
+        contextType: 'product',
+        contextId: Number(product.id),
+        contextMeta: {
+          product_name: product.name,
+          seller_id: Number(product.seller_id),
+          seller_name: product.store_name || product.seller_name || 'Vendedor',
+        },
+      })
+      return
+    }
+
+    setSupportModal({
+      title: 'Reportar vendedor',
+      intro: 'Abre un ticket para que soporte revise el comportamiento de este vendedor.',
+      categoryOptions: [{ value: 'report_seller', label: 'Reporte de vendedor' }],
+      defaultCategory: 'report_seller',
+      defaultSubject: `Reporte del vendedor: ${product.store_name || product.seller_name || 'Vendedor'}`,
+      defaultDescription: `Quiero reportar a este vendedor porque: `,
+      contextType: 'seller',
+      contextId: Number(product.seller_id),
+      contextMeta: {
+        seller_name: product.store_name || product.seller_name || 'Vendedor',
+      },
+    })
+  }
+
   return (
     <main className="container" style={{ padding: '18px 0 34px' }}>
       {loading ? (
@@ -173,12 +215,20 @@ export default function ProductPage() {
                       {product.store_name || product.seller_name || product.seller_email || 'Vendedor'}
                     </Link>
                   </strong>
+                  {product.seller_verified ? (
+                    <span className="seller-verified-pill is-verified">Verificado</span>
+                  ) : null}
                 </div>
                 <div className="pdesc">{product.description}</div>
 
                 <div className="seller-profile-card">
                   <div className="seller-profile-card__title">Perfil del vendedor</div>
-                  <div className="seller-profile-card__name">{product.store_name || product.seller_name || 'Tienda sin nombre'}</div>
+                  <div className="seller-profile-card__name-row">
+                    <div className="seller-profile-card__name">{product.store_name || product.seller_name || 'Tienda sin nombre'}</div>
+                    {product.seller_verified ? (
+                      <span className="seller-verified-pill is-verified">Vendedor verificado</span>
+                    ) : null}
+                  </div>
                   <div className="seller-profile-card__rating">
                     <strong>{renderStars(product.seller_rating_avg)}</strong>
                     <span>
@@ -193,6 +243,12 @@ export default function ProductPage() {
                     <Link className="btn" to={`/perfil.html?id=${product.seller_id}`}>
                       Ver perfil publico
                     </Link>
+                    <button className="btn btn-ghost" type="button" onClick={() => openSupportTicket('seller')}>
+                      Reportar vendedor
+                    </button>
+                    <button className="btn btn-ghost" type="button" onClick={() => openSupportTicket('product')}>
+                      Reportar producto
+                    </button>
                   </div>
                 </div>
 
@@ -270,6 +326,21 @@ export default function ProductPage() {
           </section>
         </>
       ) : null}
+
+      <SupportTicketModal
+        open={Boolean(supportModal)}
+        onClose={() => setSupportModal(null)}
+        title={supportModal?.title || ''}
+        intro={supportModal?.intro || ''}
+        categoryOptions={supportModal?.categoryOptions || []}
+        defaultCategory={supportModal?.defaultCategory || ''}
+        defaultSubject={supportModal?.defaultSubject || ''}
+        defaultDescription={supportModal?.defaultDescription || ''}
+        contextType={supportModal?.contextType || ''}
+        contextId={supportModal?.contextId || null}
+        contextMeta={supportModal?.contextMeta || null}
+        submitLabel="Enviar reporte"
+      />
     </main>
   )
 }

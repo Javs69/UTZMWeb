@@ -98,7 +98,7 @@ async function registerBuyer(page, fullName = 'Comprador E2E') {
   await authModal.locator('input[type="email"]').fill(email)
   await authModal.locator('input[type="password"]').fill(PASSWORD)
   await authModal.locator('.auth-modal__submit').click()
-  await expect(page.getByRole('heading', { name: /verificar correo/i })).toBeVisible()
+  await expect(authModal).toContainText(/verificar correo/i)
 
   // El registro ahora exige codigo por correo. Para mantener el foco del E2E
   // en compra y checkout, el test marca la cuenta como verificada en la DB.

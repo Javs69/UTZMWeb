@@ -16,7 +16,7 @@ if (!isset($_SESSION['user'])) {
 // Refresh data from DB so avatar changes made elsewhere are reflected in the web session
 $sessionUser = $_SESSION['user'];
 try {
-  $stmt = $pdo->prepare("SELECT id, full_name, email, avatar_url, role, store_name, seller_bio FROM users WHERE id = ? LIMIT 1");
+  $stmt = $pdo->prepare("SELECT id, full_name, email, avatar_url, role, seller_verified, store_name, seller_bio FROM users WHERE id = ? LIMIT 1");
   $stmt->execute([(int)($sessionUser['id'] ?? 0)]);
   $fresh = $stmt->fetch(PDO::FETCH_ASSOC);
   if ($fresh) {
@@ -37,6 +37,7 @@ echo json_encode([
     "email" => $sessionUser['email'] ?? '',
     "avatar_url" => $avatar ?: $defaultAvatar,
     "role" => $sessionUser['role'] ?? 'customer',
+    "seller_verified" => filter_var($sessionUser['seller_verified'] ?? false, FILTER_VALIDATE_BOOLEAN),
     "store_name" => $sessionUser['store_name'] ?? '',
     "seller_bio" => $sessionUser['seller_bio'] ?? ''
   ]

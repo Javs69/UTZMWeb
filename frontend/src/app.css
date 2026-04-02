@@ -563,8 +563,15 @@
   color: var(--muted);
 }
 
-.seller-profile-card__name {
+.seller-profile-card__name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   margin-top: 6px;
+}
+
+.seller-profile-card__name {
   font-size: 1.05rem;
   font-weight: 700;
 }
@@ -583,8 +590,42 @@
   color: var(--muted);
 }
 
+.seller-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.seller-verified-pill.is-verified {
+  border-color: rgba(8, 145, 178, .24);
+  background: rgba(8, 145, 178, .10);
+  color: #0f766e;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--divider);
+  color: var(--ink);
+}
+
+.btn-ghost:hover {
+  border-color: var(--brand-strong);
+  background: var(--brand-weak);
+}
+
 .order-detail-modal {
   gap: 12px;
+}
+
+.order-detail-actions {
+  margin-top: 4px;
 }
 
 .order-review-block {
@@ -647,6 +688,13 @@
   margin: 6px 0 4px;
 }
 
+.public-profile-hero__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
 .public-profile-hero__eyebrow {
   font-size: .82rem;
   font-weight: 700;
@@ -679,6 +727,10 @@
   margin: 14px 0 0;
   line-height: 1.6;
   color: var(--muted);
+}
+
+.public-profile-hero__actions {
+  margin-top: 14px;
 }
 
 .public-profile-section {
@@ -926,6 +978,25 @@
   background: var(--brand-weak);
 }
 
+.support-context-card {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.support-context-card__eyebrow {
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .support-summary p {
   margin: 8px 0 0;
   line-height: 1.6;
@@ -975,6 +1046,25 @@
 
 .support-reply {
   padding-bottom: 2px;
+}
+
+.support-entry-modal {
+  width: min(560px, 94vw);
+  padding: 28px;
+}
+
+.support-entry-modal__head h2 {
+  margin: 0 0 8px;
+}
+
+.support-entry-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.support-entry-modal__actions {
+  justify-content: flex-end;
 }
 
 .support-empty {
@@ -1288,10 +1378,38 @@
   background: #111827;
 }
 
+:root[data-theme="dark"] .seller-verified-pill {
+  background: #111827;
+  border-color: #1f2937;
+  color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .seller-verified-pill.is-verified {
+  background: rgba(14, 165, 233, .14);
+  border-color: rgba(14, 165, 233, .24);
+  color: #8bd3ff;
+}
+
+:root[data-theme="dark"] .btn-ghost {
+  background: transparent;
+  border-color: #334155;
+  color: #e5ecf7;
+}
+
+:root[data-theme="dark"] .btn-ghost:hover {
+  background: #111827;
+  border-color: #38bdf8;
+}
+
 :root[data-theme="dark"] .support-message {
   background: #0f172a;
   border-color: #1f2937;
   color: #e5ecf7;
+}
+
+:root[data-theme="dark"] .support-context-card {
+  background: #0f172a;
+  border-color: #1f2937;
 }
 
 :root[data-theme="dark"] .support-pill--open {

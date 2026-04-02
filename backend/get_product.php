@@ -20,6 +20,7 @@ $stmt = $pdo->prepare("
     p.category_id,
     u.full_name AS seller_name,
     u.email AS seller_email,
+    u.seller_verified,
     u.store_name,
     u.seller_bio,
     COALESCE(review_stats.avg_rating, 0) AS seller_rating_avg,
@@ -54,6 +55,7 @@ $product['price_cents'] = (int) $product['price_cents'];
 $product['stock'] = (int) $product['stock'];
 $product['seller_id'] = (int) $product['seller_id'];
 $product['category_id'] = isset($product['category_id']) ? (int) $product['category_id'] : null;
+$product['seller_verified'] = filter_var($product['seller_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
 $product['seller_rating_avg'] = (float) $product['seller_rating_avg'];
 $product['seller_review_count'] = (int) $product['seller_review_count'];
 $product['images'] = $images;
