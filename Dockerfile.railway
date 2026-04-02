@@ -4,10 +4,9 @@ FROM php:8.2-apache
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-# Asegurar un solo MPM activo para Apache con mod_php
-RUN a2dismod mpm_event || true
-RUN a2dismod mpm_worker || true
-RUN a2enmod mpm_prefork rewrite
+# La imagen php:8.2-apache ya trae el MPM correcto para mod_php.
+# Solo habilitamos rewrite.
+RUN a2enmod rewrite
 RUN sed -ri 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # Copiar todos los archivos del proyecto al directorio web de Apache
