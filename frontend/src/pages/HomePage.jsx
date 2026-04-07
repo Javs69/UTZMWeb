@@ -27,6 +27,7 @@ export default function HomePage() {
   const [pagination, setPagination] = useState(EMPTY_PAGINATION)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
 
   const query = searchParams.get('q') || ''
   const category = searchParams.get('category') || ''
@@ -49,6 +50,15 @@ export default function HomePage() {
     featuredOnly ||
     favoritesOnly,
   )
+  const activeCatalogFilterCount = [
+    sort !== 'recent',
+    availability !== 'in_stock',
+    Boolean(minPrice),
+    Boolean(maxPrice),
+    Boolean(condition),
+    featuredOnly,
+    favoritesOnly,
+  ].filter(Boolean).length
 
   const favoriteIds = useMemo(
     () => favorites.map((item) => Number(item.product_id)).filter((id) => id > 0),
@@ -187,90 +197,109 @@ export default function HomePage() {
               Filtra por disponibilidad, precio, estado o destacados. Los productos pausados o eliminados ya no aparecen aqui.
             </p>
           </div>
-          {hasActiveCatalogFilters ? (
-            <button className="catalog-toolbar__reset" type="button" onClick={resetCatalogFilters}>
-              Reiniciar filtros
+          <div className="catalog-toolbar__actions">
+            <button
+              className={`catalog-toolbar__filters-btn${isFiltersOpen ? ' is-open' : ''}`}
+              type="button"
+              aria-expanded={isFiltersOpen}
+              aria-controls="catalog-filters-panel"
+              onClick={() => setIsFiltersOpen((current) => !current)}
+            >
+              <span>Filtros y orden</span>
+              {activeCatalogFilterCount ? <span className="catalog-toolbar__filters-count">{activeCatalogFilterCount}</span> : null}
+              <span className="catalog-toolbar__filters-icon" aria-hidden="true">v</span>
             </button>
-          ) : null}
+            {hasActiveCatalogFilters ? (
+              <button className="catalog-toolbar__reset" type="button" onClick={resetCatalogFilters}>
+                Reiniciar filtros
+              </button>
+            ) : null}
+          </div>
         </div>
 
-        <div className="catalog-toolbar__grid catalog-toolbar__grid--expanded">
-          <div className="form-group">
-            <label className="form-label">Ordenar por</label>
-            <select className="form-control" value={sort} onChange={(event) => updateCatalogParams({ sort: event.target.value })}>
-              <option value="recent">Mas recientes</option>
-              <option value="featured">Destacados primero</option>
-              <option value="oldest">Mas antiguos</option>
-              <option value="price_asc">Precio menor a mayor</option>
-              <option value="price_desc">Precio mayor a menor</option>
-            </select>
-          </div>
+        <div
+          id="catalog-filters-panel"
+          className={`catalog-toolbar__panel${isFiltersOpen ? ' is-open' : ''}`}
+          hidden={!isFiltersOpen}
+        >
+          <div className="catalog-toolbar__grid catalog-toolbar__grid--expanded">
+            <div className="form-group">
+              <label className="form-label">Ordenar por</label>
+              <select className="form-control" value={sort} onChange={(event) => updateCatalogParams({ sort: event.target.value })}>
+                <option value="recent">Mas recientes</option>
+                <option value="featured">Destacados primero</option>
+                <option value="oldest">Mas antiguos</option>
+                <option value="price_asc">Precio menor a mayor</option>
+                <option value="price_desc">Precio mayor a menor</option>
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">Disponibilidad</label>
-            <select className="form-control" value={availability} onChange={(event) => updateCatalogParams({ availability: event.target.value })}>
-              <option value="in_stock">Solo disponibles</option>
-              <option value="all">Todos</option>
-              <option value="out_of_stock">Solo sin stock</option>
-            </select>
-          </div>
+            <div className="form-group">
+              <label className="form-label">Disponibilidad</label>
+              <select className="form-control" value={availability} onChange={(event) => updateCatalogParams({ availability: event.target.value })}>
+                <option value="in_stock">Solo disponibles</option>
+                <option value="all">Todos</option>
+                <option value="out_of_stock">Solo sin stock</option>
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">Precio minimo</label>
-            <input
-              className="form-control"
-              type="number"
-              min="0"
-              step="0.01"
-              value={minPrice}
-              onChange={(event) => updateCatalogParams({ min_price: event.target.value })}
-            />
-          </div>
+            <div className="form-group">
+              <label className="form-label">Precio minimo</label>
+              <input
+                className="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                value={minPrice}
+                onChange={(event) => updateCatalogParams({ min_price: event.target.value })}
+              />
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">Precio maximo</label>
-            <input
-              className="form-control"
-              type="number"
-              min="0"
-              step="0.01"
-              value={maxPrice}
-              onChange={(event) => updateCatalogParams({ max_price: event.target.value })}
-            />
-          </div>
+            <div className="form-group">
+              <label className="form-label">Precio maximo</label>
+              <input
+                className="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                value={maxPrice}
+                onChange={(event) => updateCatalogParams({ max_price: event.target.value })}
+              />
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">Condicion</label>
-            <select className="form-control" value={condition} onChange={(event) => updateCatalogParams({ condition: event.target.value })}>
-              <option value="">Todas</option>
-              {PRODUCT_CONDITIONS.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="form-group">
+              <label className="form-label">Condicion</label>
+              <select className="form-control" value={condition} onChange={(event) => updateCatalogParams({ condition: event.target.value })}>
+                <option value="">Todas</option>
+                {PRODUCT_CONDITIONS.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">Destacados</label>
-            <button
-              className={`catalog-toolbar__toggle${featuredOnly ? ' is-active' : ''}`}
-              type="button"
-              onClick={() => updateCatalogParams({ featured: featuredOnly ? '' : '1' })}
-            >
-              {featuredOnly ? 'Solo destacados' : 'Incluir destacados'}
-            </button>
-          </div>
+            <div className="form-group">
+              <label className="form-label">Destacados</label>
+              <button
+                className={`catalog-toolbar__toggle${featuredOnly ? ' is-active' : ''}`}
+                type="button"
+                onClick={() => updateCatalogParams({ featured: featuredOnly ? '' : '1' })}
+              >
+                {featuredOnly ? 'Solo destacados' : 'Incluir destacados'}
+              </button>
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">Favoritos</label>
-            <button
-              className={`catalog-toolbar__toggle${favoritesOnly ? ' is-active' : ''}`}
-              type="button"
-              onClick={() => updateCatalogParams({ favorites: favoritesOnly ? '' : '1' })}
-            >
-              {favoritesOnly ? 'Solo favoritos' : 'Mostrar favoritos'}
-            </button>
+            <div className="form-group">
+              <label className="form-label">Favoritos</label>
+              <button
+                className={`catalog-toolbar__toggle${favoritesOnly ? ' is-active' : ''}`}
+                type="button"
+                onClick={() => updateCatalogParams({ favorites: favoritesOnly ? '' : '1' })}
+              >
+                {favoritesOnly ? 'Solo favoritos' : 'Mostrar favoritos'}
+              </button>
+            </div>
           </div>
         </div>
       </section>

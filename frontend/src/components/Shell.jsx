@@ -205,6 +205,8 @@ function Header() {
             className="theme-toggle"
             id="themeToggle"
             type="button"
+            aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           >
             <span className="theme-toggle__label">
@@ -377,7 +379,7 @@ function Header() {
                 src={session.user?.avatar_url || '/public/uploads/blank-profile.png'}
                 alt="Avatar"
               />
-              <span id="profileLabel">
+              <span id="profileLabel" className="profile-btn__label">
                 {isLoggedIn ? session.user?.full_name || session.user?.email : 'Iniciar sesion'}
               </span>
               <svg viewBox="0 0 24 24" aria-hidden="true">

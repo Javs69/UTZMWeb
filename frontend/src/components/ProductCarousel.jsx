@@ -5,6 +5,7 @@ export default function ProductCarousel({ title, items = [], emptyText = 'No hay
   const viewportRef = useRef(null)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(items.length > 0)
+  const [isCentered, setIsCentered] = useState(false)
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -12,6 +13,7 @@ export default function ProductCarousel({ title, items = [], emptyText = 'No hay
 
     const updateScrollState = () => {
       const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth - 4)
+      setIsCentered(viewport.scrollWidth <= viewport.clientWidth + 4)
       setCanScrollPrev(viewport.scrollLeft > 4)
       setCanScrollNext(viewport.scrollLeft < maxScroll)
     }
@@ -42,7 +44,7 @@ export default function ProductCarousel({ title, items = [], emptyText = 'No hay
     <section className="strip">
       <div className="strip-head">
         <h2>{title}</h2>
-        {items.length > 1 ? (
+        {items.length > 1 && !isCentered ? (
           <div className="carousel-controls" aria-label={`Controles de ${title}`}>
             <button
               className="carousel-btn"
@@ -73,7 +75,7 @@ export default function ProductCarousel({ title, items = [], emptyText = 'No hay
       ) : (
         <div className="carousel-host">
           <div className="carousel-window" ref={viewportRef}>
-            <div className="carousel-track">
+            <div className={`carousel-track${isCentered ? ' is-centered' : ''}`}>
               {items.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
