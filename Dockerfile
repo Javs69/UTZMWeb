@@ -2,8 +2,7 @@ FROM node:20-bookworm-slim AS frontend-build
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-COPY frontend ./frontend
+COPY . /app
 
 RUN npm ci
 RUN npm run build
