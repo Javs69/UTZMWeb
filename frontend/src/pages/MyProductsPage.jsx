@@ -39,7 +39,7 @@ export default function MyProductsPage() {
         location: product.pickup_location || '',
         featured: Boolean(product.is_featured),
       })
-      setMessage('Publicacion actualizada.')
+      setMessage('Publicación actualizada.')
       await loadProducts()
     } catch (error) {
       setMessage(error.message)
@@ -54,7 +54,7 @@ export default function MyProductsPage() {
 
     try {
       const response = await productService.runProductAction({ id: productId, action })
-      setMessage(response.message || 'Accion completada.')
+      setMessage(response.message || 'Acción completada.')
       await loadProducts()
     } catch (error) {
       setMessage(error.message)
@@ -77,7 +77,7 @@ export default function MyProductsPage() {
         <div className="strip-head">
           <h2>Mis publicaciones</h2>
           <p className="form-hint" style={{ margin: 0 }}>
-            Edita datos base y gestiona cada anuncio con acciones rapidas.
+            Edita datos base y gestiona cada anuncio con acciones rápidas.
           </p>
         </div>
 
@@ -141,14 +141,14 @@ export default function MyProductsPage() {
 
                   <div className="form-row-2">
                     <div className="form-group">
-                      <label className="form-label">Categoria</label>
+                      <label className="form-label">Categoría</label>
                       <select
                         className="form-control"
                         value={product.category_id || ''}
                         disabled={isDeleted}
                         onChange={(event) => updateField(index, 'category_id', Number(event.target.value || 0))}
                       >
-                        <option value="">Sin categoria</option>
+                        <option value="">Sin categoría</option>
                         {CATEGORIES.map((category) => (
                           <option key={category.id} value={category.id}>
                             {category.label}
@@ -158,7 +158,7 @@ export default function MyProductsPage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Condicion</label>
+                      <label className="form-label">Condición</label>
                       <select
                         className="form-control"
                         value={product.condition_code || 'good'}
@@ -175,7 +175,7 @@ export default function MyProductsPage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Ubicacion de entrega</label>
+                      <label className="form-label">Ubicación de entrega</label>
                     <input
                       className="form-control"
                       value={product.pickup_location || ''}
@@ -186,7 +186,7 @@ export default function MyProductsPage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Descripcion</label>
+                      <label className="form-label">Descripción</label>
                     <textarea
                       className="form-control"
                       rows="3"
@@ -208,7 +208,7 @@ export default function MyProductsPage() {
 
                   <div className="my-product-card__summary">
                     <span>{getConditionLabel(product.condition_code)}</span>
-                    <span>{product.pickup_location || 'Sin ubicacion'}</span>
+                    <span>{product.pickup_location || 'Sin ubicación'}</span>
                   </div>
 
                   <div className="form-actions my-product-card__actions">

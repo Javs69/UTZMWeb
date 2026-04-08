@@ -10,7 +10,7 @@ const FOOTER_SECTIONS = [
   {
     title: 'Pagos',
     links: [
-      { href: '/metodos_pago.html', label: 'Metodos de pago' },
+      { href: '/metodos_pago.html', label: 'Métodos de pago' },
       { href: '/seguridad.html', label: 'Seguridad' },
       { href: '/facturacion.html', label: 'Facturacion' },
     ],
@@ -18,7 +18,7 @@ const FOOTER_SECTIONS = [
   {
     title: 'Compras',
     links: [
-      { href: '/envios.html', label: 'Envios' },
+      { href: '/envios.html', label: 'Envíos' },
       { href: '/devoluciones.html', label: 'Devoluciones' },
       { href: '/reembolsos.html', label: 'Reembolsos' },
     ],
@@ -32,7 +32,7 @@ const FOOTER_SECTIONS = [
     links: [
       { href: '/centro_de_ayuda.html', label: 'Centro de ayuda' },
       { href: '/contacto.html', label: 'Contacto' },
-      { href: '/terminos_privacidad.html', label: 'Terminos y privacidad' },
+      { href: '/terminos_privacidad.html', label: 'Términos y privacidad' },
     ],
   },
 ]
@@ -210,7 +210,7 @@ function Header() {
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           >
             <span className="theme-toggle__label">
-              {theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+                {theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
             </span>
             <span className="theme-toggle__knob" aria-hidden="true" />
           </button>
@@ -380,7 +380,7 @@ function Header() {
                 alt="Avatar"
               />
               <span id="profileLabel" className="profile-btn__label">
-                {isLoggedIn ? session.user?.full_name || session.user?.email : 'Iniciar sesion'}
+                {isLoggedIn ? session.user?.full_name || session.user?.email : 'Iniciar sesión'}
               </span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 10l5 5 5-5z" />
@@ -416,7 +416,7 @@ function Header() {
                   </li>
                   <li role="menuitem">
                     <button className="menu-link" type="button" onClick={handleLogout}>
-                      Cerrar sesion
+                      Cerrar sesión
                     </button>
                   </li>
                 </>
@@ -426,7 +426,7 @@ function Header() {
         </nav>
       </div>
 
-      <nav id="catNav" className="categories" aria-label="Categorias">
+      <nav id="catNav" className="categories" aria-label="Categorías">
         <ul className="container">
           {CATEGORIES.map((category) => (
             <li key={category.id} className="cat">

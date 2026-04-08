@@ -7,7 +7,7 @@ import { formatDate } from '@/utils/format'
 const CATEGORY_OPTIONS = [
   { value: 'pagos', label: 'Pagos' },
   { value: 'pedido', label: 'Pedidos' },
-  { value: 'envio', label: 'Envios y entregas' },
+  { value: 'envio', label: 'Envíos y entregas' },
   { value: 'cuenta', label: 'Cuenta y acceso' },
   { value: 'publicacion', label: 'Publicaciones' },
   { value: 'seguridad', label: 'Seguridad' },
@@ -314,13 +314,13 @@ export default function SupportPage() {
           <h1>{isSupport ? 'Bandeja de soporte' : 'Soporte'}</h1>
           <p className="form-hint">
             {isSupport
-              ? 'Gestiona tickets, responde usuarios y organiza la asignacion del equipo.'
+              ? 'Gestiona tickets, responde usuarios y organiza la asignación del equipo.'
               : 'Abre un ticket para recibir ayuda humana y dar seguimiento a tu caso.'}
           </p>
         </div>
         {!isSupport ? (
           <Link className="btn" to="/centro_de_ayuda.html">
-            Ver ayuda rapida
+            Ver ayuda rápida
           </Link>
         ) : null}
       </div>
@@ -354,7 +354,7 @@ export default function SupportPage() {
                   onChange={(event) => setFilters((current) => ({ ...current, assignment: event.target.value }))}
                 >
                   <option value="all">Toda la bandeja</option>
-                  <option value="mine">Asignados a mi</option>
+                  <option value="mine">Asignados a mí</option>
                   <option value="unassigned">Sin asignar</option>
                 </select>
                 <input
@@ -395,7 +395,7 @@ export default function SupportPage() {
               ))
             ) : (
               <div className="support-empty">
-                {isSupport ? 'No hay tickets para estos filtros.' : 'Aun no has creado tickets.'}
+                {isSupport ? 'No hay tickets para estos filtros.' : 'Aún no has creado tickets.'}
               </div>
             )}
           </div>
@@ -407,7 +407,7 @@ export default function SupportPage() {
               <h2>Abrir ticket</h2>
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Categoria</label>
+                  <label className="form-label">Categoría</label>
                   <select
                     className="form-control"
                     value={createForm.category}
@@ -534,7 +534,7 @@ export default function SupportPage() {
               <div className="card support-admin-card">
                 <h2>Registrar usuarios de soporte</h2>
                 <p className="form-hint">
-                  Promueve cuentas existentes por correo. El primer administrador debe quedar asignado directamente en base de datos.
+                  Promueve cuentas existentes por correo. El primer administrador debe quedar asignado directamente en la base de datos.
                 </p>
                 <div className="support-admin-grid">
                   <div className="form-group">
@@ -566,7 +566,7 @@ export default function SupportPage() {
               </div>
 
               <div className="card support-admin-card">
-                <h2>Verificacion de vendedores</h2>
+                <h2>Verificación de vendedores</h2>
                 <p className="form-hint">
                   Activa o retira la insignia de vendedor verificado por correo.
                 </p>
@@ -600,7 +600,7 @@ export default function SupportPage() {
                 </div>
                 <div className="form-actions">
                   <button className="btn" type="button" onClick={updateSellerVerification}>
-                    Guardar verificacion
+                    Guardar verificación
                   </button>
                 </div>
               </div>
@@ -609,7 +609,7 @@ export default function SupportPage() {
 
           <div className="card support-thread-card">
             {loadingDetail ? (
-              <div className="support-empty">Cargando conversacion...</div>
+              <div className="support-empty">Cargando conversación...</div>
             ) : selectedTicket ? (
               <>
                 <div className="support-thread-card__head">
@@ -638,7 +638,7 @@ export default function SupportPage() {
 
                 <div className="support-thread-scroll">
                   <div className="support-summary">
-                    <strong>Descripcion inicial</strong>
+                    <strong>Descripción inicial</strong>
                     <p>{selectedTicket.description}</p>
                   </div>
 

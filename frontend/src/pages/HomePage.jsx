@@ -181,7 +181,7 @@ export default function HomePage() {
 
     const uncategorized = products.filter((product) => !product.category_id)
     if (uncategorized.length) {
-      groupedSections.push({ title: 'Sin categoria', items: uncategorized })
+      groupedSections.push({ title: 'Sin categoría', items: uncategorized })
     }
 
     return groupedSections
@@ -194,7 +194,7 @@ export default function HomePage() {
           <div>
             <h2>{catalogTitle}</h2>
             <p className="form-hint">
-              Filtra por disponibilidad, precio, estado o destacados. Los productos pausados o eliminados ya no aparecen aqui.
+              Filtra por disponibilidad, precio, estado o destacados. Los productos pausados o eliminados ya no aparecen aquí.
             </p>
           </div>
           <div className="catalog-toolbar__actions">
@@ -226,9 +226,9 @@ export default function HomePage() {
             <div className="form-group">
               <label className="form-label">Ordenar por</label>
               <select className="form-control" value={sort} onChange={(event) => updateCatalogParams({ sort: event.target.value })}>
-                <option value="recent">Mas recientes</option>
+                <option value="recent">Más recientes</option>
                 <option value="featured">Destacados primero</option>
-                <option value="oldest">Mas antiguos</option>
+                <option value="oldest">Más antiguos</option>
                 <option value="price_asc">Precio menor a mayor</option>
                 <option value="price_desc">Precio mayor a menor</option>
               </select>
@@ -244,7 +244,7 @@ export default function HomePage() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Precio minimo</label>
+              <label className="form-label">Precio mínimo</label>
               <input
                 className="form-control"
                 type="number"
@@ -256,7 +256,7 @@ export default function HomePage() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Precio maximo</label>
+              <label className="form-label">Precio máximo</label>
               <input
                 className="form-control"
                 type="number"
@@ -268,7 +268,7 @@ export default function HomePage() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Condicion</label>
+              <label className="form-label">Condición</label>
               <select className="form-control" value={condition} onChange={(event) => updateCatalogParams({ condition: event.target.value })}>
                 <option value="">Todas</option>
                 {PRODUCT_CONDITIONS.map((item) => (
@@ -306,7 +306,7 @@ export default function HomePage() {
 
       <section className="catalog-results">
         <div className="strip-head">
-          <h2>{hasActiveCatalogFilters ? 'Resultados' : 'Categorias'}</h2>
+          <h2>{hasActiveCatalogFilters ? 'Resultados' : 'Categorías'}</h2>
           <span className="muted">
             {pagination.total} {pagination.total === 1 ? 'producto' : 'productos'}
           </span>

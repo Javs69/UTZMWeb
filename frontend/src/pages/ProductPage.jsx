@@ -142,7 +142,7 @@ export default function ProductPage() {
     if (kind === 'product') {
       setSupportModal({
         title: 'Reportar producto',
-        intro: 'Describe por que este producto debe ser revisado por moderacion.',
+        intro: 'Describe por qué este producto debe ser revisado por moderación.',
         categoryOptions: [{ value: 'report_product', label: 'Reporte de producto' }],
         defaultCategory: 'report_product',
         defaultSubject: `Reporte del producto: ${product.name}`,
@@ -216,7 +216,7 @@ export default function ProductPage() {
                 </div>
                 <div className="pprice">{formatCurrency(product.price_cents)}</div>
                 <div className="pstock">
-                  {isPaused ? 'Publicacion pausada' : isOutOfStock ? 'Sin stock' : 'En stock'}
+                  {isPaused ? 'Publicación pausada' : isOutOfStock ? 'Sin stock' : 'En stock'}
                 </div>
                 <div className="pseller">
                   Vendido por{' '}
@@ -243,15 +243,15 @@ export default function ProductPage() {
                     <strong>{renderStars(product.seller_rating_avg)}</strong>
                     <span>
                       {Number(product.seller_rating_avg || 0).toFixed(1)} / 5
-                      {product.seller_review_count ? ` - ${product.seller_review_count} resenas` : ' - Sin resenas todavia'}
+                      {product.seller_review_count ? ` - ${product.seller_review_count} reseñas` : ' - Sin reseñas todavía'}
                     </span>
                   </div>
                   <p className="seller-profile-card__bio">
-                    {product.seller_bio || 'Este vendedor aun no agrego una descripcion.'}
+                    {product.seller_bio || 'Este vendedor aún no agregó una descripción.'}
                   </p>
                   <div className="form-actions" style={{ marginTop: 12 }}>
                     <Link className="btn" to={`/perfil.html?id=${product.seller_id}`}>
-                      Ver perfil publico
+                      Ver perfil público
                     </Link>
                     <button className="btn btn-ghost" type="button" onClick={() => openSupportTicket('seller')}>
                       Reportar vendedor
@@ -310,11 +310,11 @@ export default function ProductPage() {
                 ))}
               </div>
             ) : (
-              <div className="form-hint">Aun no hay preguntas.</div>
+              <div className="form-hint">Aún no hay preguntas.</div>
             )}
 
             {!isLoggedIn ? (
-              <div className="form-hint">Inicia sesion para hacer preguntas.</div>
+              <div className="form-hint">Inicia sesión para hacer preguntas.</div>
             ) : !isSeller ? (
               <div className="q-ask">
                 <textarea
