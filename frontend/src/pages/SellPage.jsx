@@ -88,7 +88,7 @@ export default function SellPage() {
       <section className="hero-card" style={{ padding: 0 }}>
         <div className="hero-text" style={{ paddingBottom: 0 }}>
           <h1>Publicar producto</h1>
-          <p>Completa los datos para crear tu publicacion.</p>
+          <p>Completa los datos para crear tu publicación.</p>
         </div>
       </section>
 
@@ -99,9 +99,9 @@ export default function SellPage() {
             <input className="form-control" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
           </div>
           <div className="form-group">
-            <label className="form-label">Categoria</label>
+            <label className="form-label">Categoría</label>
             <select className="form-control" value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}>
-              <option value="">Selecciona una categoria</option>
+              <option value="">Selecciona una categoría</option>
               {CATEGORIES.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.label}
@@ -110,7 +110,7 @@ export default function SellPage() {
             </select>
           </div>
           <div className="form-group">
-            <label className="form-label">Descripcion</label>
+            <label className="form-label">Descripción</label>
             <textarea className="form-control" rows="6" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
           </div>
           <div className="form-row-2">
@@ -125,7 +125,7 @@ export default function SellPage() {
           </div>
           <div className="form-row-2">
             <div className="form-group">
-              <label className="form-label">Condicion</label>
+              <label className="form-label">Condición</label>
               <select className="form-control" value={form.condition} onChange={(event) => setForm((current) => ({ ...current, condition: event.target.value }))}>
                 {PRODUCT_CONDITIONS.map((condition) => (
                   <option key={condition.value} value={condition.value}>
@@ -140,9 +140,9 @@ export default function SellPage() {
             Marcar como destacado
           </label>
           <div className="form-group">
-            <label className="form-label">Imagenes</label>
+            <label className="form-label">Imágenes</label>
             <input ref={fileInputRef} className="form-control" type="file" accept="image/*" multiple onChange={handleFilesSelected} />
-            <div className="form-hint">Hasta 6 imagenes.</div>
+            <div className="form-hint">Hasta 6 imágenes.</div>
             {previews.length ? (
               <div className="sell-image-preview-grid">
                 {previews.map((preview, index) => (

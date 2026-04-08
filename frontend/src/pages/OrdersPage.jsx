@@ -104,7 +104,7 @@ export default function OrdersPage() {
       const data = await orderService.getOrderReviews(selectedOrder.id)
       setReviews(data.reviews || [])
       await loadOrders()
-      setMessage('Resena guardada correctamente.')
+      setMessage('Reseña guardada correctamente.')
     } catch (error) {
       setMessage(error.message)
     }
@@ -139,7 +139,7 @@ export default function OrdersPage() {
 
     setSupportModal({
       title: `Abrir disputa del pedido #${order.id}`,
-      intro: 'Usa este flujo cuando necesites intervencion del equipo por un problema con la otra parte o con la entrega.',
+      intro: 'Usa este flujo cuando necesites intervención del equipo por un problema con la otra parte o con la entrega.',
       categoryOptions: [{ value: 'dispute', label: 'Disputa postventa' }],
       defaultCategory: 'dispute',
       defaultSubject: `Disputa del pedido #${order.id} con ${counterpartName || 'la otra parte'}`,
@@ -217,7 +217,7 @@ export default function OrdersPage() {
                     ) : null}
                     {order.status === 'delivered' ? (
                       <button className="btn" type="button" onClick={(event) => { event.stopPropagation(); setSelectedOrder(order) }}>
-                        Ver resenas
+                        Ver reseñas
                       </button>
                     ) : null}
                   </div>
@@ -273,7 +273,7 @@ export default function OrdersPage() {
             <div className="form-group"><div className="form-label">Total</div><div>{formatCurrency(selectedOrder.total_cents)}</div></div>
             <div className="form-group"><div className="form-label">Creado</div><div>{formatDate(selectedOrder.created_at, true)}</div></div>
             <div className="form-group"><div className="form-label">Pagado</div><div>{selectedOrder.payment_paid_at ? formatDate(selectedOrder.payment_paid_at, true) : 'No pagado'}</div></div>
-            <div className="form-group"><div className="form-label">Metodo de pago</div><div>{selectedOrder.payment_method_label || selectedOrder.payment_method_type}</div></div>
+            <div className="form-group"><div className="form-label">Método de pago</div><div>{selectedOrder.payment_method_label || selectedOrder.payment_method_type}</div></div>
             {counterpartId ? (
               <div className="form-group">
                 <div className="form-label">Perfil</div>
@@ -299,13 +299,13 @@ export default function OrdersPage() {
 
             {selectedOrder.status === 'delivered' ? (
               <div className="order-review-block">
-                <h3>Calificaciones y resenas</h3>
-                {reviewsLoading ? <div className="form-hint">Cargando resenas...</div> : null}
+                <h3>Calificaciones y reseñas</h3>
+                {reviewsLoading ? <div className="form-hint">Cargando reseñas...</div> : null}
 
                 {myReview ? (
                   <div className="order-review-card">
                     <strong>
-                      Tu resena para{' '}
+                      Tu reseña para{' '}
                       {counterpartId ? (
                         <Link className="link" to={`/perfil.html?id=${counterpartId}`}>
                           {counterpartName}
@@ -318,7 +318,7 @@ export default function OrdersPage() {
                 ) : (
                   <div className="order-review-form">
                     <div className="form-group">
-                      <label className="form-label">Tu calificacion para {counterpartName}</label>
+                      <label className="form-label">Tu calificación para {counterpartName}</label>
                       <select className="form-control" value={reviewForm.rating} onChange={(event) => setReviewForm((current) => ({ ...current, rating: Number(event.target.value) }))}>
                         <option value="5">5 - Excelente</option>
                         <option value="4">4 - Muy bueno</option>
@@ -333,7 +333,7 @@ export default function OrdersPage() {
                     </div>
                     <div className="form-actions">
                       <button className="btn" type="button" onClick={submitReview}>
-                        Guardar resena
+                        Guardar reseña
                       </button>
                     </div>
                   </div>
@@ -342,7 +342,7 @@ export default function OrdersPage() {
                 {receivedReview ? (
                   <div className="order-review-card">
                     <strong>
-                      Resena recibida de{' '}
+                      Reseña recibida de{' '}
                       <Link className="link" to={`/perfil.html?id=${receivedReview.reviewer_id}`}>
                         {receivedReview.reviewer_name}
                       </Link>
@@ -351,7 +351,7 @@ export default function OrdersPage() {
                     <p>{receivedReview.comment || 'Sin comentario.'}</p>
                   </div>
                 ) : !reviewsLoading ? (
-                  <div className="form-hint">La otra parte todavia no ha dejado su resena.</div>
+                  <div className="form-hint">La otra parte todavía no ha dejado su reseña.</div>
                 ) : null}
               </div>
             ) : null}

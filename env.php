@@ -25,6 +25,11 @@ function load_env_file(string $path): void
     $value = trim($parts[1]);
     $value = trim($value, "\"'");
 
+    $existing = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+    if ($existing !== false && $existing !== null && $existing !== '') {
+      continue;
+    }
+
     $_ENV[$key] = $value;
     $_SERVER[$key] = $value;
     putenv($key . '=' . $value);

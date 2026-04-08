@@ -75,7 +75,7 @@ export default function PublicProfilePage() {
       loadProfile()
     } else {
       setLoading(false)
-      setError('Perfil no valido.')
+      setError('Perfil no válido.')
     }
 
     return () => {
@@ -84,8 +84,8 @@ export default function PublicProfilePage() {
   }, [productsPage, reviewsPage, userId])
 
   const profileTitle = useMemo(() => {
-    if (!profile) return 'Perfil publico'
-    return profile.store_name || profile.full_name || 'Perfil publico'
+    if (!profile) return 'Perfil público'
+    return profile.store_name || profile.full_name || 'Perfil público'
   }, [profile])
 
   function openReportModal() {
@@ -130,7 +130,7 @@ export default function PublicProfilePage() {
                 alt={profile.full_name || 'Perfil'}
               />
               <div className="public-profile-hero__content">
-                <div className="public-profile-hero__eyebrow">Perfil publico</div>
+                <div className="public-profile-hero__eyebrow">Perfil público</div>
                 <div className="public-profile-hero__title-row">
                   <h1>{profileTitle}</h1>
                   {profile.seller_verified ? (
@@ -139,13 +139,13 @@ export default function PublicProfilePage() {
                 </div>
                 <p className="public-profile-hero__name">{profile.full_name || 'Usuario sin nombre'}</p>
                 <div className="public-profile-hero__stats">
-                  <span>{formatRating(profile.avg_rating)} de calificacion</span>
-                  <span>{profile.review_count} resenas</span>
+                  <span>{formatRating(profile.avg_rating)} de calificación</span>
+                  <span>{profile.review_count} reseñas</span>
                   <span>{profile.product_count} productos activos</span>
                   <span>{profile.sales_count} ventas completadas</span>
                 </div>
                 <p className="public-profile-hero__bio">
-                  {profile.seller_bio || 'Este usuario todavia no agrego una descripcion publica.'}
+                  {profile.seller_bio || 'Este usuario todavía no agregó una descripción pública.'}
                 </p>
                 <div className="form-actions public-profile-hero__actions">
                   <button className="btn btn-ghost" type="button" onClick={openReportModal}>
@@ -158,15 +158,15 @@ export default function PublicProfilePage() {
 
           <section className="public-profile-section">
             <div className="strip-head">
-              <h2>Resenas recibidas</h2>
+              <h2>Reseñas recibidas</h2>
               <span className="muted">
-                {reviewsPagination.total} {reviewsPagination.total === 1 ? 'resena' : 'resenas'}
+                {reviewsPagination.total} {reviewsPagination.total === 1 ? 'reseña' : 'reseñas'}
               </span>
             </div>
 
             {!reviews.length ? (
               <div className="card" style={{ padding: 18 }}>
-                Todavia no hay resenas para este perfil.
+                Todavía no hay reseñas para este perfil.
               </div>
             ) : (
               <>
@@ -192,7 +192,7 @@ export default function PublicProfilePage() {
                 <PaginationControls
                   pagination={reviewsPagination}
                   onPageChange={(nextPage) => updatePageParam('reviews_page', nextPage)}
-                  label="Paginacion de resenas del perfil"
+                  label="Paginación de reseñas del perfil"
                 />
               </>
             )}
@@ -221,7 +221,7 @@ export default function PublicProfilePage() {
                 <PaginationControls
                   pagination={productsPagination}
                   onPageChange={(nextPage) => updatePageParam('products_page', nextPage)}
-                  label="Paginacion de productos del perfil"
+                  label="Paginación de productos del perfil"
                 />
               </>
             )}
@@ -233,7 +233,7 @@ export default function PublicProfilePage() {
         open={reportOpen}
         onClose={() => setReportOpen(false)}
         title="Reportar vendedor"
-        intro="Explica por que este vendedor debe ser revisado por el equipo de soporte."
+        intro="Explica por qué este vendedor debe ser revisado por el equipo de soporte."
         categoryOptions={[{ value: 'report_seller', label: 'Reporte de vendedor' }]}
         defaultCategory="report_seller"
         defaultSubject={`Reporte del vendedor: ${profileTitle}`}

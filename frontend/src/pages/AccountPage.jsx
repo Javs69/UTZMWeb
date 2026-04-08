@@ -48,7 +48,7 @@ export default function AccountPage() {
         password: passwordForm.next,
       })
       setPasswordForm({ current: '', next: '' })
-      setMessage('Contrasena actualizada correctamente.')
+      setMessage('Contraseña actualizada correctamente.')
     } catch (error) {
       setMessage(error.message)
     }
@@ -67,7 +67,7 @@ export default function AccountPage() {
   return (
     <main className="container" style={{ padding: '18px 0 34px' }}>
       <div className="account-shell">
-        <aside className="account-nav" aria-label="Menu lateral de cuenta">
+        <aside className="account-nav" aria-label="Menú lateral de cuenta">
           <div className="account-nav__header">
             <div className="account-nav__avatar">
               <img src={session.user?.avatar_url || '/public/uploads/blank-profile.png'} alt="Avatar" />
@@ -84,7 +84,7 @@ export default function AccountPage() {
                 Cuenta
               </button>
               <button className={`account-nav__link ${activePanel === 'panel-seguridad' ? 'is-active' : ''}`} type="button" onClick={() => setActivePanel('panel-seguridad')}>
-                Contrasena y seguridad
+                Contraseña y seguridad
               </button>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function AccountPage() {
             <p className="account-nav__title">Pagos y recompensas</p>
             <div className="account-nav__list">
               <button className={`account-nav__link ${activePanel === 'panel-pagos' ? 'is-active' : ''}`} type="button" onClick={() => setActivePanel('panel-pagos')}>
-                Configuracion de pagos
+                Configuración de pagos
               </button>
               <button className={`account-nav__link ${activePanel === 'panel-transacciones' ? 'is-active' : ''}`} type="button" onClick={() => setActivePanel('panel-transacciones')}>
                 Transacciones
@@ -113,7 +113,7 @@ export default function AccountPage() {
                   <input className="form-control" value={profile.full_name} onChange={(event) => setProfile((current) => ({ ...current, full_name: event.target.value }))} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Correo electronico</label>
+                  <label className="form-label">Correo electrónico</label>
                   <input className="form-control" value={profile.email} onChange={(event) => setProfile((current) => ({ ...current, email: event.target.value }))} />
                 </div>
               <div className="form-group">
@@ -123,12 +123,12 @@ export default function AccountPage() {
               <div className="form-group">
                 <label className="form-label">Estado de vendedor</label>
                 <div className={`seller-verified-pill${session.user?.seller_verified ? ' is-verified' : ''}`}>
-                  {session.user?.seller_verified ? 'Vendedor verificado' : 'Vendedor sin verificacion manual'}
+                  {session.user?.seller_verified ? 'Vendedor verificado' : 'Vendedor sin verificación manual'}
                 </div>
               </div>
             </div>
               <div className="form-group">
-                <label className="form-label">Descripcion del vendedor</label>
+                <label className="form-label">Descripción del vendedor</label>
                 <textarea className="form-control" rows="4" value={profile.seller_bio} onChange={(event) => setProfile((current) => ({ ...current, seller_bio: event.target.value }))} />
               </div>
               <div className="form-group">
@@ -145,20 +145,20 @@ export default function AccountPage() {
 
           {activePanel === 'panel-seguridad' ? (
             <div className="card account-card" style={{ padding: 18 }}>
-              <h2>Contrasena y seguridad</h2>
+              <h2>Contraseña y seguridad</h2>
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Contrasena actual</label>
+                  <label className="form-label">Contraseña actual</label>
                   <input className="form-control" type="password" value={passwordForm.current} onChange={(event) => setPasswordForm((current) => ({ ...current, current: event.target.value }))} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Nueva contrasena</label>
+                  <label className="form-label">Nueva contraseña</label>
                   <input className="form-control" type="password" value={passwordForm.next} onChange={(event) => setPasswordForm((current) => ({ ...current, next: event.target.value }))} />
                 </div>
               </div>
               <div className="form-actions">
                 <button className="btn" type="button" onClick={updatePassword}>
-                  Actualizar contrasena
+                  Actualizar contraseña
                 </button>
               </div>
             </div>
@@ -166,7 +166,7 @@ export default function AccountPage() {
 
           {activePanel === 'panel-pagos' ? (
             <div className="card account-card" style={{ padding: 18 }}>
-              <h2>Configuracion de pagos</h2>
+              <h2>Configuración de pagos</h2>
               {paymentMethods.length ? (
                 <div className="pm-list">
                   {paymentMethods.map((method) => (
@@ -182,7 +182,7 @@ export default function AccountPage() {
                   ))}
                 </div>
               ) : (
-                <div className="form-hint">Aun no tienes metodos guardados.</div>
+                <div className="form-hint">Aún no tienes métodos guardados.</div>
               )}
             </div>
           ) : null}
@@ -196,7 +196,7 @@ export default function AccountPage() {
                     <thead>
                       <tr>
                         <th>Tipo</th>
-                        <th>Metodo</th>
+                        <th>Método</th>
                         <th>Estado</th>
                         <th>Monto</th>
                         <th>Fecha</th>
