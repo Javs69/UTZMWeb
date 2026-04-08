@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/backend/bootstrap.php';
+
+app_bootstrap_http(false);
 
 $host = env_value('DB_HOST');
 $port = env_value('DB_PORT');

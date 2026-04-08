@@ -2,7 +2,8 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/cvv_storage.php';
 require_once __DIR__ . '/lib/notifications.php';
-session_start();
+require_once __DIR__ . '/bootstrap.php';
+app_bootstrap_http(true);
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

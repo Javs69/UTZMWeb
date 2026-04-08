@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../db.php';
-session_start();
+require_once __DIR__ . '/bootstrap.php';
+app_bootstrap_http(true);
 header('Content-Type: application/json; charset=utf-8');
 
 function support_json(array $payload, int $status = 200): void
