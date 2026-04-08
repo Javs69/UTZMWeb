@@ -1,7 +1,8 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/auth_codes.php';
-session_start();
+require_once __DIR__ . '/bootstrap.php';
+app_bootstrap_http(true);
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents('php://input'), true);
