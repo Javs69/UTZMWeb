@@ -4,7 +4,7 @@ import path from 'node:path'
 
 export default defineConfig({
   root: __dirname,
-  base: '/app/',
+  base: '/',
   plugins: [react()],
   server: {
     proxy: {

@@ -1,3 +1,5 @@
+import { resolveAssetUrl } from '@/services/api'
+
 function escapeXml(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -80,5 +82,5 @@ export function buildProductPlaceholder(name, subtitle = 'Sin imagen disponible'
 }
 
 export function getProductImageSource(image, name, subtitle) {
-  return image || buildProductPlaceholder(name, subtitle)
+  return resolveAssetUrl(image) || buildProductPlaceholder(name, subtitle)
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { messageService, orderService } from '@/services'
+import { resolveAssetUrl } from '@/services/api'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { useApp } from '@/context/AppContext'
 
@@ -119,8 +120,8 @@ export default function MessagesPage() {
                     <div key={item.id} className={`msg-bubble${item.is_mine ? ' mine' : ''}`}>
                       {item.body ? <p className="msg-text">{item.body}</p> : null}
                       {item.attachment_url ? (
-                        <a className="msg-attachment" href={item.attachment_url} target="_blank" rel="noreferrer">
-                          <img src={item.attachment_url} alt="Adjunto del chat" />
+                        <a className="msg-attachment" href={resolveAssetUrl(item.attachment_url)} target="_blank" rel="noreferrer">
+                          <img src={resolveAssetUrl(item.attachment_url)} alt="Adjunto del chat" />
                         </a>
                       ) : null}
                       <div className="msg-meta">
