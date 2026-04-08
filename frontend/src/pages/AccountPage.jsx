@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { accountService } from '@/services'
 import { useApp } from '@/context/AppContext'
+import { resolveAssetUrl } from '@/services/api'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 export default function AccountPage() {
@@ -70,7 +71,7 @@ export default function AccountPage() {
         <aside className="account-nav" aria-label="Menú lateral de cuenta">
           <div className="account-nav__header">
             <div className="account-nav__avatar">
-              <img src={session.user?.avatar_url || '/public/uploads/blank-profile.png'} alt="Avatar" />
+              <img src={resolveAssetUrl(session.user?.avatar_url || '/public/uploads/blank-profile.png')} alt="Avatar" />
             </div>
             <div className="account-nav__meta">
               <div className="account-nav__eyebrow">Perfil</div>

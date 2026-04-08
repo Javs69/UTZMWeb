@@ -4,6 +4,7 @@ import PaginationControls from '@/components/PaginationControls'
 import ProductCard from '@/components/ProductCard'
 import SupportTicketModal from '@/components/SupportTicketModal'
 import { useApp } from '@/context/AppContext'
+import { resolveAssetUrl } from '@/services/api'
 import { accountService } from '@/services'
 import { formatDate } from '@/utils/format'
 
@@ -126,7 +127,7 @@ export default function PublicProfilePage() {
             <div className="public-profile-hero__main">
               <img
                 className="public-profile-hero__avatar"
-                src={profile.avatar_url}
+                src={resolveAssetUrl(profile.avatar_url)}
                 alt={profile.full_name || 'Perfil'}
               />
               <div className="public-profile-hero__content">

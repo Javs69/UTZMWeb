@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { getConditionLabel } from '@/config/productMeta'
+import { resolveAssetUrl } from '@/services/api'
 import { formatCurrency } from '@/utils/format'
 import { productService } from '@/services'
 import { buildProductPlaceholder } from '@/utils/productPlaceholder'
@@ -50,7 +51,7 @@ export default function ProductPage() {
         const data = await productService.getProduct(productId)
         if (!active) return
         setProduct(data)
-        setMainImage(data.images?.[0] || buildProductPlaceholder(data.name, 'Imagen pendiente'))
+        setMainImage(resolveAssetUrl(data.images?.[0]) || buildProductPlaceholder(data.name, 'Imagen pendiente'))
         await loadQuestions()
       } catch (error) {
         if (active) {
@@ -199,9 +200,9 @@ export default function ProductPage() {
                   {(product.images || []).map((image, index) => (
                     <img
                       key={`${image}-${index}`}
-                      src={image}
+                      src={resolveAssetUrl(image)}
                       alt={`${product.name} ${index + 1}`}
-                      onClick={() => setMainImage(image)}
+                      onClick={() => setMainImage(resolveAssetUrl(image))}
                     />
                   ))}
                 </div>

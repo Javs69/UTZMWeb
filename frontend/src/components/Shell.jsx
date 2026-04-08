@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CATEGORIES } from '@/config/categories'
 import { useApp } from '@/context/AppContext'
+import { resolveAssetUrl } from '@/services/api'
 import { formatCurrency, formatDate } from '@/utils/format'
 import AssistantWidget from './AssistantWidget'
 import AuthModal from './AuthModal'
@@ -160,7 +161,7 @@ function Header() {
               </clipPath>
             </defs>
             <image
-              href="/public/uploads/logo.jpeg"
+              href={resolveAssetUrl('/public/uploads/logo.jpeg')}
               x="2"
               y="2"
               width="44"
@@ -376,7 +377,7 @@ function Header() {
             >
               <img
                 id="avatarImg"
-                src={session.user?.avatar_url || '/public/uploads/blank-profile.png'}
+                src={resolveAssetUrl(session.user?.avatar_url || '/public/uploads/blank-profile.png')}
                 alt="Avatar"
               />
               <span id="profileLabel" className="profile-btn__label">
