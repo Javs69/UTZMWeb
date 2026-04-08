@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev:php": "php -S 127.0.0.1:8080 -t .",
-    "dev": "vite --config frontend/vite.config.js",
-    "build": "vite build --config frontend/vite.config.js",
-    "preview": "vite preview --config frontend/vite.config.js",
+    "dev": "node ./node_modules/vite/bin/vite.js --config frontend/vite.config.js",
+    "build": "node ./node_modules/vite/bin/vite.js build --config frontend/vite.config.js",
+    "preview": "node ./node_modules/vite/bin/vite.js preview --config frontend/vite.config.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:marketplace": "npm run build && playwright test tests/marketplace-flow.spec.js"
   },
