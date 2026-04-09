@@ -1,12 +1,11 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 require __DIR__ . '/../db.php';
 
-$defaultAvatar = "/public/uploads/blank-profile.png";
-
-if (!isset($_SESSION['user'])) {
+$user = auth_user_from_access_token($pdo);
+if (!$user) {
   echo json_encode([
     "logged_in" => false,
     "user" => null
@@ -14,32 +13,16 @@ if (!isset($_SESSION['user'])) {
   exit;
 }
 
-// Refresh data from DB so avatar changes made elsewhere are reflected in the web session
-$sessionUser = $_SESSION['user'];
-try {
-  $stmt = $pdo->prepare("SELECT id, full_name, email, avatar_url, role, seller_verified, store_name, seller_bio FROM users WHERE id = ? LIMIT 1");
-  $stmt->execute([(int)($sessionUser['id'] ?? 0)]);
-  $fresh = $stmt->fetch(PDO::FETCH_ASSOC);
-  if ($fresh) {
-    $sessionUser = $fresh;
-    $_SESSION['user'] = $fresh;
-  }
-} catch (Exception $e) {
-  // Keep using the cached session data if DB lookup fails
-}
-
-$avatar = $sessionUser['avatar_url'] ?? null;
-
 echo json_encode([
   "logged_in" => true,
   "user" => [
-    "id" => $sessionUser['id'] ?? null,
-    "full_name" => $sessionUser['full_name'] ?? '',
-    "email" => $sessionUser['email'] ?? '',
-    "avatar_url" => $avatar ?: $defaultAvatar,
-    "role" => $sessionUser['role'] ?? 'customer',
-    "seller_verified" => filter_var($sessionUser['seller_verified'] ?? false, FILTER_VALIDATE_BOOLEAN),
-    "store_name" => $sessionUser['store_name'] ?? '',
-    "seller_bio" => $sessionUser['seller_bio'] ?? ''
+    "id" => $user['id'] ?? null,
+    "full_name" => $user['full_name'] ?? '',
+    "email" => $user['email'] ?? '',
+    "avatar_url" => $user['avatar_url'] ?? '/public/uploads/blank-profile.png',
+    "role" => $user['role'] ?? 'customer',
+    "seller_verified" => filter_var($user['seller_verified'] ?? false, FILTER_VALIDATE_BOOLEAN),
+    "store_name" => $user['store_name'] ?? '',
+    "seller_bio" => $user['seller_bio'] ?? ''
   ]
 ]);

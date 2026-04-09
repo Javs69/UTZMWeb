@@ -1,16 +1,17 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['user'])) {
+if (false) {
   http_response_code(401);
   echo json_encode(['error' => 'No autenticado']);
   exit;
 }
 
-$user_id = (int)($_SESSION['user']['id'] ?? 0);
+$currentUser = auth_require_user($pdo);
+$user_id = (int) $currentUser['id'];
 $role = isset($_GET['role']) ? strtolower(trim($_GET['role'])) : 'all';
 $limit = isset($_GET['limit']) ? max(1, min(100, (int)$_GET['limit'])) : null;
 

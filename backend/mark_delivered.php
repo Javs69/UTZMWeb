@@ -2,7 +2,7 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/notifications.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -11,13 +11,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit;
 }
 
-if (!isset($_SESSION['user'])) {
+if (false) {
   http_response_code(401);
   echo json_encode(['error' => 'No autenticado']);
   exit;
 }
 
-$user_id = (int)($_SESSION['user']['id'] ?? 0);
+$currentUser = auth_require_user($pdo);
+$user_id = (int) $currentUser['id'];
 $order_id = isset($_POST['order_id']) ? (int)$_POST['order_id'] : 0;
 $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
 
@@ -141,7 +142,7 @@ try {
       'id' => (int)$row['id'],
       'order_id' => $order_id,
       'sender_id' => $user_id,
-      'sender_name' => $_SESSION['user']['full_name'] ?? $_SESSION['user']['email'] ?? 'Vendedor',
+      'sender_name' => $currentUser['full_name'] ?? $currentUser['email'] ?? 'Vendedor',
       'body' => $body,
       'created_at' => $row['created_at'],
       'is_mine' => true,

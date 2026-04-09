@@ -2,13 +2,14 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/auth_codes.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents('php://input'), true);
 $email = normalize_auth_email($data['email'] ?? '');
 $code = trim((string) ($data['code'] ?? ''));
-$pending = $_SESSION['pending_2fa'] ?? null;
+$challengeToken = trim((string) ($data['challenge_token'] ?? ''));
+$pending = $challengeToken !== '' ? auth_parse_challenge($challengeToken, EMAIL_CODE_LOGIN) : null;
 
 if (!$email || !$code) {
   echo json_encode(['error' => 'Ingresa el correo y el codigo.']);
@@ -28,7 +29,7 @@ try {
     exit;
   }
 
-  $userId = (int) ($pending['user_id'] ?? 0);
+  $userId = (int) ($pending['sub'] ?? 0);
   if ($userId <= 0) {
     http_response_code(403);
     echo json_encode(['error' => 'La verificacion ya no es valida. Inicia sesion otra vez.']);
@@ -42,10 +43,11 @@ try {
     exit;
   }
 
-  unset($_SESSION['pending_2fa']);
-  $_SESSION['user'] = $user;
-
-  echo json_encode(['success' => true, 'user' => $user]);
+  echo json_encode([
+    'success' => true,
+    'user' => $user,
+    'token' => auth_issue_access_token((int) $user['id']),
+  ]);
 } catch (Throwable $error) {
   http_response_code(500);
   echo json_encode(['error' => 'No se pudo verificar el codigo.']);

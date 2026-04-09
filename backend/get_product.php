@@ -2,7 +2,7 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/product_catalog.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 ensure_marketplace_product_schema($pdo);
@@ -55,7 +55,8 @@ if (!$product) {
   exit;
 }
 
-$viewerId = (int) ($_SESSION['user']['id'] ?? 0);
+$viewer = auth_user_from_access_token($pdo);
+$viewerId = (int) ($viewer['id'] ?? 0);
 $sellerId = (int) ($product['seller_id'] ?? 0);
 $status = normalize_product_status((string) ($product['status'] ?? 'active'));
 

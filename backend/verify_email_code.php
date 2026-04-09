@@ -2,7 +2,7 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/auth_codes.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents('php://input'), true);
@@ -35,9 +35,11 @@ try {
     exit;
   }
 
-  $_SESSION['user'] = $user;
-
-  echo json_encode(['success' => true, 'user' => $user]);
+  echo json_encode([
+    'success' => true,
+    'user' => $user,
+    'token' => auth_issue_access_token((int) $user['id']),
+  ]);
 } catch (Throwable $e) {
   http_response_code(500);
   echo json_encode(['error' => 'No se pudo verificar el codigo.']);

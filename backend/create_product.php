@@ -2,13 +2,13 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/product_catalog.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 ensure_marketplace_product_schema($pdo);
 
 // Requiere sesión
-if (!isset($_SESSION['user']['id'])) {
+if (false) {
   echo json_encode(["error" => "No autorizado"]);
   exit;
 }
@@ -65,7 +65,8 @@ if ($category_id <= 0 && !$allowNullCategory) {
 }
 
 $price_cents = (int) round($price * 100);
-$seller_id = (int) $_SESSION['user']['id'];
+$currentUser = auth_require_user($pdo);
+$seller_id = (int) $currentUser['id'];
 
 try {
   $stmt = $pdo->prepare(

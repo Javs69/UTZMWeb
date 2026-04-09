@@ -2,16 +2,17 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/notifications.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['user'])) {
+if (false) {
   http_response_code(401);
   echo json_encode(['error' => 'No autenticado']);
   exit;
 }
 
-$user_id = (int)($_SESSION['user']['id'] ?? 0);
+$currentUser = auth_require_user($pdo);
+$user_id = (int) $currentUser['id'];
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
 function ensureOrderAccess(PDO $pdo, int $order_id, int $user_id): array {
@@ -233,7 +234,7 @@ if ($method === 'POST') {
       'id' => (int)$row['id'],
       'order_id' => $order_id,
       'sender_id' => $user_id,
-      'sender_name' => $_SESSION['user']['full_name'] ?? $_SESSION['user']['email'] ?? 'Tú',
+      'sender_name' => $currentUser['full_name'] ?? $currentUser['email'] ?? 'Tú',
       'body' => $body,
       'created_at' => $row['created_at'],
       'is_mine' => true,

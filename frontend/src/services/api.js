@@ -1,4 +1,5 @@
 const API_BASE_URL = String(import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
+const AUTH_TOKEN_STORAGE_KEY = 'UTZM_AUTH_TOKEN'
 
 function isAbsoluteUrl(value) {
   return /^(?:[a-z]+:)?\/\//i.test(value)
@@ -20,6 +21,20 @@ export function resolveAssetUrl(url) {
   return url
 }
 
+export function getAuthToken() {
+  return window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) || ''
+}
+
+export function setAuthToken(token) {
+  if (token) {
+    window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token)
+  }
+}
+
+export function clearAuthToken() {
+  window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
+}
+
 async function parseJson(response) {
   try {
     return await response.json()
@@ -29,10 +44,11 @@ async function parseJson(response) {
 }
 
 export async function request(url, options = {}) {
+  const token = getAuthToken()
   const response = await fetch(resolveAssetUrl(url), {
-    credentials: 'include',
     ...options,
     headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers ?? {}),
     },
@@ -44,6 +60,10 @@ export async function request(url, options = {}) {
     error.data = data
     error.status = response.status
     throw error
+  }
+
+  if (typeof data.token === 'string' && data.token) {
+    setAuthToken(data.token)
   }
 
   return data

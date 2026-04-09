@@ -6,7 +6,7 @@ import { authService } from '@/services'
 const INITIAL_LOGIN = { email: '', password: '' }
 const INITIAL_REGISTER = { full_name: '', email: '', password: '' }
 const INITIAL_VERIFY = { email: '', code: '' }
-const INITIAL_LOGIN_2FA = { email: '', code: '' }
+const INITIAL_LOGIN_2FA = { email: '', code: '', challenge_token: '' }
 const INITIAL_FORGOT = { email: '' }
 const INITIAL_RESET = { email: '', code: '', password: '' }
 
@@ -44,7 +44,7 @@ export default function AuthModal() {
     }
 
     if (authModal.mode === 'login2fa') {
-      setLogin2faForm({ email, code: '' })
+      setLogin2faForm({ email, code: '', challenge_token: authModal.payload?.challenge_token ?? '' })
     }
 
     if (authModal.mode === 'forgot') {
@@ -54,7 +54,7 @@ export default function AuthModal() {
     if (authModal.mode === 'reset') {
       setResetForm({ email, code: '', password: '' })
     }
-  }, [authModal.mode, authModal.payload?.email])
+  }, [authModal.mode, authModal.payload?.challenge_token, authModal.payload?.email])
 
   if (!authModal.open) {
     return null
@@ -91,7 +91,10 @@ export default function AuthModal() {
       if (isLogin) {
         const data = await login(loginForm)
         if (data.two_factor_required) {
-          openAuth('login2fa', { email: data.email || loginForm.email.trim() })
+          openAuth('login2fa', {
+            email: data.email || loginForm.email.trim(),
+            challenge_token: data.challenge_token || '',
+          })
           setFeedback('success', data.message || 'Enviamos un código de acceso a tu correo.')
           return
         }
@@ -153,7 +156,7 @@ export default function AuthModal() {
 
     try {
       const payload = isLogin2fa
-        ? { email: login2faForm.email, purpose: 'login_2fa' }
+        ? { email: login2faForm.email, purpose: 'login_2fa', challenge_token: login2faForm.challenge_token }
         : { email: verifyForm.email, purpose: 'verify_email' }
 
       const data = await authService.resendEmailCode(payload)

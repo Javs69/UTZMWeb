@@ -1,13 +1,9 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
-
-if (!isset($_SESSION['user']['id'])) {
-  echo json_encode(["error" => "No autorizado"]);
-  exit;
-}
+$currentUser = auth_require_user($pdo);
 
 if (!isset($_FILES['avatar'])) {
   echo json_encode(["error" => "No se recibió archivo"]);
@@ -29,9 +25,8 @@ $url = '/public/uploads/' . $filename;
 
 try {
   $stmt = $pdo->prepare("UPDATE users SET avatar_url=? WHERE id=? RETURNING id, full_name, email, avatar_url, role");
-  $stmt->execute([$url, (int)$_SESSION['user']['id']]);
+  $stmt->execute([$url, (int) $currentUser['id']]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
-  $_SESSION['user'] = $user;
   echo json_encode(["success" => true, "url" => $url]);
 } catch (Exception $e) {
   echo json_encode(["error" => $e->getMessage()]);
