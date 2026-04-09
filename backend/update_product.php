@@ -51,28 +51,27 @@ try {
   $upd = $pdo->prepare("
     UPDATE products
     SET
-      name = ?,
-      description = ?,
-      price_cents = ?,
-      stock = ?,
-      category_id = ?,
-      condition_code = ?,
-      pickup_location = ?,
-      is_featured = ?,
+      name = :name,
+      description = :description,
+      price_cents = :price_cents,
+      stock = :stock,
+      category_id = :category_id,
+      condition_code = :condition_code,
+      pickup_location = :pickup_location,
+      is_featured = :is_featured,
       updated_at = NOW()
-    WHERE id = ?
+    WHERE id = :id
   ");
-  $upd->execute([
-    $name,
-    $desc,
-    $price_cents,
-    $stock,
-    $category_id > 0 ? $category_id : null,
-    $condition_code,
-    $pickup_location,
-    $is_featured,
-    $id,
-  ]);
+  $upd->bindValue(':name', $name, PDO::PARAM_STR);
+  $upd->bindValue(':description', $desc, PDO::PARAM_STR);
+  $upd->bindValue(':price_cents', $price_cents, PDO::PARAM_INT);
+  $upd->bindValue(':stock', $stock, PDO::PARAM_INT);
+  $upd->bindValue(':category_id', $category_id > 0 ? $category_id : null, $category_id > 0 ? PDO::PARAM_INT : PDO::PARAM_NULL);
+  $upd->bindValue(':condition_code', $condition_code, PDO::PARAM_STR);
+  $upd->bindValue(':pickup_location', $pickup_location, $pickup_location !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+  $upd->bindValue(':is_featured', (bool) $is_featured, PDO::PARAM_BOOL);
+  $upd->bindValue(':id', $id, PDO::PARAM_INT);
+  $upd->execute();
   echo json_encode(["success" => true]);
 } catch (Exception $e) {
   echo json_encode(["error" => $e->getMessage()]);

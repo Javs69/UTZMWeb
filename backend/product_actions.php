@@ -85,19 +85,32 @@ try {
         condition_code,
         pickup_location,
         is_featured
-      ) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?) RETURNING id
+      ) VALUES (
+        :seller_id,
+        :name,
+        :description,
+        :price_cents,
+        :stock,
+        :category_id,
+        'active',
+        :condition_code,
+        :pickup_location,
+        :is_featured
+      ) RETURNING id
     ");
-    $insertStmt->execute([
-      $userId,
-      $product['name'] . ' (copia)',
-      $product['description'],
-      (int) $product['price_cents'],
-      max(0, (int) $product['stock']),
-      $product['category_id'] !== null ? (int) $product['category_id'] : null,
-      normalize_product_condition((string) ($product['condition_code'] ?? 'good')),
-      $product['pickup_location'] ?: null,
-      filter_var($product['is_featured'] ?? false, FILTER_VALIDATE_BOOLEAN),
-    ]);
+    $duplicateCategoryId = $product['category_id'] !== null ? (int) $product['category_id'] : null;
+    $duplicatePickupLocation = $product['pickup_location'] ?: null;
+    $duplicateIsFeatured = filter_var($product['is_featured'] ?? false, FILTER_VALIDATE_BOOLEAN);
+    $insertStmt->bindValue(':seller_id', $userId, PDO::PARAM_INT);
+    $insertStmt->bindValue(':name', $product['name'] . ' (copia)', PDO::PARAM_STR);
+    $insertStmt->bindValue(':description', $product['description'], PDO::PARAM_STR);
+    $insertStmt->bindValue(':price_cents', (int) $product['price_cents'], PDO::PARAM_INT);
+    $insertStmt->bindValue(':stock', max(0, (int) $product['stock']), PDO::PARAM_INT);
+    $insertStmt->bindValue(':category_id', $duplicateCategoryId, $duplicateCategoryId !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+    $insertStmt->bindValue(':condition_code', normalize_product_condition((string) ($product['condition_code'] ?? 'good')), PDO::PARAM_STR);
+    $insertStmt->bindValue(':pickup_location', $duplicatePickupLocation, $duplicatePickupLocation !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+    $insertStmt->bindValue(':is_featured', (bool) $duplicateIsFeatured, PDO::PARAM_BOOL);
+    $insertStmt->execute();
     $newProductId = (int) $insertStmt->fetchColumn();
 
     $imagesStmt = $pdo->prepare('SELECT url, sort_order FROM product_images WHERE product_id = ? ORDER BY sort_order, id');
