@@ -81,20 +81,30 @@ try {
       pickup_location,
       is_featured,
       status
-    ) VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id"
+    ) VALUES (
+      :name,
+      :description,
+      :price_cents,
+      :stock,
+      :seller_id,
+      :category_id,
+      :condition_code,
+      :pickup_location,
+      :is_featured,
+      :status
+    ) RETURNING id"
   );
-  $stmt->execute([
-    $name,
-    $desc,
-    $price_cents,
-    $stock,
-    $seller_id,
-    $category_id > 0 ? $category_id : null,
-    $conditionCode,
-    $pickupLocation,
-    $isFeatured,
-    'active',
-  ]);
+  $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+  $stmt->bindValue(':description', $desc, PDO::PARAM_STR);
+  $stmt->bindValue(':price_cents', $price_cents, PDO::PARAM_INT);
+  $stmt->bindValue(':stock', $stock, PDO::PARAM_INT);
+  $stmt->bindValue(':seller_id', $seller_id, PDO::PARAM_INT);
+  $stmt->bindValue(':category_id', $category_id > 0 ? $category_id : null, $category_id > 0 ? PDO::PARAM_INT : PDO::PARAM_NULL);
+  $stmt->bindValue(':condition_code', $conditionCode, PDO::PARAM_STR);
+  $stmt->bindValue(':pickup_location', $pickupLocation, $pickupLocation !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+  $stmt->bindValue(':is_featured', (bool) $isFeatured, PDO::PARAM_BOOL);
+  $stmt->bindValue(':status', 'active', PDO::PARAM_STR);
+  $stmt->execute();
   $product_id = (int)$stmt->fetchColumn();
 
   echo json_encode(["success" => true, "product_id" => $product_id]);
