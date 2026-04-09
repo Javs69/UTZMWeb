@@ -4,8 +4,8 @@ import PaginationControls from '@/components/PaginationControls'
 import ProductCard from '@/components/ProductCard'
 import SupportTicketModal from '@/components/SupportTicketModal'
 import { useApp } from '@/context/AppContext'
-import { resolveAssetUrl } from '@/services/api'
 import { accountService } from '@/services'
+import { DEFAULT_AVATAR_URL, getAvatarImageSource, handleImageFallback } from '@/utils/media'
 import { formatDate } from '@/utils/format'
 
 const EMPTY_PAGINATION = {
@@ -127,8 +127,9 @@ export default function PublicProfilePage() {
             <div className="public-profile-hero__main">
               <img
                 className="public-profile-hero__avatar"
-                src={resolveAssetUrl(profile.avatar_url)}
+                src={getAvatarImageSource(profile.avatar_url)}
                 alt={profile.full_name || 'Perfil'}
+                onError={(event) => handleImageFallback(event, DEFAULT_AVATAR_URL)}
               />
               <div className="public-profile-hero__content">
                 <div className="public-profile-hero__eyebrow">Perfil público</div>

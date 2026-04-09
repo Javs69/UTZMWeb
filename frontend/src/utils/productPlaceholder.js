@@ -84,3 +84,13 @@ export function buildProductPlaceholder(name, subtitle = 'Sin imagen disponible'
 export function getProductImageSource(image, name, subtitle) {
   return resolveAssetUrl(image) || buildProductPlaceholder(name, subtitle)
 }
+
+export function handleProductImageError(event, name, subtitle) {
+  const target = event.currentTarget
+  if (!target || target.dataset.fallbackApplied === 'true') {
+    return
+  }
+
+  target.dataset.fallbackApplied = 'true'
+  target.src = buildProductPlaceholder(name, subtitle)
+}

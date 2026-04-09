@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency } from '@/utils/format'
-import { getProductImageSource } from '@/utils/productPlaceholder'
+import { getProductImageSource, handleProductImageError } from '@/utils/productPlaceholder'
 import { getConditionLabel } from '@/config/productMeta'
 
 export default function ProductCard({ product }) {
@@ -44,6 +44,7 @@ export default function ProductCard({ product }) {
         <img
           src={getProductImageSource(product.image, product.name, 'Imagen pendiente')}
           alt={product.name}
+          onError={(event) => handleProductImageError(event, product.name, 'Imagen pendiente')}
         />
       </Link>
       <div className="card-body">

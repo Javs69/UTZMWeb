@@ -14,11 +14,13 @@ export function resolveAssetUrl(url) {
     return url
   }
 
-  if (API_BASE_URL && (url.startsWith('/backend/') || url.startsWith('/public/') || url.startsWith('/uploads/'))) {
-    return `${API_BASE_URL}${url}`
+  const normalizedUrl = url.startsWith('/') ? url : `/${url}`
+
+  if (API_BASE_URL && /^(\/(?:backend|public|uploads)\/)/.test(normalizedUrl)) {
+    return `${API_BASE_URL}${normalizedUrl}`
   }
 
-  return url
+  return normalizedUrl
 }
 
 export function getAuthToken() {

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { CATEGORIES } from '@/config/categories'
 import { PRODUCT_CONDITIONS, getConditionLabel, getProductStatusLabel } from '@/config/productMeta'
 import { productService } from '@/services'
-import { getProductImageSource } from '@/utils/productPlaceholder'
+import { getProductImageSource, handleProductImageError } from '@/utils/productPlaceholder'
 
 export default function MyProductsPage() {
   const [products, setProducts] = useState([])
@@ -92,7 +92,11 @@ export default function MyProductsPage() {
             return (
               <article key={product.id} className="card my-product-card">
                 <div className="card-media my-product-card__media">
-                  <img src={getProductImageSource(product.image, product.name, 'Imagen pendiente')} alt={product.name} />
+                  <img
+                    src={getProductImageSource(product.image, product.name, 'Imagen pendiente')}
+                    alt={product.name}
+                    onError={(event) => handleProductImageError(event, product.name, 'Imagen pendiente')}
+                  />
                 </div>
 
                 <div className="card-body">

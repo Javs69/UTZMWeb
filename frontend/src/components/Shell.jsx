@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from
 import { CATEGORIES } from '@/config/categories'
 import { useApp } from '@/context/AppContext'
 import { resolveAssetUrl } from '@/services/api'
+import { DEFAULT_AVATAR_URL, DEFAULT_LOGO_URL, getAvatarImageSource, handleImageFallback } from '@/utils/media'
 import { formatCurrency, formatDate } from '@/utils/format'
 import AssistantWidget from './AssistantWidget'
 import AuthModal from './AuthModal'
@@ -161,7 +162,7 @@ function Header() {
               </clipPath>
             </defs>
             <image
-              href={resolveAssetUrl('/public/uploads/logo.jpeg')}
+              href={DEFAULT_LOGO_URL}
               x="2"
               y="2"
               width="44"
@@ -377,8 +378,9 @@ function Header() {
             >
               <img
                 id="avatarImg"
-                src={resolveAssetUrl(session.user?.avatar_url || '/public/uploads/blank-profile.png')}
+                src={getAvatarImageSource(session.user?.avatar_url)}
                 alt="Avatar"
+                onError={(event) => handleImageFallback(event, DEFAULT_AVATAR_URL)}
               />
               <span id="profileLabel" className="profile-btn__label">
                 {isLoggedIn ? session.user?.full_name || session.user?.email : 'Iniciar sesión'}

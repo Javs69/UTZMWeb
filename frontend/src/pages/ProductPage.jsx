@@ -5,7 +5,7 @@ import { getConditionLabel } from '@/config/productMeta'
 import { resolveAssetUrl } from '@/services/api'
 import { formatCurrency } from '@/utils/format'
 import { productService } from '@/services'
-import { buildProductPlaceholder } from '@/utils/productPlaceholder'
+import { buildProductPlaceholder, handleProductImageError } from '@/utils/productPlaceholder'
 import SupportTicketModal from '@/components/SupportTicketModal'
 
 function renderStars(value) {
@@ -194,7 +194,12 @@ export default function ProductPage() {
             <div className="pgrid">
               <div className="gallery">
                 <div className="gallery-main">
-                  <img id="p-main" src={mainImage} alt={product.name} />
+                  <img
+                    id="p-main"
+                    src={mainImage}
+                    alt={product.name}
+                    onError={(event) => handleProductImageError(event, product.name, 'Imagen pendiente')}
+                  />
                 </div>
                 <div className="gallery-thumbs">
                   {(product.images || []).map((image, index) => (
@@ -203,6 +208,7 @@ export default function ProductPage() {
                       src={resolveAssetUrl(image)}
                       alt={`${product.name} ${index + 1}`}
                       onClick={() => setMainImage(resolveAssetUrl(image))}
+                      onError={(event) => handleProductImageError(event, product.name, `Imagen ${index + 1}`)}
                     />
                   ))}
                 </div>
