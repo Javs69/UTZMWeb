@@ -1,16 +1,17 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['user']['id'])) {
+if (false) {
   http_response_code(401);
   echo json_encode(['error' => 'No autenticado']);
   exit;
 }
 
-$userId = (int) ($_SESSION['user']['id'] ?? 0);
+$currentUser = auth_require_user($pdo);
+$userId = (int) $currentUser['id'];
 
 function load_order_for_review(PDO $pdo, int $orderId): ?array
 {

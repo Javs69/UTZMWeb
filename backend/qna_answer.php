@@ -1,14 +1,15 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['user']['id'])) {
+if (false) {
   echo json_encode(["error" => "No autorizado"]);
   exit;
 }
 
+$currentUser = auth_require_user($pdo);
 $data = json_decode(file_get_contents('php://input'), true);
 $question_id = (int)($data['question_id'] ?? 0);
 $text = trim($data['text'] ?? '');
@@ -21,7 +22,7 @@ if ($question_id <= 0 || $text === '') {
 $stmt = $pdo->prepare("SELECT p.seller_id FROM questions q JOIN products p ON p.id = q.product_id WHERE q.id = ?");
 $stmt->execute([$question_id]);
 $seller_id = (int)$stmt->fetchColumn();
-if (!$seller_id || $seller_id !== (int)$_SESSION['user']['id']) {
+if (!$seller_id || $seller_id !== (int) $currentUser['id']) {
   echo json_encode(["error" => "Solo el vendedor puede responder"]);
   exit;
 }
@@ -36,7 +37,7 @@ if ($exists->fetch()) {
 
 try {
   $stmt = $pdo->prepare("INSERT INTO answers (question_id, seller_id, text) VALUES (?,?,?) RETURNING id");
-  $stmt->execute([$question_id, (int)$_SESSION['user']['id'], $text]);
+  $stmt->execute([$question_id, (int) $currentUser['id'], $text]);
   $id = (int)$stmt->fetchColumn();
   echo json_encode(["success" => true, "id" => $id]);
 } catch (Exception $e) {

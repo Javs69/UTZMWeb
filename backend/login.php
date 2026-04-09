@@ -2,7 +2,7 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/auth_codes.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 $defaultAvatar = '/public/uploads/blank-profile.png';
@@ -37,18 +37,12 @@ if (user_requires_login_two_factor($user)) {
   try {
     $code = issue_email_code($pdo, $user['email'], EMAIL_CODE_LOGIN, (int) $user['id'], 10);
     send_auth_code_email($user['email'], EMAIL_CODE_LOGIN, $code);
-    unset($_SESSION['user']);
-    $_SESSION['pending_2fa'] = [
-      'user_id' => (int) $user['id'],
-      'email' => $user['email'],
-      'role' => $user['role'],
-      'issued_at' => time(),
-    ];
 
     echo json_encode([
       'success' => true,
       'two_factor_required' => true,
       'email' => $user['email'],
+      'challenge_token' => auth_issue_challenge_token((int) $user['id'], $user['email'], EMAIL_CODE_LOGIN, 600),
       'message' => 'Enviamos un codigo de acceso a tu correo.',
     ]);
     exit;
@@ -60,6 +54,8 @@ if (user_requires_login_two_factor($user)) {
 }
 
 unset($user['password_hash'], $user['email_verified']);
-$_SESSION['user'] = $user;
-
-echo json_encode(['success' => true, 'user' => $user]);
+echo json_encode([
+  'success' => true,
+  'user' => $user,
+  'token' => auth_issue_access_token((int) $user['id']),
+]);

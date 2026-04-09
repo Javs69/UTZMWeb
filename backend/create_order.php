@@ -2,7 +2,7 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/notifications.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit;
 }
 
-if (!isset($_SESSION['user'])) {
+if (false) {
   http_response_code(401);
   echo json_encode(['error' => 'Debes iniciar sesión']);
   exit;
@@ -20,7 +20,8 @@ if (!isset($_SESSION['user'])) {
 $payload = json_decode(file_get_contents('php://input'), true);
 $seller_id = isset($payload['seller_id']) ? (int)$payload['seller_id'] : 0;
 $items = isset($payload['items']) && is_array($payload['items']) ? $payload['items'] : [];
-$buyer_id = (int)($_SESSION['user']['id'] ?? 0);
+$currentUser = auth_require_user($pdo);
+$buyer_id = (int) $currentUser['id'];
 
 if ($seller_id <= 0 || empty($items)) {
   http_response_code(422);

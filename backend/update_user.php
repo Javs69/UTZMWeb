@@ -1,10 +1,10 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['user']['id'])) {
+if (false) {
   echo json_encode(["error" => "No autorizado"]);
   exit;
 }
@@ -22,7 +22,8 @@ if ($full_name === '' || $email === '') {
   exit;
 }
 
-$user_id = (int)$_SESSION['user']['id'];
+$currentUser = auth_require_user($pdo);
+$user_id = (int) $currentUser['id'];
 
 try {
   if ($password !== '') {
@@ -47,7 +48,6 @@ try {
     $stmt->execute([$full_name, $email, $store_name, $seller_bio, $user_id]);
   }
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
-  $_SESSION['user'] = $user;
   echo json_encode(["success" => true, "user" => $user]);
 } catch (PDOException $e) {
   // Postgres unique_violation

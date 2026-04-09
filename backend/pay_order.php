@@ -3,7 +3,7 @@ require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/cvv_storage.php';
 require_once __DIR__ . '/lib/notifications.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit;
 }
 
-if (!isset($_SESSION['user'])) {
+if (false) {
   http_response_code(401);
   echo json_encode(['error' => 'Debes iniciar sesión']);
   exit;
@@ -28,7 +28,8 @@ $payment_method_last4 = $payment_method_last4 ? substr($payment_method_last4, -4
 $amount_cents = isset($payload['amount_cents']) ? (int)$payload['amount_cents'] : 0;
 $cvv_code = isset($payload['cvv']) ? preg_replace('/\D/', '', (string)$payload['cvv']) : null;
 $cvv_code = $cvv_code === '' ? null : $cvv_code;
-$user_id = (int)($_SESSION['user']['id'] ?? 0);
+$currentUser = auth_require_user($pdo);
+$user_id = (int) $currentUser['id'];
 
 if ($order_id <= 0 || $amount_cents <= 0) {
   http_response_code(422);

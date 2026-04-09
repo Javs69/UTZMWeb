@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 function support_json(array $payload, int $status = 200): void
@@ -36,23 +36,8 @@ function support_normalize_user(array $user, string $defaultAvatar): array
 
 function support_require_user(PDO $pdo): array
 {
-  if (!isset($_SESSION['user']['id'])) {
-    support_json(['error' => 'No autorizado'], 401);
-  }
-
-  $defaultAvatar = '/public/uploads/blank-profile.png';
-  $stmt = $pdo->prepare('SELECT id, full_name, email, avatar_url, role, seller_verified FROM users WHERE id = ? LIMIT 1');
-  $stmt->execute([(int)$_SESSION['user']['id']]);
-  $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  if (!$user) {
-    unset($_SESSION['user']);
-    support_json(['error' => 'La sesión ya no es válida'], 401);
-  }
-
-  $normalized = support_normalize_user($user, $defaultAvatar);
-  $_SESSION['user'] = $normalized;
-  return $normalized;
+  $user = auth_require_user($pdo);
+  return support_normalize_user($user, '/public/uploads/blank-profile.png');
 }
 
 function support_is_staff(array $user): bool

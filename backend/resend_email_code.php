@@ -2,12 +2,13 @@
 require __DIR__ . '/../db.php';
 require_once __DIR__ . '/lib/auth_codes.php';
 require_once __DIR__ . '/bootstrap.php';
-app_bootstrap_http(true);
+app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents('php://input'), true);
 $email = normalize_auth_email($data['email'] ?? '');
 $purpose = $data['purpose'] ?? EMAIL_CODE_VERIFY;
+$challengeToken = trim((string) ($data['challenge_token'] ?? ''));
 
 if (!$email || !in_array($purpose, [EMAIL_CODE_VERIFY, EMAIL_CODE_RESET, EMAIL_CODE_LOGIN], true)) {
   echo json_encode(['error' => 'Solicitud invalida.']);
@@ -25,7 +26,7 @@ try {
   }
 
   if ($purpose === EMAIL_CODE_LOGIN) {
-    $pending = $_SESSION['pending_2fa'] ?? null;
+    $pending = $challengeToken !== '' ? auth_parse_challenge($challengeToken, EMAIL_CODE_LOGIN) : null;
     if (!is_array($pending) || normalize_auth_email((string) ($pending['email'] ?? '')) !== $email) {
       http_response_code(403);
       echo json_encode(['error' => 'La verificacion ya no es valida. Inicia sesion otra vez.']);

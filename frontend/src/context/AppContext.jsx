@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { authService, notificationService } from '@/services'
+import { clearAuthToken } from '@/services/api'
 import {
   getStorageUserKey,
   migrateGuestCollection,
@@ -51,10 +52,14 @@ export function AppProvider({ children }) {
   async function refreshSession() {
     try {
       const data = await authService.getSession()
+      if (!data.logged_in) {
+        clearAuthToken()
+      }
       setSession(data)
       return data
     } catch {
       const fallback = { logged_in: false, user: null }
+      clearAuthToken()
       setSession(fallback)
       return fallback
     } finally {
@@ -99,6 +104,7 @@ export function AppProvider({ children }) {
   }, [session.logged_in, session.user?.id])
 
   async function login(payload) {
+    clearAuthToken()
     const data = await authService.login(payload)
     if (data.two_factor_required) {
       return data
@@ -118,6 +124,7 @@ export function AppProvider({ children }) {
     } catch {
       // Ignore logout transport errors and clear local session anyway.
     }
+    clearAuthToken()
     setSession({ logged_in: false, user: null })
     setCartItems(readCollection(CART_STORAGE_KEY, 'guest'))
     setFavorites(readCollection(FAVORITES_STORAGE_KEY, 'guest'))
