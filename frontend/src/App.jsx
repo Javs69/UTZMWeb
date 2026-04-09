@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Shell from '@/components/Shell'
 import RequireAuth from '@/components/RequireAuth'
 import { AppProvider, useApp } from '@/context/AppContext'
@@ -42,7 +42,7 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <HashRouter basename={import.meta.env.BASE_URL}>
       <AppProvider>
         <QueryAuthWatcher />
         <Routes>
@@ -63,6 +63,6 @@ export default function App() {
           </Route>
         </Routes>
       </AppProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
