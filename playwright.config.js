@@ -8,7 +8,7 @@ module.exports = defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'php -S 127.0.0.1:8080 -t .',
+    command: 'php -S 127.0.0.1:8080 -t . router.php',
     port: 8080,
     reuseExistingServer: true,
     timeout: 120_000,
