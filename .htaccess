@@ -1,0 +1,9 @@
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+RewriteRule ^$ app/index.html [L]
+RewriteRule ^index\.html$ app/index.html [L]
+RewriteRule ^[^/]+\.html$ app/index.html [L]

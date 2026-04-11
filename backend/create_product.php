@@ -1,0 +1,113 @@
+<?php
+require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/product_catalog.php';
+require_once __DIR__ . '/bootstrap.php';
+app_bootstrap_http(false);
+header('Content-Type: application/json; charset=utf-8');
+
+ensure_marketplace_product_schema($pdo);
+
+// Requiere sesión
+if (false) {
+  echo json_encode(["error" => "No autorizado"]);
+  exit;
+}
+
+$data = json_decode(file_get_contents('php://input'), true);
+$name  = trim($data['name'] ?? '');
+$desc  = trim($data['description'] ?? '');
+$price = (float)($data['price'] ?? 0);
+$stock = (int)($data['stock'] ?? 0);
+$categoryRaw = $data['category'] ?? '';
+$conditionCode = normalize_product_condition((string)($data['condition'] ?? 'good'));
+$pickupLocation = normalize_product_location($data['location'] ?? null);
+$isFeatured = filter_var($data['featured'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+function normalize_text($t) {
+  $t = strtolower($t);
+  $converted = @iconv('UTF-8', 'ASCII//TRANSLIT', $t);
+  if ($converted !== false && $converted !== null) {
+    $t = $converted;
+  }
+  return preg_replace('/[^a-z0-9]+/', '', $t);
+}
+
+function resolve_category_id($val) {
+  $map = [
+    'electronica' => 1,
+    'electronico' => 1,
+    'electronic'  => 1,
+    'papeleria' => 2,
+    'vehiculos' => 3,
+    'vehiculo' => 3,
+    'electrodomesticos' => 4,
+    'electrodomestico' => 4,
+    'moda' => 5,
+  ];
+  if (is_numeric($val)) {
+    $num = (int)$val;
+    return $num > 0 ? $num : 0;
+  }
+  $norm = normalize_text((string)$val);
+  return $map[$norm] ?? 0;
+}
+
+$category_id = resolve_category_id($categoryRaw);
+
+if ($name === '' || $price <= 0 || $desc === '' || $stock <= 0) {
+  echo json_encode(["error" => "Nombre, descripción, precio y stock son obligatorios"]);
+  exit;
+}
+$allowNullCategory = true; // permite productos sin categoría en caso de que la lista no coincida
+if ($category_id <= 0 && !$allowNullCategory) {
+  echo json_encode(["error" => "Categoría inválida"]);
+  exit;
+}
+
+$price_cents = (int) round($price * 100);
+$currentUser = auth_require_user($pdo);
+$seller_id = (int) $currentUser['id'];
+
+try {
+  $stmt = $pdo->prepare(
+    "INSERT INTO products (
+      name,
+      description,
+      price_cents,
+      stock,
+      seller_id,
+      category_id,
+      condition_code,
+      pickup_location,
+      is_featured,
+      status
+    ) VALUES (
+      :name,
+      :description,
+      :price_cents,
+      :stock,
+      :seller_id,
+      :category_id,
+      :condition_code,
+      :pickup_location,
+      :is_featured,
+      :status
+    ) RETURNING id"
+  );
+  $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+  $stmt->bindValue(':description', $desc, PDO::PARAM_STR);
+  $stmt->bindValue(':price_cents', $price_cents, PDO::PARAM_INT);
+  $stmt->bindValue(':stock', $stock, PDO::PARAM_INT);
+  $stmt->bindValue(':seller_id', $seller_id, PDO::PARAM_INT);
+  $stmt->bindValue(':category_id', $category_id > 0 ? $category_id : null, $category_id > 0 ? PDO::PARAM_INT : PDO::PARAM_NULL);
+  $stmt->bindValue(':condition_code', $conditionCode, PDO::PARAM_STR);
+  $stmt->bindValue(':pickup_location', $pickupLocation, $pickupLocation !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
+  $stmt->bindValue(':is_featured', (bool) $isFeatured, PDO::PARAM_BOOL);
+  $stmt->bindValue(':status', 'active', PDO::PARAM_STR);
+  $stmt->execute();
+  $product_id = (int)$stmt->fetchColumn();
+
+  echo json_encode(["success" => true, "product_id" => $product_id]);
+} catch (Exception $e) {
+  echo json_encode(["error" => $e->getMessage()]);
+}
