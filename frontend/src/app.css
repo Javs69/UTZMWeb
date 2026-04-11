@@ -850,6 +850,67 @@
   color: var(--muted);
 }
 
+.photo-edit-panel {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.photo-edit-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.photo-edit-panel__title {
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.photo-edit-panel__close {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--divider);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.photo-edit-panel__upload {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.photo-edit-panel__upload-btn {
+  cursor: pointer;
+}
+
+.photo-edit-panel__error {
+  color: #b42318;
+}
+
+:root[data-theme="dark"] .photo-edit-panel {
+  background: #111827;
+  border-color: #1f2937;
+}
+
 .seller-profile-card {
   padding: 16px;
   border: 1px solid var(--divider);

@@ -61,8 +61,10 @@ async function createSellerProduct({ sellerName, productName, price }) {
   const loginBody = await loginResponse.json()
   expect(loginBody.error).toBeFalsy()
   expect(loginBody.success).toBeTruthy()
+  const token = loginBody.token
 
   const createResponse = await api.post('/backend/create_product.php', {
+    headers: { Authorization: `Bearer ${token}` },
     data: {
       name: productName,
       description: `Producto de prueba para ${productName}`,
@@ -87,48 +89,52 @@ async function createSellerProduct({ sellerName, productName, price }) {
 }
 
 async function registerBuyer(page, fullName = 'Comprador E2E') {
+  const api = await playwrightRequest.newContext({ baseURL: BASE_URL })
   const email = `${uniqueId('buyer')}@example.com`
 
+  // Registrar via API para evitar el bloqueo de SMTP en el entorno de tests.
+  const registerResponse = await api.post('/backend/register.php', {
+    data: { full_name: fullName, email, password: PASSWORD },
+  })
+  expect(registerResponse.ok()).toBeTruthy()
+  const registerBody = await registerResponse.json()
+  expect(registerBody.error).toBeFalsy()
+  markUserEmailVerified(email)
+  await api.dispose()
+
+  // Iniciar sesión en el navegador.
   await page.goto('/app/')
   await page.locator('#profileBtn').click()
-  await page.locator('#profileMenu').getByRole('button', { name: /crear cuenta/i }).click()
-
+  await page.locator('#profileMenu').getByRole('button', { name: /ingresar/i }).click()
   const authModal = page.locator('.auth-modal')
-  await authModal.locator('input[type="text"]').fill(fullName)
   await authModal.locator('input[type="email"]').fill(email)
   await authModal.locator('input[type="password"]').fill(PASSWORD)
   await authModal.locator('.auth-modal__submit').click()
-  await expect(authModal).toContainText(/verificar correo/i)
-
-  // El registro ahora exige codigo por correo. Para mantener el foco del E2E
-  // en compra y checkout, el test marca la cuenta como verificada en la DB.
-  markUserEmailVerified(email)
-  await page.getByRole('button', { name: /volver a iniciar sesion/i }).click()
-  await authModal.locator('input[type="password"]').fill(PASSWORD)
-  await authModal.locator('.auth-modal__submit').click()
-
-  await expect(page.locator('.card.card--uniform').first()).toBeVisible()
+  // Esperar hasta que el botón del perfil muestre el nombre del usuario (login exitoso).
+  await expect(page.locator('#profileBtn')).not.toContainText(/iniciar sesión/i, { timeout: 10000 })
 
   return { email }
 }
 
 async function addProductToCart(page, productId, expectedCartCount) {
-  await page.goto(`/app/producto.html?id=${productId}`)
-  await expect(page.getByRole('button', { name: /agregar al carrito/i })).toBeVisible()
-  await page.getByRole('button', { name: /agregar al carrito/i }).click()
+  // HashRouter: las rutas viven tras el '#/'
+  await page.goto(`/app/#/producto.html?id=${productId}`)
+  const addBtn = page.getByRole('button', { name: /agregar al carrito/i }).first()
+  await expect(addBtn).toBeVisible()
+  await addBtn.click()
   await expect(page.locator('#cartBtn .badge')).toHaveText(String(expectedCartCount))
 }
 
 async function openCheckout(page) {
   await page.locator('#cartBtn').click()
   await page.getByRole('link', { name: /^Pagar$/ }).click()
-  await expect(page).toHaveURL(/\/app\/pagar\.html$/)
+  await expect(page).toHaveURL(/\/pagar\.html/)
 }
 
 async function payWithCash(page) {
   await page.locator('.checkout-method-option').nth(1).click()
   await page.getByRole('button', { name: /confirmar pago en efectivo/i }).click()
-  await expect(page).toHaveURL(/\/app\/pedidos\.html$/)
+  await expect(page).toHaveURL(/\/pedidos\.html/)
 }
 
 async function mockPaypalSdk(page) {
@@ -197,12 +203,84 @@ test('completa compra con PayPal y termina en pedidos', async ({ page }) => {
   await expect(page.locator('.mock-paypal-button')).toBeVisible()
   await page.locator('.mock-paypal-button').click()
 
-  await expect(page).toHaveURL(/\/app\/pedidos\.html$/)
+  await expect(page).toHaveURL(/\/pedidos\.html/)
   const purchases = page.locator('.orders-group').first()
   await expect(purchases.locator('.order-card')).toHaveCount(1)
   await expect(purchases).toContainText(product.productPrice)
   await expect(purchases).toContainText(/paid/i)
   await expect(purchases).toContainText(/paypal/i)
+})
+
+test('seller puede abrir el panel de fotos, subir una imagen y eliminarla', async ({ page }) => {
+  const fs = require('fs')
+  const os = require('os')
+
+  // Crear un vendedor con un producto
+  const api = await playwrightRequest.newContext({ baseURL: BASE_URL })
+  const sellerEmail = `${uniqueId('photo-seller')}@example.com`
+  const sellerName = 'Vendedor Fotos'
+
+  await api.post('/backend/register.php', {
+    data: { full_name: sellerName, email: sellerEmail, password: PASSWORD },
+  })
+  markUserEmailVerified(sellerEmail)
+
+  const loginRes = await api.post('/backend/login.php', {
+    data: { email: sellerEmail, password: PASSWORD },
+  })
+  const loginBody = await loginRes.json()
+  const token = loginBody.token
+
+  const createRes = await api.post('/backend/create_product.php', {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { name: `Producto Fotos ${uniqueId('item')}`, description: 'Test fotos', price: 99, stock: 1, category: 1 },
+  })
+  const createBody = await createRes.json()
+  const productId = createBody.product_id
+  await api.dispose()
+
+  // Iniciar sesión como vendedor en el navegador
+  await page.goto('/app/')
+  await page.locator('#profileBtn').click()
+  await page.locator('#profileMenu').getByRole('button', { name: /ingresar/i }).click()
+  const authModal = page.locator('.auth-modal')
+  await authModal.locator('input[type="email"]').fill(sellerEmail)
+  await authModal.locator('input[type="password"]').fill(PASSWORD)
+  await authModal.locator('.auth-modal__submit').click()
+  // Esperar a que el login sea exitoso (el botón muestra el nombre del usuario)
+  await expect(page.locator('#profileBtn')).not.toContainText(/iniciar sesión/i, { timeout: 10000 })
+
+  // Ir a Mis publicaciones usando el link del menú (React Router)
+  await page.locator('#profileBtn').click()
+  await page.locator('#profileMenu').getByRole('link', { name: /mis publicaciones/i }).click()
+  await expect(page.locator('.my-product-card').first()).toBeVisible({ timeout: 10000 })
+
+  // Abrir panel de fotos del primer producto
+  const photoBtn = page.locator(`[data-testid="btn-photos-${productId}"]`)
+  await expect(photoBtn).toBeVisible()
+  await photoBtn.click()
+  await expect(page.locator('[data-testid="photo-edit-panel"]')).toBeVisible()
+
+  // Subir una imagen PNG mínima
+  const pngBuffer = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    'base64',
+  )
+  const tmpFile = path.join(os.tmpdir(), `test-img-${Date.now()}.png`)
+  fs.writeFileSync(tmpFile, pngBuffer)
+
+  const fileInput = page.locator('[data-testid="input-add-photos"]')
+  await fileInput.setInputFiles(tmpFile)
+  // En Windows el proceso puede tener el archivo bloqueado brevemente; ignorar error.
+  try { fs.unlinkSync(tmpFile) } catch { /* ignorar */ }
+
+  // Esperar a que aparezca la imagen subida
+  await expect(page.locator('[data-testid="photo-edit-panel"] .sell-image-preview-card')).toHaveCount(1, { timeout: 15000 })
+
+  // Eliminar la imagen
+  const deleteBtn = page.locator('[data-testid^="btn-delete-image-"]').first()
+  await deleteBtn.click()
+  await expect(page.locator('[data-testid="photo-edit-panel"] .sell-image-preview-card')).toHaveCount(0, { timeout: 10000 })
 })
 
 test('crea una orden por vendedor cuando el carrito mezcla productos de distintos vendedores', async ({ page }) => {

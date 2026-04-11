@@ -28,11 +28,16 @@ if ($order_id <= 0) {
   exit;
 }
 
-$stmt = $pdo->prepare("SELECT id, buyer_id, seller_id, status FROM orders WHERE id = ?");
+// Abrimos la transacción antes de leer el estado para evitar race conditions (TOCTOU).
+// SELECT FOR UPDATE bloquea la fila hasta que se haga commit/rollback.
+$pdo->beginTransaction();
+
+$stmt = $pdo->prepare("SELECT id, buyer_id, seller_id, status FROM orders WHERE id = ? FOR UPDATE");
 $stmt->execute([$order_id]);
 $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$order) {
+  $pdo->rollBack();
   http_response_code(404);
   echo json_encode(['error' => 'Pedido no encontrado']);
   exit;
@@ -42,6 +47,7 @@ $isBuyer = ((int)$order['buyer_id'] === $user_id);
 $isSeller = ((int)$order['seller_id'] === $user_id);
 
 if (!$isBuyer && !$isSeller) {
+  $pdo->rollBack();
   http_response_code(403);
   echo json_encode(['error' => 'No puedes cancelar este pedido']);
   exit;
@@ -49,11 +55,13 @@ if (!$isBuyer && !$isSeller) {
 
 $status = $order['status'] ?? '';
 if ($status === 'cancelled') {
+  $pdo->rollBack();
   echo json_encode(['message' => 'El pedido ya estaba cancelado', 'status' => $status]);
   exit;
 }
 
 if ($status === 'delivered') {
+  $pdo->rollBack();
   http_response_code(422);
   echo json_encode(['error' => 'No puedes cancelar un pedido entregado']);
   exit;
@@ -61,8 +69,6 @@ if ($status === 'delivered') {
 
 $counterpartId = $isBuyer ? (int) $order['seller_id'] : (int) $order['buyer_id'];
 $actorLabel = $isBuyer ? 'El comprador' : 'El vendedor';
-
-$pdo->beginTransaction();
 
 // Si hay un pago con tarjeta, registrar transacción de reembolso
 $payStmt = $pdo->prepare("

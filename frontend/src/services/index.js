@@ -97,6 +97,13 @@ export const productService = {
     })
   },
   getMyProducts: () => request('/backend/get_my_products.php'),
+  getProductImages: (productId) =>
+    request(`/backend/get_product_images.php?product_id=${encodeURIComponent(productId)}`),
+  deleteProductImage: (imageId) =>
+    request('/backend/delete_product_image.php', {
+      method: 'POST',
+      body: JSON.stringify({ image_id: imageId }),
+    }),
   updateProduct: (payload) =>
     request('/backend/update_product.php', {
       method: 'POST',
@@ -189,25 +196,52 @@ export const orderService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
-  checkoutCart: async ({ cartItems, paymentMeta }) => {
+
+  // Crea las órdenes en DB sin procesar pago. Cancela las creadas si falla alguna.
+  createCheckoutOrders: async ({ cartItems }) => {
     const grouped = groupCartBySeller(cartItems)
-
-    for (const [sellerId, items] of Object.entries(grouped)) {
-      const order = await orderService.createOrder({
-        seller_id: Number(sellerId),
-        items,
-      })
-
-      await orderService.payOrder({
-        order_id: order.order_id,
-        amount_cents: order.total_cents,
-        payment_method_id: paymentMeta.payment_method_id ?? 0,
-        payment_method_type: paymentMeta.type,
-        payment_method_label: paymentMeta.label,
-        payment_method_last4: paymentMeta.last4,
-        cvv: paymentMeta.cvv,
-      })
+    const createdOrders = []
+    try {
+      for (const [sellerId, items] of Object.entries(grouped)) {
+        const order = await orderService.createOrder({
+          seller_id: Number(sellerId),
+          items,
+        })
+        createdOrders.push(order)
+      }
+    } catch (error) {
+      await Promise.allSettled(createdOrders.map((o) => orderService.cancelOrder(o.order_id)))
+      throw error
     }
+    return createdOrders
+  },
+
+  // Paga una lista de órdenes ya creadas. Cancela las no pagadas si falla alguna.
+  payCheckoutOrders: async ({ orders, paymentMeta }) => {
+    const paidIds = new Set()
+    try {
+      for (const order of orders) {
+        await orderService.payOrder({
+          order_id: order.order_id,
+          amount_cents: order.total_cents,
+          payment_method_id: paymentMeta.payment_method_id ?? 0,
+          payment_method_type: paymentMeta.type,
+          payment_method_label: paymentMeta.label,
+          payment_method_last4: paymentMeta.last4,
+          cvv: paymentMeta.cvv,
+        })
+        paidIds.add(order.order_id)
+      }
+    } catch (error) {
+      const unpaid = orders.filter((o) => !paidIds.has(o.order_id))
+      await Promise.allSettled(unpaid.map((o) => orderService.cancelOrder(o.order_id)))
+      throw error
+    }
+  },
+
+  checkoutCart: async ({ cartItems, paymentMeta }) => {
+    const orders = await orderService.createCheckoutOrders({ cartItems })
+    await orderService.payCheckoutOrders({ orders, paymentMeta })
   },
 }
 

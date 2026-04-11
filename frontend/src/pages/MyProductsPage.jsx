@@ -1,14 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CATEGORIES } from '@/config/categories'
 import { PRODUCT_CONDITIONS, getConditionLabel, getProductStatusLabel } from '@/config/productMeta'
 import { productService } from '@/services'
 import { getProductImageSource, handleProductImageError } from '@/utils/productPlaceholder'
+import { resolveAssetUrl } from '@/services/api'
 
 export default function MyProductsPage() {
   const [products, setProducts] = useState([])
   const [message, setMessage] = useState('')
   const [busyProductId, setBusyProductId] = useState(null)
+  const [photoEditId, setPhotoEditId] = useState(null)
+  const [photoEditImages, setPhotoEditImages] = useState([])
+  const [photoEditLoading, setPhotoEditLoading] = useState(false)
+  const [photoEditMessage, setPhotoEditMessage] = useState('')
+  const photoFileRef = useRef(null)
 
   async function loadProducts() {
     try {
@@ -60,6 +66,70 @@ export default function MyProductsPage() {
       setMessage(error.message)
     } finally {
       setBusyProductId(null)
+    }
+  }
+
+  async function openPhotoEdit(productId) {
+    setPhotoEditId(productId)
+    setPhotoEditImages([])
+    setPhotoEditMessage('')
+    setPhotoEditLoading(true)
+    try {
+      const data = await productService.getProductImages(productId)
+      setPhotoEditImages(Array.isArray(data.images) ? data.images : [])
+    } catch (error) {
+      setPhotoEditMessage(error.message)
+    } finally {
+      setPhotoEditLoading(false)
+    }
+  }
+
+  function closePhotoEdit() {
+    setPhotoEditId(null)
+    setPhotoEditImages([])
+    setPhotoEditMessage('')
+    if (photoFileRef.current) {
+      photoFileRef.current.value = ''
+    }
+  }
+
+  async function handleDeleteImage(imageId) {
+    setPhotoEditMessage('')
+    try {
+      await productService.deleteProductImage(imageId)
+      setPhotoEditImages((current) => current.filter((img) => img.id !== imageId))
+      await loadProducts()
+    } catch (error) {
+      setPhotoEditMessage(error.message)
+    }
+  }
+
+  async function handleAddPhotos(event) {
+    const files = Array.from(event.target.files || [])
+    if (!files.length || !photoEditId) return
+    event.target.value = ''
+
+    setPhotoEditMessage('')
+    const remaining = Math.max(0, 6 - photoEditImages.length)
+    const toUpload = files.slice(0, remaining)
+
+    if (toUpload.length === 0) {
+      setPhotoEditMessage('Ya alcanzaste el límite de 6 imágenes.')
+      return
+    }
+
+    setPhotoEditLoading(true)
+    try {
+      for (const file of toUpload) {
+        await productService.uploadProductImage({ productId: photoEditId, file })
+      }
+      const data = await productService.getProductImages(photoEditId)
+      setPhotoEditImages(Array.isArray(data.images) ? data.images : [])
+      await loadProducts()
+    } catch (error) {
+      setPhotoEditMessage(error.message)
+    } finally {
+      setPhotoEditLoading(false)
     }
   }
 
@@ -224,10 +294,88 @@ export default function MyProductsPage() {
                         Ver
                       </Link>
                     ) : null}
+                    {!isDeleted ? (
+                      <button
+                        className={`btn btn-ghost${photoEditId === product.id ? ' is-active' : ''}`}
+                        type="button"
+                        onClick={() => photoEditId === product.id ? closePhotoEdit() : openPhotoEdit(product.id)}
+                        disabled={isBusy}
+                        data-testid={`btn-photos-${product.id}`}
+                      >
+                        Fotos
+                      </button>
+                    ) : null}
                     <button className="btn btn-ghost" type="button" onClick={() => runAction(product.id, 'duplicate')} disabled={isBusy}>
                       Duplicar
                     </button>
                   </div>
+
+                  {photoEditId === product.id ? (
+                    <div className="photo-edit-panel" data-testid="photo-edit-panel">
+                      <div className="photo-edit-panel__header">
+                        <span className="photo-edit-panel__title">Fotos de la publicación</span>
+                        <button className="photo-edit-panel__close" type="button" onClick={closePhotoEdit} aria-label="Cerrar editor de fotos">&times;</button>
+                      </div>
+
+                      {photoEditLoading ? (
+                        <p className="form-hint">Cargando...</p>
+                      ) : (
+                        <>
+                          {photoEditImages.length > 0 ? (
+                            <div className="sell-image-preview-grid">
+                              {photoEditImages.map((img) => (
+                                <article key={img.id} className="sell-image-preview-card">
+                                  <img
+                                    src={resolveAssetUrl(img.url)}
+                                    alt="Foto del producto"
+                                    onError={(e) => { e.currentTarget.style.opacity = '0.4' }}
+                                  />
+                                  <div className="sell-image-preview-card__footer">
+                                    <span>Foto</span>
+                                    <button
+                                      type="button"
+                                      className="cart-remove"
+                                      onClick={() => handleDeleteImage(img.id)}
+                                      aria-label="Eliminar foto"
+                                      data-testid={`btn-delete-image-${img.id}`}
+                                    >
+                                      &times;
+                                    </button>
+                                  </div>
+                                </article>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="form-hint">Esta publicación no tiene fotos aún.</p>
+                          )}
+
+                          {photoEditImages.length < 6 ? (
+                            <div className="photo-edit-panel__upload">
+                              <label className="btn btn-ghost photo-edit-panel__upload-btn">
+                                + Agregar fotos
+                                <input
+                                  ref={photoFileRef}
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  style={{ display: 'none' }}
+                                  onChange={handleAddPhotos}
+                                  data-testid="input-add-photos"
+                                />
+                              </label>
+                              <span className="form-hint">{photoEditImages.length}/6 fotos</span>
+                            </div>
+                          ) : (
+                            <p className="form-hint">Límite de 6 fotos alcanzado.</p>
+                          )}
+                        </>
+                      )}
+
+                      {photoEditMessage ? (
+                        <p className="form-hint photo-edit-panel__error">{photoEditMessage}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
 
                   <div className="my-product-card__actions-grid">
                     {!isDeleted ? (

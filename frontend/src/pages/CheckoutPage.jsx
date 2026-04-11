@@ -68,7 +68,7 @@ export default function CheckoutPage() {
             shape: 'rect',
             label: 'paypal',
           },
-          createOrder(data, actions) {
+          createOrder(_data, actions) {
             setMessage('')
             return actions.order.create({
               purchase_units: [
@@ -86,9 +86,13 @@ export default function CheckoutPage() {
             setMessage('')
 
             try {
+              // 1. Crear órdenes en DB antes de mover dinero
+              const orders = await orderService.createCheckoutOrders({ cartItems })
+              // 2. Capturar el pago en PayPal
               await actions.order.capture()
-              await orderService.checkoutCart({
-                cartItems,
+              // 3. Marcar órdenes como pagadas
+              await orderService.payCheckoutOrders({
+                orders,
                 paymentMeta: {
                   type: 'paypal',
                   label: 'PayPal',

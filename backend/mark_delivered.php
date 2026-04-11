@@ -112,64 +112,77 @@ if ($hasFile) {
 
 $pdo->beginTransaction();
 
-$pdo->prepare("UPDATE orders SET status = 'delivered' WHERE id = ?")->execute([$order_id]);
-
-// Registrar mensaje en el chat si existe la tabla order_messages
-$insertedMessage = null;
 try {
-  $hasTableStmt = $pdo->query("SELECT to_regclass('public.order_messages') IS NOT NULL");
-  $hasTable = (bool)$hasTableStmt->fetchColumn();
-  if ($hasTable) {
-    $body = 'Pedido marcado como entregado';
-    if ($notes !== '') {
-      $body .= ": {$notes}";
+  $pdo->prepare("UPDATE orders SET status = 'delivered' WHERE id = ?")->execute([$order_id]);
+
+  // Registrar mensaje en el chat si existe la tabla order_messages
+  $insertedMessage = null;
+  try {
+    $hasTableStmt = $pdo->query("SELECT to_regclass('public.order_messages') IS NOT NULL");
+    $hasTable = (bool)$hasTableStmt->fetchColumn();
+    if ($hasTable) {
+      $body = 'Pedido marcado como entregado';
+      if ($notes !== '') {
+        $body .= ": {$notes}";
+      }
+      $stmtMsg = $pdo->prepare("
+        INSERT INTO order_messages (order_id, sender_id, body, attachment_path, attachment_mime, attachment_size)
+        VALUES (:order_id, :sender_id, :body, :attachment_path, :attachment_mime, :attachment_size)
+        RETURNING id, created_at
+      ");
+      $stmtMsg->execute([
+        ':order_id' => $order_id,
+        ':sender_id' => $user_id,
+        ':body' => $body,
+        ':attachment_path' => $attachmentPath,
+        ':attachment_mime' => $attachmentMime,
+        ':attachment_size' => $attachmentSize,
+      ]);
+      $row = $stmtMsg->fetch(PDO::FETCH_ASSOC);
+      $insertedMessage = [
+        'id' => (int)$row['id'],
+        'order_id' => $order_id,
+        'sender_id' => $user_id,
+        'sender_name' => $currentUser['full_name'] ?? $currentUser['email'] ?? 'Vendedor',
+        'body' => $body,
+        'created_at' => $row['created_at'],
+        'is_mine' => true,
+        'attachment_url' => $attachmentPath ? '/' . ltrim($attachmentPath, '/') : null,
+        'attachment_mime' => $attachmentMime,
+        'attachment_size' => $attachmentSize,
+      ];
     }
-    $stmtMsg = $pdo->prepare("
-      INSERT INTO order_messages (order_id, sender_id, body, attachment_path, attachment_mime, attachment_size)
-      VALUES (:order_id, :sender_id, :body, :attachment_path, :attachment_mime, :attachment_size)
-      RETURNING id, created_at
-    ");
-    $stmtMsg->execute([
-      ':order_id' => $order_id,
-      ':sender_id' => $user_id,
-      ':body' => $body,
-      ':attachment_path' => $attachmentPath,
-      ':attachment_mime' => $attachmentMime,
-      ':attachment_size' => $attachmentSize,
-    ]);
-    $row = $stmtMsg->fetch(PDO::FETCH_ASSOC);
-    $insertedMessage = [
-      'id' => (int)$row['id'],
-      'order_id' => $order_id,
-      'sender_id' => $user_id,
-      'sender_name' => $currentUser['full_name'] ?? $currentUser['email'] ?? 'Vendedor',
-      'body' => $body,
-      'created_at' => $row['created_at'],
-      'is_mine' => true,
-      'attachment_url' => $attachmentPath ? '/' . ltrim($attachmentPath, '/') : null,
-      'attachment_mime' => $attachmentMime,
-      'attachment_size' => $attachmentSize,
-    ];
+  } catch (Exception $e) {
+    // si falla el log de mensaje, continuamos con el cambio de estado
   }
-} catch (Exception $e) {
-  // si falla el log de mensaje, continuamos con el cambio de estado
+
+  notifications_insert(
+    $pdo,
+    (int) $order['buyer_id'],
+    'order_delivered',
+    "Pedido #{$order_id} marcado como entregado",
+    'El vendedor marco tu pedido como entregado. Revisa el detalle y deja tu resena si corresponde.',
+    '/pedidos.html',
+    ['order_id' => $order_id]
+  );
+
+  $pdo->commit();
+
+  echo json_encode([
+    'message' => 'Pedido marcado como entregado',
+    'status' => 'delivered',
+    'attachment_url' => $attachmentPath ? '/' . ltrim($attachmentPath, '/') : null,
+    'chat_message' => $insertedMessage,
+  ]);
+} catch (Throwable $e) {
+  $pdo->rollBack();
+  // Si el archivo ya fue subido pero la transacción falló, eliminarlo del disco
+  if ($attachmentPath) {
+    $localFile = __DIR__ . '/..' . $attachmentPath;
+    if (is_file($localFile)) {
+      @unlink($localFile);
+    }
+  }
+  http_response_code(500);
+  echo json_encode(['error' => 'No se pudo marcar el pedido como entregado.']);
 }
-
-notifications_insert(
-  $pdo,
-  (int) $order['buyer_id'],
-  'order_delivered',
-  "Pedido #{$order_id} marcado como entregado",
-  'El vendedor marco tu pedido como entregado. Revisa el detalle y deja tu resena si corresponde.',
-  '/pedidos.html',
-  ['order_id' => $order_id]
-);
-
-$pdo->commit();
-
-echo json_encode([
-  'message' => 'Pedido marcado como entregado',
-  'status' => 'delivered',
-  'attachment_url' => $attachmentPath ? '/' . ltrim($attachmentPath, '/') : null,
-  'chat_message' => $insertedMessage,
-]);
