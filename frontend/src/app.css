@@ -797,13 +797,28 @@
 
 .my-product-card__actions {
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.my-product-card__actions-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+.my-product-card__actions-save {
+  width: 100%;
+  text-align: center;
+}
+
+.my-product-card__actions-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.my-product-card__actions-secondary .btn {
+  flex: 1 1 auto;
+  min-width: 80px;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 8px 10px;
 }
 
 .sell-image-preview-grid {
@@ -1731,8 +1746,7 @@
     justify-content: center;
   }
 
-  .catalog-results-grid,
-  .my-product-card__actions-grid {
+  .catalog-results-grid {
     grid-template-columns: 1fr;
   }
 

@@ -285,29 +285,61 @@ export default function MyProductsPage() {
                     <span>{product.pickup_location || 'Sin ubicación'}</span>
                   </div>
 
-                  <div className="form-actions my-product-card__actions">
-                    <button className="btn" type="button" onClick={() => saveProduct(product)} disabled={isBusy || isDeleted}>
-                      Guardar
+                  <div className="my-product-card__actions">
+                    <button className="btn my-product-card__actions-save" type="button" onClick={() => saveProduct(product)} disabled={isBusy || isDeleted}>
+                      Guardar cambios
                     </button>
-                    {!isDeleted ? (
-                      <Link className="btn" style={{ background: '#374151' }} to={`/producto.html?id=${product.id}`}>
-                        Ver
-                      </Link>
-                    ) : null}
-                    {!isDeleted ? (
-                      <button
-                        className={`btn btn-ghost${photoEditId === product.id ? ' is-active' : ''}`}
-                        type="button"
-                        onClick={() => photoEditId === product.id ? closePhotoEdit() : openPhotoEdit(product.id)}
-                        disabled={isBusy}
-                        data-testid={`btn-photos-${product.id}`}
-                      >
-                        Fotos
+                    <div className="my-product-card__actions-secondary">
+                      {!isDeleted ? (
+                        <Link className="btn btn-ghost" to={`/producto.html?id=${product.id}`}>
+                          Ver
+                        </Link>
+                      ) : null}
+                      {!isDeleted ? (
+                        <button
+                          className={`btn btn-ghost${photoEditId === product.id ? ' is-active' : ''}`}
+                          type="button"
+                          onClick={() => photoEditId === product.id ? closePhotoEdit() : openPhotoEdit(product.id)}
+                          disabled={isBusy}
+                          data-testid={`btn-photos-${product.id}`}
+                        >
+                          Fotos
+                        </button>
+                      ) : null}
+                      <button className="btn btn-ghost" type="button" onClick={() => runAction(product.id, 'duplicate')} disabled={isBusy}>
+                        Duplicar
                       </button>
-                    ) : null}
-                    <button className="btn btn-ghost" type="button" onClick={() => runAction(product.id, 'duplicate')} disabled={isBusy}>
-                      Duplicar
-                    </button>
+                      {!isDeleted ? (
+                        <button
+                          className="btn btn-ghost"
+                          type="button"
+                          onClick={() => runAction(product.id, isPaused ? 'resume' : 'pause')}
+                          disabled={isBusy}
+                        >
+                          {isPaused ? 'Reactivar' : 'Pausar'}
+                        </button>
+                      ) : null}
+                      {!isDeleted ? (
+                        <button
+                          className="btn btn-ghost"
+                          type="button"
+                          onClick={() => runAction(product.id, 'mark_out_of_stock')}
+                          disabled={isBusy || Number(product.stock) <= 0}
+                        >
+                          Agotado
+                        </button>
+                      ) : null}
+                      {!isDeleted ? (
+                        <button
+                          className="btn btn-danger"
+                          type="button"
+                          onClick={() => runAction(product.id, 'delete')}
+                          disabled={isBusy}
+                        >
+                          Eliminar
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
 
                   {photoEditId === product.id ? (
@@ -377,40 +409,6 @@ export default function MyProductsPage() {
                     </div>
                   ) : null}
 
-                  <div className="my-product-card__actions-grid">
-                    {!isDeleted ? (
-                      <button
-                        className="btn btn-ghost"
-                        type="button"
-                        onClick={() => runAction(product.id, isPaused ? 'resume' : 'pause')}
-                        disabled={isBusy}
-                      >
-                        {isPaused ? 'Reactivar' : 'Pausar'}
-                      </button>
-                    ) : null}
-
-                    {!isDeleted ? (
-                      <button
-                        className="btn btn-ghost"
-                        type="button"
-                        onClick={() => runAction(product.id, 'mark_out_of_stock')}
-                        disabled={isBusy || Number(product.stock) <= 0}
-                      >
-                        Marcar agotado
-                      </button>
-                    ) : null}
-
-                    {!isDeleted ? (
-                      <button
-                        className="btn btn-danger"
-                        type="button"
-                        onClick={() => runAction(product.id, 'delete')}
-                        disabled={isBusy}
-                      >
-                        Eliminar
-                      </button>
-                    ) : null}
-                  </div>
                 </div>
               </article>
             )
