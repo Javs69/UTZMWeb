@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"SELECT.*WHERE.*\\\\$\" backend/ --include=\"*.php\")",
+      "Bash(grep -r '$_GET\\\\|$_POST' backend/ '--include=*.php')",
+      "WebFetch(domain:utzmweb-1-fgqq.onrender.com)",
+      "Bash(npm run:*)",
+      "Bash(npx playwright:*)",
+      "Bash(ls c:/Users/oswam/Documents/UTZMWeb/frontend/.env*)",
+      "Bash(grep -r \"onrender\\\\|API_BASE\\\\|8080\" c:/Users/oswam/Documents/UTZMWeb/app/assets/*.js)",
+      "Bash(grep -n \"user_requires_login_two_factor\" c:/Users/oswam/Documents/UTZMWeb/backend/*.php)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)"
+    ]
+  }
+}
