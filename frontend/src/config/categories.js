@@ -10,7 +10,18 @@ export const CATEGORIES = [
   { id: 9, slug: 'herramientas', label: 'Herramientas' },
 ]
 
-export function getCategoryLabel(value) {
-  const category = CATEGORIES.find((item) => Number(item.id) === Number(value))
+export function getCategoryLabel(value, categories = CATEGORIES) {
+  const category = categories.find((item) => Number(item.id) === Number(value))
   return category?.label ?? 'Sin categoría'
+}
+
+// Maps DB rows [{id, name}] → [{id, slug, label}]
+// Known IDs reuse the static entry; unknown ones derive label from name.
+export function normalizeCategoriesFromDb(dbRows) {
+  return dbRows.map((row) => {
+    const known = CATEGORIES.find((c) => c.id === row.id)
+    if (known) return known
+    const label = row.name.charAt(0).toUpperCase() + row.name.slice(1)
+    return { id: row.id, slug: row.name, label }
+  })
 }

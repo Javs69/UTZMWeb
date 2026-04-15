@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import PaginationControls from '@/components/PaginationControls'
 import ProductCarousel from '@/components/ProductCarousel'
 import ProductCard from '@/components/ProductCard'
-import { CATEGORIES, getCategoryLabel } from '@/config/categories'
+import { getCategoryLabel } from '@/config/categories'
 import { PRODUCT_CONDITIONS } from '@/config/productMeta'
 import { useApp } from '@/context/AppContext'
 import { productService } from '@/services'
@@ -21,7 +21,7 @@ const EMPTY_PAGINATION = {
 }
 
 export default function HomePage() {
-  const { favorites } = useApp()
+  const { categories, favorites } = useApp()
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [pagination, setPagination] = useState(EMPTY_PAGINATION)
@@ -166,7 +166,7 @@ export default function HomePage() {
   const catalogTitle = query
     ? `Resultados para "${query}"`
     : category
-      ? getCategoryLabel(category)
+      ? getCategoryLabel(category, categories)
       : 'Explorar productos'
 
   const sections = useMemo(() => {
@@ -174,7 +174,7 @@ export default function HomePage() {
       return []
     }
 
-    const groupedSections = CATEGORIES.map((categoryItem) => ({
+    const groupedSections = categories.map((categoryItem) => ({
       title: categoryItem.label,
       items: products.filter((product) => Number(product.category_id) === Number(categoryItem.id)),
     })).filter((section) => section.items.length)

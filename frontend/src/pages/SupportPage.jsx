@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { orderService, productService, supportService } from '@/services'
 import { useApp } from '@/context/AppContext'
-import { CATEGORIES } from '@/config/categories'
 import { formatDate } from '@/utils/format'
 
 const CATEGORY_OPTIONS = [
@@ -89,7 +88,7 @@ function buildContextLink(ticket) {
 }
 
 export default function SupportPage() {
-  const { session, isSupport, isAdmin } = useApp()
+  const { session, isSupport, isAdmin, categories } = useApp()
   const [searchParams] = useSearchParams()
   const [tickets, setTickets] = useState([])
   const [selectedTicketId, setSelectedTicketId] = useState(null)

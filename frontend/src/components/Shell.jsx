@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { CATEGORIES } from '@/config/categories'
 import { useApp } from '@/context/AppContext'
 import { resolveAssetUrl } from '@/services/api'
 import { DEFAULT_AVATAR_URL, DEFAULT_LOGO_URL, getAvatarImageSource, handleImageFallback } from '@/utils/media'
@@ -57,6 +56,7 @@ function Header() {
     session,
     removeFromCart,
     setCartQuantity,
+    categories,
     theme,
     setTheme,
   } = useApp()
@@ -431,7 +431,7 @@ function Header() {
 
       <nav id="catNav" className="categories" aria-label="Categorías">
         <ul className="container">
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <li key={category.id} className="cat">
               <button
                 className={`cat-btn${searchParams.get('category') === String(category.id) && location.pathname === '/' ? ' is-active' : ''}`}

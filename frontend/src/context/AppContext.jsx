@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import { authService, notificationService } from '@/services'
+import { authService, notificationService, productService } from '@/services'
 import { clearAuthToken } from '@/services/api'
+import { CATEGORIES, normalizeCategoriesFromDb } from '@/config/categories'
 import {
   getStorageUserKey,
   migrateGuestCollection,
@@ -23,6 +24,7 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = useState([])
   const [unreadNotifications, setUnreadNotifications] = useState(0)
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) || 'light')
+  const [categories, setCategories] = useState(CATEGORIES)
 
   const storageUserKey = getStorageUserKey(session.user)
 
@@ -86,6 +88,16 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     refreshSession()
+  }, [])
+
+  useEffect(() => {
+    productService.getCategories()
+      .then((data) => {
+        if (Array.isArray(data.categories) && data.categories.length) {
+          setCategories(normalizeCategoriesFromDb(data.categories))
+        }
+      })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -227,6 +239,7 @@ export function AppProvider({ children }) {
       favorites,
       notifications,
       unreadNotifications,
+      categories,
       theme,
       setTheme,
       login,
@@ -246,7 +259,7 @@ export function AppProvider({ children }) {
       markNotificationsRead,
       markAllNotificationsRead,
     }),
-    [authModal, cartItems, favorites, notifications, session, sessionReady, theme, unreadNotifications],
+    [authModal, cartItems, categories, favorites, notifications, session, sessionReady, theme, unreadNotifications],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

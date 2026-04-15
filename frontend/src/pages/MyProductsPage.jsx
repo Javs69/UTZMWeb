@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES } from '@/config/categories'
 import { PRODUCT_CONDITIONS, getConditionLabel, getProductStatusLabel } from '@/config/productMeta'
 import { productService } from '@/services'
+import { useApp } from '@/context/AppContext'
 import { getProductImageSource, handleProductImageError } from '@/utils/productPlaceholder'
 import { resolveAssetUrl } from '@/services/api'
 
 export default function MyProductsPage() {
+  const { categories } = useApp()
   const [products, setProducts] = useState([])
   const [message, setMessage] = useState('')
   const [busyProductId, setBusyProductId] = useState(null)
@@ -223,7 +224,7 @@ export default function MyProductsPage() {
                         onChange={(event) => updateField(index, 'category_id', Number(event.target.value || 0))}
                       >
                         <option value="">Sin categoría</option>
-                        {CATEGORIES.map((category) => (
+                        {categories.map((category) => (
                           <option key={category.id} value={category.id}>
                             {category.label}
                           </option>

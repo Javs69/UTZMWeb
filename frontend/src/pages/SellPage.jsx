@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CATEGORIES } from '@/config/categories'
 import { PRODUCT_CONDITIONS } from '@/config/productMeta'
 import { productService } from '@/services'
+import { useApp } from '@/context/AppContext'
 
 const INITIAL_FORM = {
   name: '',
@@ -53,6 +53,7 @@ async function processImageForUpload(file, maxSide = 1920, quality = 0.85) {
 
 export default function SellPage() {
   const navigate = useNavigate()
+  const { categories } = useApp()
   const fileInputRef = useRef(null)
   const [form, setForm] = useState(INITIAL_FORM)
   const [files, setFiles] = useState([])
@@ -96,6 +97,18 @@ export default function SellPage() {
   }
 
   async function publishProduct() {
+    const errors = []
+    if (!form.name.trim()) errors.push('nombre')
+    if (!form.category) errors.push('categoría')
+    if (!form.description.trim()) errors.push('descripción')
+    if (!form.price || Number(form.price) <= 0) errors.push('precio')
+    if (!form.stock || Number(form.stock) < 1) errors.push('stock')
+    if (errors.length) {
+      setMessageKind('error')
+      setMessage(`Completa los siguientes campos: ${errors.join(', ')}.`)
+      return
+    }
+
     setIsSubmitting(true)
     setMessage('')
     setMessageKind('error')
@@ -162,7 +175,7 @@ export default function SellPage() {
             <label className="form-label">Categoría</label>
             <select className="form-control" value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}>
               <option value="">Selecciona una categoría</option>
-              {CATEGORIES.map((category) => (
+              {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.label}
                 </option>

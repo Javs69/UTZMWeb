@@ -42,6 +42,7 @@ export const authService = {
 }
 
 export const productService = {
+  getCategories: () => request('/backend/get_categories.php'),
   getProducts: ({
     query = '',
     category = '',
