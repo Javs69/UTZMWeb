@@ -1,17 +1,18 @@
 ﻿<?php
-require __DIR__ . '/../db.php';
-require_once __DIR__ . '/lib/notifications.php';
 require_once __DIR__ . '/bootstrap.php';
 app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
 
-if (false) {
-  http_response_code(401);
-  echo json_encode(['error' => 'No autenticado']);
+require __DIR__ . '/../db.php';
+require_once __DIR__ . '/lib/notifications.php';
+
+try {
+  $currentUser = auth_require_user($pdo);
+} catch (Throwable $e) {
+  http_response_code(500);
+  echo json_encode(['error' => 'Error de autenticación: ' . $e->getMessage()]);
   exit;
 }
-
-$currentUser = auth_require_user($pdo);
 $user_id = (int) $currentUser['id'];
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
