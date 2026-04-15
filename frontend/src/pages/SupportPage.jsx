@@ -654,7 +654,7 @@ export default function SupportPage() {
                   >
                     <option value="">Selecciona una categoría</option>
                     <option value="0">Sin categoría</option>
-                    {CATEGORIES.map((category) => (
+                    {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.label}
                       </option>
