@@ -7,6 +7,7 @@ export const CATEGORIES = [
   { id: 6, slug: 'juegos', label: 'Juegos y juguetes' },
   { id: 7, slug: 'salud', label: 'Salud y equipo médico' },
   { id: 8, slug: 'deporte', label: 'Deporte' },
+  { id: 9, slug: 'herramientas', label: 'Herramientas' },
 ]
 
 export function getCategoryLabel(value) {

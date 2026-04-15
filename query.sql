@@ -174,6 +174,10 @@ CREATE INDEX idx_order_reviews_reviewee
 CREATE INDEX idx_order_reviews_order
     ON public.order_reviews USING btree (order_id);
 
+-- Categorías nuevas — ejecutar si la base ya existe:
+-- INSERT INTO public.categories (id, name) VALUES (8, 'deporte');
+-- INSERT INTO public.categories (id, name) VALUES (9, 'herramientas');
+
 -- Si tu base ya existe, ejecuta tambien esto:
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email_verified boolean;
 -- UPDATE public.users SET email_verified = true WHERE email_verified IS NULL;

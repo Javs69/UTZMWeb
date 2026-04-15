@@ -22,7 +22,7 @@ if (!array_key_exists('category_id', $payload)) {
 $categoryId = (int)$payload['category_id'];
 
 // Validate: must be 0 (no category) or a known positive id (1-8)
-if ($categoryId < 0 || $categoryId > 8) {
+if ($categoryId < 0 || $categoryId > 9) {
   support_json(['error' => 'Categoria invalida'], 422);
 }
 
