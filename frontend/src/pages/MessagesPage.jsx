@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { messageService, orderService } from '@/services'
 import { resolveAssetUrl } from '@/services/api'
 import { formatCurrency, formatDate } from '@/utils/format'
@@ -12,6 +12,7 @@ export default function MessagesPage() {
   const [body, setBody] = useState('')
   const [attachment, setAttachment] = useState(null)
   const [message, setMessage] = useState('')
+  const messagesRef = useRef([])
 
   async function loadOrders() {
     try {
@@ -27,7 +28,11 @@ export default function MessagesPage() {
     try {
       const data = await messageService.getMessages({ orderId, sinceId })
       const nextMessages = Array.isArray(data.messages) ? data.messages : []
-      setMessages((current) => (sinceId > 0 ? [...current, ...nextMessages] : nextMessages))
+      setMessages((current) => {
+        const updated = sinceId > 0 ? [...current, ...nextMessages] : nextMessages
+        messagesRef.current = updated
+        return updated
+      })
     } catch (error) {
       setMessage(error.message)
     }
@@ -40,14 +45,17 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!activeOrder) return
 
+    setMessages([])
+    messagesRef.current = []
     loadMessages(activeOrder.id)
+
     const timer = window.setInterval(() => {
-      const lastId = messages[messages.length - 1]?.id || 0
+      const lastId = messagesRef.current[messagesRef.current.length - 1]?.id || 0
       loadMessages(activeOrder.id, lastId)
     }, 5000)
 
     return () => window.clearInterval(timer)
-  }, [activeOrder?.id, messages])
+  }, [activeOrder?.id])
 
   const threadTitle = useMemo(() => {
     if (!activeOrder) return ''
