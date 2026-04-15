@@ -14,6 +14,43 @@ const INITIAL_FORM = {
   featured: false,
 }
 
+async function processImageForUpload(file, maxSide = 1920, quality = 0.85) {
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file)
+    const img = new window.Image()
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      let { naturalWidth: w, naturalHeight: h } = img
+      if (w > maxSide || h > maxSide) {
+        const ratio = Math.min(maxSide / w, maxSide / h)
+        w = Math.round(w * ratio)
+        h = Math.round(h * ratio)
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return }
+          const name = file.name.replace(/\.[^.]+$/, '.jpg')
+          resolve(new File([blob], name, { type: 'image/jpeg', lastModified: Date.now() }))
+        },
+        'image/jpeg',
+        quality
+      )
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      resolve(file)
+    }
+
+    img.src = objectUrl
+  })
+}
+
 export default function SellPage() {
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
@@ -21,6 +58,8 @@ export default function SellPage() {
   const [files, setFiles] = useState([])
   const [previews, setPreviews] = useState([])
   const [message, setMessage] = useState('')
+  const [messageKind, setMessageKind] = useState('error')
+  const [publishedProductId, setPublishedProductId] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -59,6 +98,8 @@ export default function SellPage() {
   async function publishProduct() {
     setIsSubmitting(true)
     setMessage('')
+    setMessageKind('error')
+    setPublishedProductId(null)
 
     try {
       const data = await productService.createProduct({
@@ -71,11 +112,30 @@ export default function SellPage() {
         featured: form.featured,
       })
 
+      const productId = data.product_id
+      let imagesFailed = 0
+
       for (const file of files) {
-        await productService.uploadProductImage({ productId: data.product_id, file })
+        try {
+          const processed = await processImageForUpload(file)
+          await productService.uploadProductImage({ productId, file: processed })
+        } catch {
+          imagesFailed++
+        }
       }
 
-      navigate(`/producto.html?id=${data.product_id}`)
+      if (imagesFailed > 0) {
+        const total = files.length
+        setPublishedProductId(productId)
+        setMessageKind('warning')
+        setMessage(
+          imagesFailed === total
+            ? 'Tu publicación fue creada, pero las imágenes no se pudieron subir. Puedes agregarlas desde "Mis productos".'
+            : `Tu publicación fue creada. ${imagesFailed} de ${total} imagen(es) no se pudieron subir. Puedes agregarlas desde "Mis productos".`
+        )
+      } else {
+        navigate(`/producto.html?id=${productId}`)
+      }
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -160,7 +220,17 @@ export default function SellPage() {
             ) : null}
           </div>
         </div>
-        {message ? <div className="form-hint">{message}</div> : null}
+        {message ? (
+          <div
+            className="form-hint"
+            style={messageKind === 'warning' ? { color: '#b45309' } : undefined}
+          >
+            {message}
+            {publishedProductId ? (
+              <> <a href={`/producto.html?id=${publishedProductId}`}>Ver publicación →</a></>
+            ) : null}
+          </div>
+        ) : null}
         <div className="form-actions">
           <button className="btn sell-submit-btn" type="button" onClick={publishProduct} disabled={isSubmitting}>
             {isSubmitting ? 'Publicando...' : 'Publicar'}
