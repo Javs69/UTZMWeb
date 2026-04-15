@@ -84,15 +84,18 @@ export default function CheckoutPage() {
           async onApprove(data, actions) {
             setIsSubmitting(true)
             setMessage('')
+            let createdOrders = null
+            let paymentCaptured = false
 
             try {
-              // 1. Capturar el pago en PayPal de inmediato (tiene timeout corto)
+              // 1. Crear órdenes en DB primero (antes de cobrar a PayPal)
+              createdOrders = await orderService.createCheckoutOrders({ cartItems })
+              // 2. Capturar el pago en PayPal
               await actions.order.capture()
-              // 2. Crear órdenes en DB
-              const orders = await orderService.createCheckoutOrders({ cartItems })
+              paymentCaptured = true
               // 3. Marcar órdenes como pagadas
               await orderService.payCheckoutOrders({
-                orders,
+                orders: createdOrders,
                 paymentMeta: {
                   type: 'paypal',
                   label: 'PayPal',
@@ -104,6 +107,11 @@ export default function CheckoutPage() {
               clearCart()
               navigate('/pedidos.html')
             } catch (error) {
+              // Si las órdenes se crearon pero PayPal no capturó, cancelarlas
+              // (payCheckoutOrders maneja su propia limpieza si falla después de capturar)
+              if (createdOrders && !paymentCaptured) {
+                await Promise.allSettled(createdOrders.map((o) => orderService.cancelOrder(o.order_id)))
+              }
               setMessage(error.message)
             } finally {
               setIsSubmitting(false)
