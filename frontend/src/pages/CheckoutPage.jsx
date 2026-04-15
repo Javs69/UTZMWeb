@@ -86,10 +86,10 @@ export default function CheckoutPage() {
             setMessage('')
 
             try {
-              // 1. Crear órdenes en DB antes de mover dinero
-              const orders = await orderService.createCheckoutOrders({ cartItems })
-              // 2. Capturar el pago en PayPal
+              // 1. Capturar el pago en PayPal de inmediato (tiene timeout corto)
               await actions.order.capture()
+              // 2. Crear órdenes en DB
+              const orders = await orderService.createCheckoutOrders({ cartItems })
               // 3. Marcar órdenes como pagadas
               await orderService.payCheckoutOrders({
                 orders,
