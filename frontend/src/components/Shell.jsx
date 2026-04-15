@@ -64,6 +64,7 @@ function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const [isMobileQuickNavOpen, setIsMobileQuickNavOpen] = useState(false)
   const [searchText, setSearchText] = useState(searchParams.get('q') || '')
 
   const cartTotal = useMemo(
@@ -74,7 +75,12 @@ function Header() {
   useEffect(() => {
     setIsProfileOpen(false)
     setIsNotificationsOpen(false)
+    setIsMobileQuickNavOpen(false)
   }, [isLoggedIn])
+
+  useEffect(() => {
+    setIsMobileQuickNavOpen(false)
+  }, [location.pathname, location.search])
 
   useEffect(() => {
     function handlePointerDown(event) {
@@ -89,6 +95,9 @@ function Header() {
       }
       if (!event.target.closest('.cart-anchor')) {
         setIsCartOpen(false)
+      }
+      if (!event.target.closest('.mobile-nav-anchor')) {
+        setIsMobileQuickNavOpen(false)
       }
     }
 
@@ -430,20 +439,54 @@ function Header() {
       </div>
 
       {isLoggedIn ? (
-        <nav className="mobile-shortcuts container" aria-label="Accesos rápidos">
-          <NavLink className={({ isActive }) => `mobile-shortcut${isActive ? ' is-active' : ''}`} to="/mensajes.html">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 5h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm1 3v1.5h14V8H5zm0 3v1.5h9V11H5z" />
-            </svg>
-            <span>Mensajes</span>
-          </NavLink>
-          <NavLink className={({ isActive }) => `mobile-shortcut${isActive ? ' is-active' : ''}`} to="/pedidos.html">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 4h10l3 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8l3-4zm.96 4h8.08l-1.5-2H9.46l-1.5 2zM7 10v2h10v-2H7zm0 4v2h6v-2H7z" />
-            </svg>
-            <span>Pedidos</span>
-          </NavLink>
-        </nav>
+        <div className="mobile-nav-anchor container">
+          <button
+            className={`mobile-nav-toggle${isMobileQuickNavOpen ? ' is-open' : ''}`}
+            type="button"
+            aria-label="Abrir navegación rápida"
+            aria-expanded={isMobileQuickNavOpen}
+            onClick={() => setIsMobileQuickNavOpen((current) => !current)}
+          >
+            <span className="mobile-nav-toggle__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 7h16v2H4V7zm0 4h12v2H4v-2zm0 4h16v2H4v-2z" />
+              </svg>
+            </span>
+            <span className="mobile-nav-toggle__label">Menú</span>
+            <span className="mobile-nav-toggle__caret" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
+            </span>
+          </button>
+
+          <nav
+            className={`mobile-nav-menu${isMobileQuickNavOpen ? ' open' : ''}`}
+            aria-label="Accesos rápidos"
+            hidden={!isMobileQuickNavOpen}
+          >
+            <NavLink
+              className={({ isActive }) => `mobile-nav-link${isActive ? ' is-active' : ''}`}
+              to="/mensajes.html"
+              onClick={() => setIsMobileQuickNavOpen(false)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm1 3v1.5h14V8H5zm0 3v1.5h9V11H5z" />
+              </svg>
+              <span>Mensajes</span>
+            </NavLink>
+            <NavLink
+              className={({ isActive }) => `mobile-nav-link${isActive ? ' is-active' : ''}`}
+              to="/pedidos.html"
+              onClick={() => setIsMobileQuickNavOpen(false)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 4h10l3 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8l3-4zm.96 4h8.08l-1.5-2H9.46l-1.5 2zM7 10v2h10v-2H7zm0 4v2h6v-2H7z" />
+              </svg>
+              <span>Pedidos</span>
+            </NavLink>
+          </nav>
+        </div>
       ) : null}
 
       <nav id="catNav" className="categories" aria-label="Categorías">
