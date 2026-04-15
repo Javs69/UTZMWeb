@@ -14,6 +14,15 @@ export default function MessagesPage() {
   const [attachment, setAttachment] = useState(null)
   const [message, setMessage] = useState('')
   const messagesRef = useRef([])
+  const attachmentInputRef = useRef(null)
+  const compactFormStyle = isCompactView ? { width: '100%', alignItems: 'center' } : undefined
+  const compactFieldStyle = isCompactView ? { width: '100%', maxWidth: 520, margin: '0 auto' } : undefined
+  const compactTextareaStyle = isCompactView
+    ? { display: 'block', width: '100%', minWidth: '100%', minHeight: 156, boxSizing: 'border-box', margin: '0 auto' }
+    : undefined
+  const compactToolsStyle = isCompactView ? { justifyContent: 'center' } : undefined
+  const compactUploadStyle = isCompactView ? { width: '100%', maxWidth: 240, minHeight: 48, padding: '0 16px' } : undefined
+  const compactSubmitStyle = isCompactView ? { alignSelf: 'center', minWidth: 140, minHeight: 46 } : undefined
 
   async function loadOrders() {
     try {
@@ -107,6 +116,9 @@ export default function MessagesPage() {
       setMessages((current) => [...current, data.message])
       setBody('')
       setAttachment(null)
+      if (attachmentInputRef.current) {
+        attachmentInputRef.current.value = ''
+      }
       await loadOrders()
     } catch (error) {
       setMessage(error.message)
@@ -198,17 +210,23 @@ export default function MessagesPage() {
                   ))}
                 </div>
                 {activeOrder.status !== 'cancelled' ? (
-                  <form className="messages-form" onSubmit={sendMessage}>
-                    <div className="messages-field">
-                      <textarea value={body} onChange={(event) => setBody(event.target.value)} placeholder="Escribe tu mensaje..." maxLength={1000} />
-                      <div className="messages-tools">
-                        <label className="messages-upload">
-                          <input type="file" accept="image/*" onChange={(event) => setAttachment(event.target.files?.[0] || null)} />
+                  <form className="messages-form" style={compactFormStyle} onSubmit={sendMessage}>
+                    <div className="messages-field" style={compactFieldStyle}>
+                      <textarea className="messages-textarea" style={compactTextareaStyle} value={body} onChange={(event) => setBody(event.target.value)} placeholder="Escribe tu mensaje..." maxLength={1000} />
+                      <div className="messages-tools" style={compactToolsStyle}>
+                        <label className="messages-upload messages-upload--mobile" style={compactUploadStyle}>
+                          <input
+                            ref={attachmentInputRef}
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={(event) => setAttachment(event.target.files?.[0] || null)}
+                          />
                           Adjuntar imagen
                         </label>
                       </div>
                     </div>
-                    <button className="btn" type="submit">
+                    <button className="btn messages-submit" style={compactSubmitStyle} type="submit">
                       Enviar
                     </button>
                   </form>
