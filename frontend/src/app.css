@@ -1279,6 +1279,49 @@
   gap: 18px;
 }
 
+.support-view-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.support-view-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 20px;
+  font-size: .95rem;
+  cursor: pointer;
+  color: var(--muted);
+  margin-bottom: -1px;
+  transition: color .15s ease, border-color .15s ease;
+}
+
+.support-view-tab:hover {
+  color: var(--text);
+}
+
+.support-view-tab.is-active {
+  color: var(--text);
+  border-bottom-color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.support-admin-section-title {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin: 16px 0 10px;
+}
+
+.support-admin-divider {
+  border: none;
+  border-top: 1px solid var(--divider);
+  margin: 20px 0;
+}
+
 .support-manage-card__head {
   display: flex;
   align-items: flex-start;

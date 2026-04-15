@@ -120,6 +120,7 @@ export default function SupportPage() {
     email: '',
     seller_verified: true,
   })
+  const [activeView, setActiveView] = useState('tickets')
   const [message, setMessage] = useState('')
   const [loadingTickets, setLoadingTickets] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
@@ -252,27 +253,6 @@ export default function SupportPage() {
     }
   }
 
-  async function assignToMe() {
-    if (!detail?.ticket?.id) {
-      return
-    }
-
-    try {
-      await supportService.updateTicket({
-        ticket_id: detail.ticket.id,
-        assigned_to: currentUserId,
-      })
-      setMessage('Ticket asignado a tu bandeja.')
-      await Promise.all([
-        loadTicketDetail(detail.ticket.id),
-        loadTickets(),
-        supportService.getAgents().then((data) => setAgents(data.agents || [])),
-      ])
-    } catch (error) {
-      setMessage(error.message)
-    }
-  }
-
   async function updateSupportRole() {
     try {
       await supportService.updateStaffRole(roleForm)
@@ -304,6 +284,12 @@ export default function SupportPage() {
       label: `Pedido #${order.id} - ${order.status}`,
     }))
   }, [orders])
+
+  const sortedAgents = useMemo(() => {
+    const me = agents.find((a) => a.id === currentUserId)
+    const others = agents.filter((a) => a.id !== currentUserId)
+    return me ? [me, ...others] : agents
+  }, [agents, currentUserId])
 
   const contextLink = buildContextLink(selectedTicket)
 
@@ -461,223 +447,235 @@ export default function SupportPage() {
             </div>
           ) : null}
 
-          {isSupport && selectedTicket ? (
-            <div className="card support-manage-card">
-              <div className="support-manage-card__head">
-                <div>
-                  <h2>Gestionar ticket #{selectedTicket.id}</h2>
-                  <p className="form-hint">
-                    Solicitante: {selectedTicket.requester_name} - {selectedTicket.requester_email}
-                  </p>
-                </div>
-                {selectedTicket.assigned_to !== currentUserId ? (
-                  <button className="btn" type="button" onClick={assignToMe}>
-                    Asignarme
-                  </button>
-                ) : null}
-              </div>
-              <div className="support-manage-grid">
-                <div className="form-group">
-                  <label className="form-label">Estado</label>
-                  <select
-                    className="form-control"
-                    value={staffForm.status}
-                    onChange={(event) => setStaffForm((current) => ({ ...current, status: event.target.value }))}
-                  >
-                    {Object.keys(STATUS_LABELS).map((status) => (
-                      <option key={status} value={status}>
-                        {statusLabel(status)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Prioridad</label>
-                  <select
-                    className="form-control"
-                    value={staffForm.priority}
-                    onChange={(event) => setStaffForm((current) => ({ ...current, priority: event.target.value }))}
-                  >
-                    {Object.keys(PRIORITY_LABELS).map((priority) => (
-                      <option key={priority} value={priority}>
-                        {priorityLabel(priority)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Asignado a</label>
-                  <select
-                    className="form-control"
-                    value={staffForm.assigned_to}
-                    onChange={(event) => setStaffForm((current) => ({ ...current, assigned_to: event.target.value }))}
-                  >
-                    <option value="">Sin asignar</option>
-                    {agents.map((agent) => (
-                      <option key={agent.id} value={agent.id}>
-                        {agent.full_name} - {roleLabel(agent.role)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="form-actions">
-                <button className="btn" type="button" onClick={saveTicketMeta}>
-                  Guardar cambios
-                </button>
-              </div>
+          {isAdmin ? (
+            <div className="support-view-tabs">
+              <button
+                className={`support-view-tab${activeView === 'tickets' ? ' is-active' : ''}`}
+                type="button"
+                onClick={() => setActiveView('tickets')}
+              >
+                Tickets
+              </button>
+              <button
+                className={`support-view-tab${activeView === 'admin' ? ' is-active' : ''}`}
+                type="button"
+                onClick={() => setActiveView('admin')}
+              >
+                Administración
+              </button>
             </div>
           ) : null}
 
-          {isAdmin ? (
+          {(!isAdmin || activeView === 'tickets') ? (
             <>
-              <div className="card support-admin-card">
-                <h2>Registrar usuarios de soporte</h2>
-                <p className="form-hint">
-                  Promueve cuentas existentes por correo. El primer administrador debe quedar asignado directamente en la base de datos.
-                </p>
-                <div className="support-admin-grid">
-                  <div className="form-group">
-                    <label className="form-label">Correo del usuario</label>
-                    <input
-                      className="form-control"
-                      value={roleForm.email}
-                      onChange={(event) => setRoleForm((current) => ({ ...current, email: event.target.value }))}
-                    />
+              {isSupport && selectedTicket ? (
+                <div className="card support-manage-card">
+                  <div className="support-manage-card__head">
+                    <div>
+                      <h2>Gestionar ticket #{selectedTicket.id}</h2>
+                      <p className="form-hint">
+                        Solicitante: {selectedTicket.requester_name} - {selectedTicket.requester_email}
+                      </p>
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Nuevo rol</label>
-                    <select
-                      className="form-control"
-                      value={roleForm.role}
-                      onChange={(event) => setRoleForm((current) => ({ ...current, role: event.target.value }))}
-                    >
-                      <option value="support">Soporte</option>
-                      <option value="admin">Administrador</option>
-                      <option value="customer">Cliente</option>
-                    </select>
+                  <div className="support-manage-grid">
+                    <div className="form-group">
+                      <label className="form-label">Estado</label>
+                      <select
+                        className="form-control"
+                        value={staffForm.status}
+                        onChange={(event) => setStaffForm((current) => ({ ...current, status: event.target.value }))}
+                      >
+                        {Object.keys(STATUS_LABELS).map((status) => (
+                          <option key={status} value={status}>
+                            {statusLabel(status)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Prioridad</label>
+                      <select
+                        className="form-control"
+                        value={staffForm.priority}
+                        onChange={(event) => setStaffForm((current) => ({ ...current, priority: event.target.value }))}
+                      >
+                        {Object.keys(PRIORITY_LABELS).map((priority) => (
+                          <option key={priority} value={priority}>
+                            {priorityLabel(priority)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Asignado a</label>
+                      <select
+                        className="form-control"
+                        value={staffForm.assigned_to}
+                        onChange={(event) => setStaffForm((current) => ({ ...current, assigned_to: event.target.value }))}
+                      >
+                        <option value="">Sin asignar</option>
+                        {sortedAgents.map((agent) => (
+                          <option key={agent.id} value={agent.id}>
+                            {agent.id === currentUserId ? `Yo — ${agent.full_name}` : agent.full_name} ({roleLabel(agent.role)})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-actions">
+                    <button className="btn" type="button" onClick={saveTicketMeta}>
+                      Guardar cambios
+                    </button>
                   </div>
                 </div>
-                <div className="form-actions">
-                  <button className="btn" type="button" onClick={updateSupportRole}>
-                    Actualizar rol
-                  </button>
-                </div>
-              </div>
+              ) : null}
 
-              <div className="card support-admin-card">
-                <h2>Verificación de vendedores</h2>
-                <p className="form-hint">
-                  Activa o retira la insignia de vendedor verificado por correo.
-                </p>
-                <div className="support-admin-grid">
-                  <div className="form-group">
-                    <label className="form-label">Correo del vendedor</label>
-                    <input
-                      className="form-control"
-                      value={sellerVerificationForm.email}
-                      onChange={(event) =>
-                        setSellerVerificationForm((current) => ({ ...current, email: event.target.value }))
-                      }
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Estado</label>
-                    <select
-                      className="form-control"
-                      value={sellerVerificationForm.seller_verified ? 'true' : 'false'}
-                      onChange={(event) =>
-                        setSellerVerificationForm((current) => ({
-                          ...current,
-                          seller_verified: event.target.value === 'true',
-                        }))
-                      }
-                    >
-                      <option value="true">Verificado</option>
-                      <option value="false">No verificado</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="form-actions">
-                  <button className="btn" type="button" onClick={updateSellerVerification}>
-                    Guardar verificación
-                  </button>
-                </div>
+              <div className="card support-thread-card">
+                {loadingDetail ? (
+                  <div className="support-empty">Cargando conversación...</div>
+                ) : selectedTicket ? (
+                  <>
+                    <div className="support-thread-card__head">
+                      <div>
+                        <h2>{selectedTicket.subject}</h2>
+                        <p className="form-hint">
+                          {categoryLabel(selectedTicket.category)} - {statusLabel(selectedTicket.status)} - {priorityLabel(selectedTicket.priority)}
+                        </p>
+                        {selectedTicket.order_id ? (
+                          <p className="form-hint">Pedido asociado: #{selectedTicket.order_id}</p>
+                        ) : null}
+                        {contextLink ? (
+                          <div className="support-context-card">
+                            <span className="support-context-card__eyebrow">{contextLink.eyebrow}</span>
+                            <Link className="link" to={contextLink.href}>
+                              {contextLink.label}
+                            </Link>
+                          </div>
+                        ) : null}
+                      </div>
+                      <div className="support-thread-card__badges">
+                        <span className={`support-pill support-pill--${selectedTicket.status}`}>{statusLabel(selectedTicket.status)}</span>
+                        <span className="support-priority">{priorityLabel(selectedTicket.priority)}</span>
+                      </div>
+                    </div>
+
+                    <div className="support-thread-scroll">
+                      <div className="support-summary">
+                        <strong>Descripción inicial</strong>
+                        <p>{selectedTicket.description}</p>
+                      </div>
+
+                      <div className="support-thread">
+                        {selectedMessages.map((entry) => (
+                          <article
+                            key={entry.id}
+                            className={`support-message${entry.sender_id === currentUserId ? ' is-mine' : ''}`}
+                          >
+                            <div className="support-message__meta">
+                              <strong>{entry.sender_name}</strong>
+                              <span>{entry.sender_role === 'customer' ? 'Usuario' : 'Soporte'}</span>
+                              <span>{formatDate(entry.created_at, true)}</span>
+                            </div>
+                            <p>{entry.body}</p>
+                          </article>
+                        ))}
+                      </div>
+
+                      <div className="support-reply">
+                        <textarea
+                          className="form-control"
+                          rows="4"
+                          placeholder="Escribe tu respuesta..."
+                          value={reply}
+                          onChange={(event) => setReply(event.target.value)}
+                        />
+                        <div className="form-actions">
+                          <button className="btn" type="button" onClick={sendReply}>
+                            Enviar respuesta
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="support-empty">Selecciona un ticket para ver el detalle.</div>
+                )}
               </div>
             </>
           ) : null}
 
-          <div className="card support-thread-card">
-            {loadingDetail ? (
-              <div className="support-empty">Cargando conversación...</div>
-            ) : selectedTicket ? (
-              <>
-                <div className="support-thread-card__head">
-                  <div>
-                    <h2>{selectedTicket.subject}</h2>
-                    <p className="form-hint">
-                      {categoryLabel(selectedTicket.category)} - {statusLabel(selectedTicket.status)} - {priorityLabel(selectedTicket.priority)}
-                    </p>
-                    {selectedTicket.order_id ? (
-                      <p className="form-hint">Pedido asociado: #{selectedTicket.order_id}</p>
-                    ) : null}
-                    {contextLink ? (
-                      <div className="support-context-card">
-                        <span className="support-context-card__eyebrow">{contextLink.eyebrow}</span>
-                        <Link className="link" to={contextLink.href}>
-                          {contextLink.label}
-                        </Link>
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="support-thread-card__badges">
-                    <span className={`support-pill support-pill--${selectedTicket.status}`}>{statusLabel(selectedTicket.status)}</span>
-                    <span className="support-priority">{priorityLabel(selectedTicket.priority)}</span>
-                  </div>
+          {isAdmin && activeView === 'admin' ? (
+            <div className="card support-admin-card">
+              <h2>Gestión de usuarios</h2>
+
+              <h3 className="support-admin-section-title">Rol de usuario</h3>
+              <div className="support-admin-grid">
+                <div className="form-group">
+                  <label className="form-label">Correo del usuario</label>
+                  <input
+                    className="form-control"
+                    value={roleForm.email}
+                    onChange={(event) => setRoleForm((current) => ({ ...current, email: event.target.value }))}
+                  />
                 </div>
-
-                <div className="support-thread-scroll">
-                  <div className="support-summary">
-                    <strong>Descripción inicial</strong>
-                    <p>{selectedTicket.description}</p>
-                  </div>
-
-                  <div className="support-thread">
-                    {selectedMessages.map((entry) => (
-                      <article
-                        key={entry.id}
-                        className={`support-message${entry.sender_id === currentUserId ? ' is-mine' : ''}`}
-                      >
-                        <div className="support-message__meta">
-                          <strong>{entry.sender_name}</strong>
-                          <span>{entry.sender_role === 'customer' ? 'Usuario' : 'Soporte'}</span>
-                          <span>{formatDate(entry.created_at, true)}</span>
-                        </div>
-                        <p>{entry.body}</p>
-                      </article>
-                    ))}
-                  </div>
-
-                  <div className="support-reply">
-                    <textarea
-                      className="form-control"
-                      rows="4"
-                      placeholder="Escribe tu respuesta..."
-                      value={reply}
-                      onChange={(event) => setReply(event.target.value)}
-                    />
-                    <div className="form-actions">
-                      <button className="btn" type="button" onClick={sendReply}>
-                        Enviar respuesta
-                      </button>
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label className="form-label">Nuevo rol</label>
+                  <select
+                    className="form-control"
+                    value={roleForm.role}
+                    onChange={(event) => setRoleForm((current) => ({ ...current, role: event.target.value }))}
+                  >
+                    <option value="support">Soporte</option>
+                    <option value="admin">Administrador</option>
+                    <option value="customer">Cliente</option>
+                  </select>
                 </div>
-              </>
-            ) : (
-              <div className="support-empty">Selecciona un ticket para ver el detalle.</div>
-            )}
-          </div>
+              </div>
+              <div className="form-actions" style={{ marginBottom: 20 }}>
+                <button className="btn" type="button" onClick={updateSupportRole}>
+                  Actualizar rol
+                </button>
+              </div>
+
+              <hr className="support-admin-divider" />
+
+              <h3 className="support-admin-section-title">Verificación de vendedor</h3>
+              <div className="support-admin-grid">
+                <div className="form-group">
+                  <label className="form-label">Correo del vendedor</label>
+                  <input
+                    className="form-control"
+                    value={sellerVerificationForm.email}
+                    onChange={(event) =>
+                      setSellerVerificationForm((current) => ({ ...current, email: event.target.value }))
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Estado</label>
+                  <select
+                    className="form-control"
+                    value={sellerVerificationForm.seller_verified ? 'true' : 'false'}
+                    onChange={(event) =>
+                      setSellerVerificationForm((current) => ({
+                        ...current,
+                        seller_verified: event.target.value === 'true',
+                      }))
+                    }
+                  >
+                    <option value="true">Verificado</option>
+                    <option value="false">No verificado</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-actions">
+                <button className="btn" type="button" onClick={updateSellerVerification}>
+                  Guardar verificación
+                </button>
+              </div>
+            </div>
+          ) : null}
         </section>
       </div>
     </main>
