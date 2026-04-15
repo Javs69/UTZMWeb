@@ -6,6 +6,7 @@ export const CATEGORIES = [
   { id: 5, slug: 'moda', label: 'Moda' },
   { id: 6, slug: 'juegos', label: 'Juegos y juguetes' },
   { id: 7, slug: 'salud', label: 'Salud y equipo médico' },
+  { id: 8, slug: 'deporte', label: 'Deporte' },
 ]
 
 export function getCategoryLabel(value) {

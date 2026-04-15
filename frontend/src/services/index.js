@@ -114,6 +114,11 @@ export const productService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  modProductCategory: (payload) =>
+    request('/backend/mod_product_category.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 }
 
 export const accountService = {

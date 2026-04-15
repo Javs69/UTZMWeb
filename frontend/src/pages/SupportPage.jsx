@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { orderService, supportService } from '@/services'
+import { orderService, productService, supportService } from '@/services'
 import { useApp } from '@/context/AppContext'
+import { CATEGORIES } from '@/config/categories'
 import { formatDate } from '@/utils/format'
 
 const CATEGORY_OPTIONS = [
@@ -120,6 +121,7 @@ export default function SupportPage() {
     email: '',
     seller_verified: true,
   })
+  const [categoryChangeForm, setCategoryChangeForm] = useState({ product_id: '', category_id: '' })
   const [activeView, setActiveView] = useState('tickets')
   const [message, setMessage] = useState('')
   const [loadingTickets, setLoadingTickets] = useState(false)
@@ -270,6 +272,28 @@ export default function SupportPage() {
       await supportService.updateSellerVerification(sellerVerificationForm)
       setSellerVerificationForm({ email: '', seller_verified: true })
       setMessage('Verificacion de vendedor actualizada.')
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
+  async function changeProductCategory() {
+    const productId = Number(categoryChangeForm.product_id)
+    if (!productId) {
+      setMessage('Ingresa un ID de producto válido.')
+      return
+    }
+    if (categoryChangeForm.category_id === '') {
+      setMessage('Selecciona una categoría.')
+      return
+    }
+    try {
+      await productService.modProductCategory({
+        product_id: productId,
+        category_id: Number(categoryChangeForm.category_id),
+      })
+      setCategoryChangeForm({ product_id: '', category_id: '' })
+      setMessage('Categoría del producto actualizada.')
     } catch (error) {
       setMessage(error.message)
     }
@@ -447,7 +471,7 @@ export default function SupportPage() {
             </div>
           ) : null}
 
-          {isAdmin ? (
+          {isSupport ? (
             <div className="support-view-tabs">
               <button
                 className={`support-view-tab${activeView === 'tickets' ? ' is-active' : ''}`}
@@ -461,12 +485,12 @@ export default function SupportPage() {
                 type="button"
                 onClick={() => setActiveView('admin')}
               >
-                Administración
+                Moderación
               </button>
             </div>
           ) : null}
 
-          {(!isAdmin || activeView === 'tickets') ? (
+          {(!isSupport || activeView === 'tickets') ? (
             <>
               {isSupport && selectedTicket ? (
                 <div className="card support-manage-card">
@@ -605,11 +629,51 @@ export default function SupportPage() {
             </>
           ) : null}
 
-          {isAdmin && activeView === 'admin' ? (
+          {isSupport && activeView === 'admin' ? (
             <div className="card support-admin-card">
-              <h2>Gestión de usuarios</h2>
+              <h2>Moderación</h2>
 
-              <h3 className="support-admin-section-title">Rol de usuario</h3>
+              <h3 className="support-admin-section-title">Categoría de producto</h3>
+              <div className="support-admin-grid">
+                <div className="form-group">
+                  <label className="form-label">ID del producto</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    min="1"
+                    placeholder="Ej. 42"
+                    value={categoryChangeForm.product_id}
+                    onChange={(event) => setCategoryChangeForm((current) => ({ ...current, product_id: event.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Nueva categoría</label>
+                  <select
+                    className="form-control"
+                    value={categoryChangeForm.category_id}
+                    onChange={(event) => setCategoryChangeForm((current) => ({ ...current, category_id: event.target.value }))}
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    <option value="0">Sin categoría</option>
+                    {CATEGORIES.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="form-actions" style={{ marginBottom: 20 }}>
+                <button className="btn" type="button" onClick={changeProductCategory}>
+                  Cambiar categoría
+                </button>
+              </div>
+
+              {isAdmin ? (
+                <>
+                  <hr className="support-admin-divider" />
+                  <h2>Gestión de usuarios</h2>
+                  <h3 className="support-admin-section-title">Rol de usuario</h3>
               <div className="support-admin-grid">
                 <div className="form-group">
                   <label className="form-label">Correo del usuario</label>
@@ -674,6 +738,8 @@ export default function SupportPage() {
                   Guardar verificación
                 </button>
               </div>
+                </>
+              ) : null}
             </div>
           ) : null}
         </section>
