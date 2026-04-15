@@ -37,8 +37,8 @@ function ensureOrderAccess(PDO $pdo, int $order_id, int $user_id): array {
 
 function orderMessagesTableExists(PDO $pdo): bool {
   try {
-    $check = $pdo->query("SELECT to_regclass('public.order_messages') IS NOT NULL");
-    return (bool)$check->fetchColumn();
+    $check = $pdo->query("SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'order_messages'");
+    return ((int) $check->fetchColumn()) > 0;
   } catch (Exception $e) {
     return false;
   }
@@ -69,59 +69,64 @@ if ($method === 'GET') {
     exit;
   }
 
-  $order = ensureOrderAccess($pdo, $order_id, $user_id);
+  try {
+    $order = ensureOrderAccess($pdo, $order_id, $user_id);
 
-  $params = [':oid' => $order_id, ':uid' => $user_id];
-  $whereSince = '';
-  if ($since_id > 0) {
-    $whereSince = 'AND m.id > :since';
-    $params[':since'] = $since_id;
+    $params = [':oid' => $order_id, ':uid' => $user_id];
+    $whereSince = '';
+    if ($since_id > 0) {
+      $whereSince = 'AND m.id > :since';
+      $params[':since'] = $since_id;
+    }
+
+    $sql = "
+      SELECT m.id, m.order_id, m.sender_id, m.body, m.created_at,
+             m.attachment_path, m.attachment_mime, m.attachment_size,
+             u.full_name AS sender_name,
+             (m.sender_id = :uid) AS is_mine
+      FROM order_messages m
+      JOIN users u ON u.id = m.sender_id
+      WHERE m.order_id = :oid
+      $whereSince
+      ORDER BY m.created_at ASC, m.id ASC
+    ";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Marcar como leídos los mensajes del contrario
+    $mark = $pdo->prepare('UPDATE order_messages SET read_at = NOW() WHERE order_id = ? AND sender_id <> ? AND read_at IS NULL');
+    $mark->execute([$order_id, $user_id]);
+
+    $formatted = array_map(function ($msg) {
+      return [
+        'id' => (int)$msg['id'],
+        'order_id' => (int)$msg['order_id'],
+        'sender_id' => (int)$msg['sender_id'],
+        'sender_name' => $msg['sender_name'],
+        'body' => $msg['body'],
+        'created_at' => $msg['created_at'],
+        'is_mine' => (bool)$msg['is_mine'],
+        'attachment_url' => makeAttachmentUrl($msg['attachment_path'] ?? null),
+        'attachment_mime' => $msg['attachment_mime'] ?? null,
+        'attachment_size' => isset($msg['attachment_size']) ? (int)$msg['attachment_size'] : null,
+      ];
+    }, $messages);
+
+    echo json_encode([
+      'order' => [
+        'id' => (int)$order['id'],
+        'buyer_id' => (int)$order['buyer_id'],
+        'seller_id' => (int)$order['seller_id'],
+        'status' => $order['status'],
+      ],
+      'messages' => $formatted,
+    ]);
+  } catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Error al obtener mensajes: ' . $e->getMessage()]);
   }
-
-  $sql = "
-    SELECT m.id, m.order_id, m.sender_id, m.body, m.created_at,
-           m.attachment_path, m.attachment_mime, m.attachment_size,
-           u.full_name AS sender_name,
-           (m.sender_id = :uid) AS is_mine
-    FROM order_messages m
-    JOIN users u ON u.id = m.sender_id
-    WHERE m.order_id = :oid
-    $whereSince
-    ORDER BY m.created_at ASC, m.id ASC
-  ";
-
-  $stmt = $pdo->prepare($sql);
-  $stmt->execute($params);
-  $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-  // Marcar como leídos los mensajes del contrario
-  $mark = $pdo->prepare('UPDATE order_messages SET read_at = NOW() WHERE order_id = ? AND sender_id <> ? AND read_at IS NULL');
-  $mark->execute([$order_id, $user_id]);
-
-  $formatted = array_map(function ($msg) {
-    return [
-      'id' => (int)$msg['id'],
-      'order_id' => (int)$msg['order_id'],
-      'sender_id' => (int)$msg['sender_id'],
-      'sender_name' => $msg['sender_name'],
-      'body' => $msg['body'],
-      'created_at' => $msg['created_at'],
-      'is_mine' => (bool)$msg['is_mine'],
-      'attachment_url' => makeAttachmentUrl($msg['attachment_path'] ?? null),
-      'attachment_mime' => $msg['attachment_mime'] ?? null,
-      'attachment_size' => isset($msg['attachment_size']) ? (int)$msg['attachment_size'] : null,
-    ];
-  }, $messages);
-
-  echo json_encode([
-    'order' => [
-      'id' => (int)$order['id'],
-      'buyer_id' => (int)$order['buyer_id'],
-      'seller_id' => (int)$order['seller_id'],
-      'status' => $order['status'],
-    ],
-    'messages' => $formatted,
-  ]);
   exit;
 }
 
@@ -203,52 +208,57 @@ if ($method === 'POST') {
     $attachmentSize = (int)$file['size'];
   }
 
-  $stmt = $pdo->prepare('
-    INSERT INTO order_messages (order_id, sender_id, body, attachment_path, attachment_mime, attachment_size)
-    VALUES (:order_id, :sender_id, :body, :attachment_path, :attachment_mime, :attachment_size)
-    RETURNING id, created_at, attachment_path, attachment_mime, attachment_size
-  ');
-  $stmt->execute([
-    ':order_id' => $order_id,
-    ':sender_id' => $user_id,
-    ':body' => $body === '' ? '' : $body,
-    ':attachment_path' => $attachmentPath,
-    ':attachment_mime' => $attachmentMime,
-    ':attachment_size' => $attachmentSize,
-  ]);
-  $row = $stmt->fetch(PDO::FETCH_ASSOC);
-  $recipientId = (int) $order['buyer_id'] === $user_id ? (int) $order['seller_id'] : (int) $order['buyer_id'];
+  try {
+    $stmt = $pdo->prepare('
+      INSERT INTO order_messages (order_id, sender_id, body, attachment_path, attachment_mime, attachment_size)
+      VALUES (:order_id, :sender_id, :body, :attachment_path, :attachment_mime, :attachment_size)
+      RETURNING id, created_at, attachment_path, attachment_mime, attachment_size
+    ');
+    $stmt->execute([
+      ':order_id' => $order_id,
+      ':sender_id' => $user_id,
+      ':body' => $body,
+      ':attachment_path' => $attachmentPath,
+      ':attachment_mime' => $attachmentMime,
+      ':attachment_size' => $attachmentSize,
+    ]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $recipientId = (int) $order['buyer_id'] === $user_id ? (int) $order['seller_id'] : (int) $order['buyer_id'];
 
-  notifications_insert(
-    $pdo,
-    $recipientId,
-    'order_message',
-    "Nuevo mensaje en pedido #{$order_id}",
-    $body !== '' ? $body : 'Recibiste una nueva imagen o archivo en el chat del pedido.',
-    '/mensajes.html',
-    ['order_id' => $order_id]
-  );
+    notifications_insert(
+      $pdo,
+      $recipientId,
+      'order_message',
+      "Nuevo mensaje en pedido #{$order_id}",
+      $body !== '' ? $body : 'Recibiste una nueva imagen o archivo en el chat del pedido.',
+      '/mensajes.html',
+      ['order_id' => $order_id]
+    );
 
-  echo json_encode([
-    'message' => [
-      'id' => (int)$row['id'],
-      'order_id' => $order_id,
-      'sender_id' => $user_id,
-      'sender_name' => $currentUser['full_name'] ?? $currentUser['email'] ?? 'Tú',
-      'body' => $body,
-      'created_at' => $row['created_at'],
-      'is_mine' => true,
-      'attachment_url' => makeAttachmentUrl($row['attachment_path'] ?? $attachmentPath),
-      'attachment_mime' => $row['attachment_mime'] ?? $attachmentMime,
-      'attachment_size' => isset($row['attachment_size']) ? (int)$row['attachment_size'] : $attachmentSize,
-    ],
-    'order' => [
-      'id' => (int)$order['id'],
-      'buyer_id' => (int)$order['buyer_id'],
-      'seller_id' => (int)$order['seller_id'],
-      'status' => $order['status'],
-    ],
-  ]);
+    echo json_encode([
+      'message' => [
+        'id' => (int)$row['id'],
+        'order_id' => $order_id,
+        'sender_id' => $user_id,
+        'sender_name' => $currentUser['full_name'] ?? $currentUser['email'] ?? 'Tú',
+        'body' => $body,
+        'created_at' => $row['created_at'],
+        'is_mine' => true,
+        'attachment_url' => makeAttachmentUrl($row['attachment_path'] ?? $attachmentPath),
+        'attachment_mime' => $row['attachment_mime'] ?? $attachmentMime,
+        'attachment_size' => isset($row['attachment_size']) ? (int)$row['attachment_size'] : $attachmentSize,
+      ],
+      'order' => [
+        'id' => (int)$order['id'],
+        'buyer_id' => (int)$order['buyer_id'],
+        'seller_id' => (int)$order['seller_id'],
+        'status' => $order['status'],
+      ],
+    ]);
+  } catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Error al enviar mensaje: ' . $e->getMessage()]);
+  }
   exit;
 }
 
