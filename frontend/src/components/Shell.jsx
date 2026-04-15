@@ -429,6 +429,23 @@ function Header() {
         </nav>
       </div>
 
+      {isLoggedIn ? (
+        <nav className="mobile-shortcuts container" aria-label="Accesos rápidos">
+          <NavLink className={({ isActive }) => `mobile-shortcut${isActive ? ' is-active' : ''}`} to="/mensajes.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 5h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm1 3v1.5h14V8H5zm0 3v1.5h9V11H5z" />
+            </svg>
+            <span>Mensajes</span>
+          </NavLink>
+          <NavLink className={({ isActive }) => `mobile-shortcut${isActive ? ' is-active' : ''}`} to="/pedidos.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 4h10l3 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8l3-4zm.96 4h8.08l-1.5-2H9.46l-1.5 2zM7 10v2h10v-2H7zm0 4v2h6v-2H7z" />
+            </svg>
+            <span>Pedidos</span>
+          </NavLink>
+        </nav>
+      ) : null}
+
       <nav id="catNav" className="categories" aria-label="Categorías">
         <ul className="container">
           {categories.map((category) => (
