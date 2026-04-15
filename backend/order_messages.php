@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/bootstrap.php';
 app_bootstrap_http(false);
 header('Content-Type: application/json; charset=utf-8');
@@ -27,7 +27,7 @@ function ensureOrderAccess(PDO $pdo, int $order_id, int $user_id): array {
     exit;
   }
 
-  if ((int)$order['buyer_id'] !== $user_id && (int)$order['seller_id'] !== $user_id) {
+  if ((int) $order['buyer_id'] !== $user_id && (int) $order['seller_id'] !== $user_id) {
     http_response_code(403);
     echo json_encode(['error' => 'Sin permiso para esta orden']);
     exit;
@@ -46,12 +46,20 @@ function orderMessagesTableExists(PDO $pdo): bool {
 }
 
 function makeAttachmentUrl(?string $path): ?string {
-  if (!$path) return null;
+  if (!$path) {
+    return null;
+  }
+
   $normalized = ltrim($path, '/');
   if (strpos($normalized, 'public/') === 0) {
     return '/' . $normalized;
   }
+
   return '/public/' . $normalized;
+}
+
+function pgBoolToPhpBool($value): bool {
+  return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
 }
 
 $hasTable = orderMessagesTableExists($pdo);
@@ -62,8 +70,8 @@ if (!$hasTable) {
 }
 
 if ($method === 'GET') {
-  $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
-  $since_id = isset($_GET['since_id']) ? max(0, (int)$_GET['since_id']) : 0;
+  $order_id = isset($_GET['order_id']) ? (int) $_GET['order_id'] : 0;
+  $since_id = isset($_GET['since_id']) ? max(0, (int) $_GET['since_id']) : 0;
   if ($order_id <= 0) {
     http_response_code(422);
     echo json_encode(['error' => 'order_id requerido']);
@@ -102,24 +110,24 @@ if ($method === 'GET') {
 
     $formatted = array_map(function ($msg) {
       return [
-        'id' => (int)$msg['id'],
-        'order_id' => (int)$msg['order_id'],
-        'sender_id' => (int)$msg['sender_id'],
+        'id' => (int) $msg['id'],
+        'order_id' => (int) $msg['order_id'],
+        'sender_id' => (int) $msg['sender_id'],
         'sender_name' => $msg['sender_name'],
         'body' => $msg['body'],
         'created_at' => $msg['created_at'],
-        'is_mine' => (bool)$msg['is_mine'],
+        'is_mine' => pgBoolToPhpBool($msg['is_mine'] ?? false),
         'attachment_url' => makeAttachmentUrl($msg['attachment_path'] ?? null),
         'attachment_mime' => $msg['attachment_mime'] ?? null,
-        'attachment_size' => isset($msg['attachment_size']) ? (int)$msg['attachment_size'] : null,
+        'attachment_size' => isset($msg['attachment_size']) ? (int) $msg['attachment_size'] : null,
       ];
     }, $messages);
 
     echo json_encode([
       'order' => [
-        'id' => (int)$order['id'],
-        'buyer_id' => (int)$order['buyer_id'],
-        'seller_id' => (int)$order['seller_id'],
+        'id' => (int) $order['id'],
+        'buyer_id' => (int) $order['buyer_id'],
+        'seller_id' => (int) $order['seller_id'],
         'status' => $order['status'],
       ],
       'messages' => $formatted,
@@ -136,7 +144,7 @@ if ($method === 'POST') {
   $isJson = stripos($contentType, 'application/json') === 0;
   $payload = $isJson ? (json_decode(file_get_contents('php://input'), true) ?? []) : $_POST;
 
-  $order_id = isset($payload['order_id']) ? (int)$payload['order_id'] : 0;
+  $order_id = isset($payload['order_id']) ? (int) $payload['order_id'] : 0;
   $body = trim($payload['body'] ?? '');
   $hasAttachment = isset($_FILES['attachment']) && $_FILES['attachment']['error'] !== UPLOAD_ERR_NO_FILE;
 
@@ -206,7 +214,7 @@ if ($method === 'POST') {
 
     $attachmentPath = 'uploads/messages/' . $filename;
     $attachmentMime = $detectedMime;
-    $attachmentSize = (int)$file['size'];
+    $attachmentSize = (int) $file['size'];
   }
 
   try {
@@ -238,7 +246,7 @@ if ($method === 'POST') {
 
     echo json_encode([
       'message' => [
-        'id' => (int)$row['id'],
+        'id' => (int) $row['id'],
         'order_id' => $order_id,
         'sender_id' => $user_id,
         'sender_name' => $currentUser['full_name'] ?? $currentUser['email'] ?? 'Tú',
@@ -247,12 +255,12 @@ if ($method === 'POST') {
         'is_mine' => true,
         'attachment_url' => makeAttachmentUrl($row['attachment_path'] ?? $attachmentPath),
         'attachment_mime' => $row['attachment_mime'] ?? $attachmentMime,
-        'attachment_size' => isset($row['attachment_size']) ? (int)$row['attachment_size'] : $attachmentSize,
+        'attachment_size' => isset($row['attachment_size']) ? (int) $row['attachment_size'] : $attachmentSize,
       ],
       'order' => [
-        'id' => (int)$order['id'],
-        'buyer_id' => (int)$order['buyer_id'],
-        'seller_id' => (int)$order['seller_id'],
+        'id' => (int) $order['id'],
+        'buyer_id' => (int) $order['buyer_id'],
+        'seller_id' => (int) $order['seller_id'],
         'status' => $order['status'],
       ],
     ]);
