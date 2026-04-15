@@ -8,6 +8,7 @@ export default function MessagesPage() {
   const { session } = useApp()
   const [orders, setOrders] = useState([])
   const [activeOrder, setActiveOrder] = useState(null)
+  const [isCompactView, setIsCompactView] = useState(() => (typeof window !== 'undefined' ? window.innerWidth <= 700 : false))
   const [messages, setMessages] = useState([])
   const [body, setBody] = useState('')
   const [attachment, setAttachment] = useState(null)
@@ -43,6 +44,31 @@ export default function MessagesPage() {
   }, [])
 
   useEffect(() => {
+    function syncCompactView() {
+      setIsCompactView(window.innerWidth <= 700)
+    }
+
+    syncCompactView()
+    window.addEventListener('resize', syncCompactView)
+    return () => window.removeEventListener('resize', syncCompactView)
+  }, [])
+
+  useEffect(() => {
+    if (!orders.length) {
+      setActiveOrder(null)
+      return
+    }
+
+    setActiveOrder((current) => {
+      if (!current) {
+        return orders[0]
+      }
+
+      return orders.find((order) => Number(order.id) === Number(current.id)) || orders[0]
+    })
+  }, [orders])
+
+  useEffect(() => {
     if (!activeOrder) return
 
     setMessages([])
@@ -62,6 +88,11 @@ export default function MessagesPage() {
     const isBuyer = Number(activeOrder.buyer_id) === Number(session.user?.id)
     return `${isBuyer ? activeOrder.seller_name : activeOrder.buyer_name} • ${activeOrder.status} • ${formatCurrency(activeOrder.total_cents)}`
   }, [activeOrder, session.user?.id])
+
+  function getThreadLabel(order) {
+    const isBuyer = Number(order.buyer_id) === Number(session.user?.id)
+    return `${isBuyer ? order.seller_name : order.buyer_name} - Pedido #${order.id}`
+  }
 
   async function sendMessage(event) {
     event.preventDefault()
@@ -93,7 +124,8 @@ export default function MessagesPage() {
         {message ? <div className="card" style={{ padding: 14 }}>{message}</div> : null}
 
         <div className="messages-layout">
-          <aside className="messages-sidebar">
+          {!isCompactView ? (
+            <aside className="messages-sidebar">
             {orders.length ? (
               <div className="messages-threads">
                 {orders.map((order) => {
@@ -114,9 +146,36 @@ export default function MessagesPage() {
             ) : (
               <div className="messages-empty">Cuando realices una orden verás los hilos aquí.</div>
             )}
-          </aside>
+            </aside>
+          ) : null}
 
           <section className={`messages-panel${activeOrder ? '' : ' is-disabled'}`}>
+            {isCompactView && orders.length ? (
+              <div className="messages-mobile-picker">
+                <label className="messages-mobile-picker__label" htmlFor="messages-thread-select">
+                  Conversaciones
+                </label>
+                <div className="messages-mobile-picker__control">
+                  <select
+                    id="messages-thread-select"
+                    value={activeOrder?.id || ''}
+                    onChange={(event) => {
+                      const nextOrder = orders.find((order) => String(order.id) === event.target.value)
+                      if (nextOrder) {
+                        setActiveOrder(nextOrder)
+                      }
+                    }}
+                  >
+                    {orders.map((order) => (
+                      <option key={order.id} value={order.id}>
+                        {getThreadLabel(order)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ) : null}
+
             {activeOrder ? (
               <>
                 <div className="messages-header">
